@@ -1,39 +1,50 @@
 # Task Class
 # contains the information regarding each task to be allocated
 
-from enums import Priority
+from prioritiesEnum import Priority
 
 class Task:
 
-    def __init__(self,taskID,duration,priority,priorTasks=None,location=None,name,taskType=None,inOutDoor=None):
-        self.taskID = taskID # identifier unique to task
-        self.duration = duration # duration in hours
-        self.priority = priority # priority level [ LOW, MEDIUM, HIGH ]
-        self.priorTasks = priorTasks # list<Task> of tasks that must be completed first
-        self.location = location # <lat,long> of location of task, can be locationless(None)
+    def __init__(self,taskID,name,duration,priority,priorTasks=None,location=None,taskType=None,inOutDoor=0):
+        # identifier unique to task - tyoe: Int
+        self.taskID = taskID 
+        # task name
         self.name = name
-        self.taskType = taskType # category of task, eg. uni, work, fitness, etc.
-        self.inOutDoor = inOutDoor # whether a task is situated indoors/outdoors
+        # duration in hours - type: String 
+        self.duration = duration 
+        # priority level - type: Enum [ LOW, MEDIUM, HIGH ]
+        self.priority = priority 
+        # tasks that must be completed first - type: set of Task
+        self.priorTasks = set() 
+        # <lat,long> of location of task - default = None
+        self.location = location        
+        # category of task - type: String - default = None
+        self.taskType = taskType 
+        # whether a task is situated indoors/outdoors - type: Enum [ IN, OUT]
+        self.inOutDoor = inOutDoor 
 
-    def getDuration:
+    def getID(self):
+        return self.taskID
+
+    def getDuration(self):
         return self.duration
 
-    def getPriority:
+    def getPriority(self):
         return self.priority
     
-    def getPriorTasks:
+    def getPriorTasks(self):
         return self.priorTasks
     
-    def getLocation:
+    def getLocation(self):
         return self.location
     
-    def getName:
+    def getName(self):
         return self.name
     
-    def getTaskType:
+    def getTaskType(self):
         return self.taskType
     
-    def getInOutDoor:
+    def getInOutDoor(self):
         return self.inOutDoor
     
 

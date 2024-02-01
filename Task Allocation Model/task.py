@@ -6,10 +6,14 @@ from prioritiesEnum import Priority
 class Task:
 
     def __init__(self,taskID,name,duration,priority,priorTasks=None,location=None,taskType=None,inOutDoor=None):
-        self.taskID = taskID # identifier unique to task
+        # identifier unique to task - tyoe: Int
+        self.taskID = taskID 
+        # task name
         self.name = name
-        self.duration = duration # duration in hours
-        self.priority = priority # priority level [ LOW, MEDIUM, HIGH ]
+        # duration in hours - type: Int 
+        self.duration = duration 
+        # priority level [ 1: LOW, 2: MEDIUM, 3: HIGH ]
+        self.priority = priority 
         self.priorTasks = priorTasks # list<Task> of tasks that must be completed first
         self.location = location # <lat,long> of location of task, can be locationless(None)       
         self.taskType = taskType # category of task, eg. uni, work, fitness, etc.

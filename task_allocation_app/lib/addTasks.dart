@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:task_allocation_app/viewTasks.dart';
-import 'viewTasks.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:http/http.dart' as http;
+import 'package:uuid/uuid.dart';
 
 class AddTasksPage extends StatefulWidget {
   const AddTasksPage({super.key});
@@ -12,6 +16,54 @@ class AddTasksPage extends StatefulWidget {
 class _AddTasksPageState extends State<AddTasksPage> {
   String? selectedOption = 'MEDIUM';
   List<bool> inOutSelection = [true, false];
+
+  String tokenForSession = '34512';
+
+  var uuid = Uuid();
+
+  List<dynamic> listForPlaces = [];
+
+  final TextEditingController _controller = TextEditingController();
+
+  void makeSuggestion(String input) async {
+    String googlePlacesApiKey = 'AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294';
+    String groundURL =
+        'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+    String request =
+        '$groundURL?input=$input&key=$googlePlacesApiKey&sessiontoken=$tokenForSession';
+
+    var responseResult = await http.get(Uri.parse(request));
+
+    var resultData = responseResult.body.toString();
+
+    print('Result data: ' + resultData);
+
+    if (responseResult.statusCode == 200) {
+      setState(() {
+        listForPlaces =
+            jsonDecode(responseResult.body.toString())['predictions'];
+      });
+    } else {
+      throw Exception('Showing data failed');
+    }
+  }
+
+  void onModify() {
+    if (tokenForSession == null) {
+      setState(() {
+        tokenForSession = uuid.v4();
+      });
+    }
+    makeSuggestion(_controller.text);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() {
+      onModify();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +156,17 @@ class _AddTasksPageState extends State<AddTasksPage> {
                 ),
               ),
             ),
+            // Expanded(
+            //   child: ListView.builder(
+            //       itemCount: listForPlaces.length,
+            //       itemBuilder: (context, index) {
+            //         return ListTile(
+            //           onTap: ()
+            //           async {
+            //             List
+            //         });
+            //       }),
+            // ),
             SizedBox(height: 0.01 * MediaQuery.of(context).size.height),
             Container(
               height: 0.07 * MediaQuery.of(context).size.height,

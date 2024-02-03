@@ -8,6 +8,8 @@ from weekdayEnum import Weekday
 from task import Task
 from datetime import datetime
 from userRequirements import UserRequirements
+from allocatedTask import AllocatedTask
+from collections import defaultdict
 
 class TaskAllocator:
 
@@ -34,33 +36,64 @@ class TaskAllocator:
 
         return stack
 
-    # def knapsackAllocator():
+    def knapsackAllocator(self,tasksToAllocate,userRequirements):
 
-    def getCurrentDay():
-        return datetime.now().weekday()
+        # print(len(tasksToAllocate))
 
+        schedule = defaultdict(list)
+
+        currentDay = datetime.now().weekday() + 1
+        currentTime = userRequirements.getCurrentDayStart(currentDay)
+        for task in tasksToAllocate:
+            # print(task.getName())
+            # print(currentTime)
+            if currentTime + task.duration <= userRequirements.getCurrentDayEnd(currentDay):
+                newAllocatedTask = AllocatedTask(task.getID(),task.getName(),currentTime,
+                                    currentTime+task.getDuration(),task.getPriority(),task.getPriorTasks(),
+                                    task.getLocation(),task.getCategory())
+                schedule[currentDay].append(newAllocatedTask)
+                currentTime += task.getDuration()
+            else:
+                if currentDay == 6:
+                    currentDay = 0
+                    currentTime = userRequirements.getCurrentDayStart(currentDay)
+                else:
+                    currentDay += 1
+                    currentTime = userRequirements.getCurrentDayStart(currentDay)
+        
+        return schedule
+            
 # get input of tasks
-task3 = Task(3,"Task3",0.5,Priority.HIGH,(),(51.513056,-0.117352),TaskType.UNIVERSITY,InOut.IN)
-task2 = Task(2,"Task2",1,Priority.HIGH,(task3,),(51.513056,-0.117352),TaskType.WORK,InOut.OUT)
-task1 = Task(1,"Task1",2,Priority.HIGH,(task2,task3),(51.513056,-0.117352),TaskType.UNIVERSITY,InOut.IN)
+task3 = Task(3,"Task3",0.5,Priority.HIGH,(),(51.513056,-0.117352),TaskType.UNIVERSITY)
+task2 = Task(2,"Task2",1,Priority.HIGH,(task3,),(51.513056,-0.117352),TaskType.WORK)
+task1 = Task(1,"Task1",4,Priority.HIGH,(task2,task3),(51.513056,-0.117352),TaskType.UNIVERSITY)
 
 
-task4 = Task(4,"Task4",2.5,Priority.HIGH,(),(51.513056,-0.117352),TaskType.FITNESS,InOut.OUT)
-task5 = Task(5,"Task5",2,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.COOKING,InOut.IN)
-task6 = Task(6,"Task6",1,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.SOCIAL,InOut.OUT)
-task7 = Task(7,"Task7",1.5,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.MISCELLANEOUS,InOut.OUT)
-task8 = Task(8,"Task8",1,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.UNIVERSITY,InOut.IN)
-task9 = Task(9,"Task9",1,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.UNIVERSITY,InOut.OUT)
-task10 = Task(10,"Task10",2,Priority.LOW,(),(51.513056,-0.117352),TaskType.WORK,InOut.IN)
-task11 = Task(11,"Task11",3,Priority.LOW,(),(51.513056,-0.117352),TaskType.COOKING,InOut.IN)
+task4 = Task(4,"Task4",2.5,Priority.HIGH,(),(51.513056,-0.117352),TaskType.FITNESS)
+task5 = Task(5,"Task5",2,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.COOKING)
+task6 = Task(6,"Task6",3,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.SOCIAL)
+task7 = Task(7,"Task7",1.5,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.MISCELLANEOUS)
+task8 = Task(8,"Task8",3,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.UNIVERSITY)
+task9 = Task(9,"Task9",2,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.UNIVERSITY)
+task10 = Task(10,"Task10",2,Priority.LOW,(),(51.513056,-0.117352),TaskType.WORK)
+task11 = Task(11,"Task11",3,Priority.LOW,(),(51.513056,-0.117352),TaskType.COOKING)
 
 tasksToBeAllocated = [task1,task2,task3,task4,task5,task6,task7,task8,task9,task10,task11]
 
-# taskAllocator = TaskAllocator()
-# sortedTasks = taskAllocator.topologicalSort(tasksToBeAllocated)
-# userRequirements = UserRequirements(9,18,9,18,9,18,9,18)
-# # for task in sortedTasks:
-# #     print(task.getName())
+taskAllocator = TaskAllocator()
+
+sortedTasks = taskAllocator.topologicalSort(tasksToBeAllocated)
 
 userRequirements = UserRequirements(9,18,9,18,9,18,9,18,9,18,9,18,9,18)
-userRequirements.getDailyAvailability(datetime.now().weekday())
+
+schedule = taskAllocator.knapsackAllocator(sortedTasks,userRequirements)
+
+for key, val in schedule.items():
+    print("DAY: " + str(key))
+    for task in val:
+        print(f"{task.getName()}  Start: {task.getStartTime()}, End: {task.getEndTime()}")
+    
+
+# print(len(schedule))
+
+# userRequirements.getDailyAvailability(datetime.now().weekday()+1)

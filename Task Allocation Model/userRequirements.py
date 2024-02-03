@@ -39,11 +39,44 @@ class UserRequirements:
             case 4:
                 return self.getFridayAvailability()
             case 5: 
-                print("SATURDAY")
                 return self.getSaturdayAvailability()
             case 6:
+                print("SUNDAY")
                 return self.getSundayAvailability()
 
+    def getCurrentDayStart(self,day):
+         match day:
+            case 0:
+                return self.monStart
+            case 1:
+                return self.tueStart
+            case 2:
+                return self.wedStart
+            case 3:
+                return self.thuStart
+            case 4:
+                return self.friStart
+            case 5: 
+                return self.satStart
+            case 6:
+                return self.sunStart
+    
+    def getCurrentDayEnd(self,day):
+         match day:
+            case 0:
+                return self.monEnd
+            case 1:
+                return self.tueEnd
+            case 2:
+                return self.wedEnd
+            case 3:
+                return self.thuEnd
+            case 4:
+                return self.friEnd
+            case 5: 
+                return self.satEnd
+            case 6:
+                return self.sunEnd
 
     def getMondayAvailability(self):
         return math.ceil(self.monEnd - self.monStart)

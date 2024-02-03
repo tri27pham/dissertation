@@ -1,17 +1,14 @@
-# Task Class
-# contains the information regarding each task to be allocated
-
-from prioritiesEnum import Priority
-
-class Task:
-
-    def __init__(self,taskID,name,duration,priority,priorTasks,location,category):
+class AllocatedTask:
+    
+    def __init__(self,taskID,name,startTime,endTime,priority,priorTasks,location,category):
         # identifier unique to task - type: Int
         self.taskID = taskID 
         # task name
         self.name = name
-        # duration in hours - type: String 
-        self.duration = duration 
+        # time task begins
+        self.startTime = startTime
+        # time task ends
+        self.endTime = endTime
         # priority level - type: Enum [ LOW, MEDIUM, HIGH ]
         self.priority = priority 
         # tasks that must be completed first - type: set of Task
@@ -23,9 +20,15 @@ class Task:
 
     def getID(self):
         return self.taskID
+    
+    def getName(self):
+        return self.name
 
-    def getDuration(self):
-        return self.duration
+    def getStartTime(self):
+        return self.startTime
+
+    def getEndTime(self):
+        return self.endTime
 
     def getPriority(self):
         return self.priority
@@ -36,8 +39,5 @@ class Task:
     def getLocation(self):
         return self.location
     
-    def getName(self):
-        return self.name
-    
     def getCategory(self):
-        return self.category
+        return self.taskType

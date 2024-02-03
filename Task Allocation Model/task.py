@@ -15,7 +15,7 @@ class Task:
         # priority level - type: Enum [ LOW, MEDIUM, HIGH ]
         self.priority = priority 
         # tasks that must be completed first - type: set of Task
-        self.priorTasks = set() 
+        self.priorTasks = priorTasks 
         # <lat,long> of location of task - default = None
         self.location = location        
         # category of task - type: String - default = None

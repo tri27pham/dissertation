@@ -2,6 +2,8 @@
 # contains the information regarding each task to be allocated
 
 from prioritiesEnum import Priority
+from taskCategoryEnum import TaskCategory
+
 
 class Task:
 
@@ -13,13 +15,33 @@ class Task:
         # duration in hours - type: String 
         self.duration = duration 
         # priority level - type: Enum [ LOW, MEDIUM, HIGH ]
-        self.priority = priority 
+        match priority:
+            case 0:
+                self.priority = Priority.LOW
+            case 1:
+                self.priority = Priority.MEDIUM
+            case 2:
+                self.priority = Priority.HIGH
         # tasks that must be completed first - type: set of Task
         self.priorTasks = priorTasks 
         # <lat,long> of location of task - default = None
-        self.location = location        
-        # category of task - type: String - default = None
-        self.category = category 
+        self.location = location     
+        # category of task   
+        match category:
+            case 0:
+                self.category = TaskCategory.UNIVERSITY
+            case 1:
+                self.category = TaskCategory.WORK
+            case 2:
+                self.category = TaskCategory.HEALTH
+            case 3:
+                self.category = TaskCategory.SOCIAL
+            case 4:
+                self.category = TaskCategory.FAMILY
+            case 5:
+                self.category = TaskCategory.HOBBIES
+            case 6:
+                self.category = TaskCategory.MISCELLANEOUS
 
     def getID(self):
         return self.taskID

@@ -146,27 +146,32 @@ class _AddTasksPageState extends State<AddTasksPage> {
               ),
             ),
             SizedBox(height: 0.01 * MediaQuery.of(context).size.height),
-            Container(
-              height: 0.07 * MediaQuery.of(context).size.height,
-              width: 0.85 * MediaQuery.of(context).size.width,
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'Location',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            // Expanded(
-            //   child: ListView.builder(
-            //       itemCount: listForPlaces.length,
-            //       itemBuilder: (context, index) {
-            //         return ListTile(
-            //           onTap: ()
-            //           async {
-            //             List
-            //         });
-            //       }),
+            // Container(
+            //   height: 0.07 * MediaQuery.of(context).size.height,
+            //   width: 0.85 * MediaQuery.of(context).size.width,
+            //   child: TextFormField(
+            //     controller: _controller,
+            //     // decoration: InputDecoration(
+            //     //   labelText: 'Location',
+            //     //   border: OutlineInputBorder(),
+            //     // ),
+            //   ),
             // ),
+            Expanded(
+              child: ListView.builder(
+                  itemCount: listForPlaces.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      onTap: () async {
+                        List<Location> locations = await locationFromAddress(
+                            listForPlaces[index]['description']);
+                        print(locations.last.longitude);
+                        print(locations.last.latitude);
+                      },
+                      title: Text(listForPlaces[index]['description']),
+                    );
+                  }),
+            ),
             SizedBox(height: 0.01 * MediaQuery.of(context).size.height),
             Container(
               height: 0.07 * MediaQuery.of(context).size.height,

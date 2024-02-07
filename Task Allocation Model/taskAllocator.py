@@ -2,7 +2,7 @@
 # contains the logic of the task allocation model
 
 from prioritiesEnum import Priority
-from taskTypeEnum import TaskType
+from taskCategoryEnum import TaskCategory
 from weekdayEnum import Weekday
 from task import Task
 from datetime import datetime
@@ -59,17 +59,17 @@ class TaskAllocator:
                     currentTime = userRequirements.getCurrentDayStart(currentDay)
         return schedule
             
-task3 = Task(3,"Task3",6,Priority.HIGH,(),(51.513056,-0.117352),TaskType.UNIVERSITY)
-task2 = Task(2,"Task2",1,Priority.HIGH,(task3,),(51.513056,-0.117352),TaskType.WORK)
-task1 = Task(1,"Task1",4,Priority.HIGH,(task2,task3),(51.513056,-0.117352),TaskType.UNIVERSITY)
-task4 = Task(4,"Task4",2.5,Priority.HIGH,(),(51.513056,-0.117352),TaskType.FITNESS)
-task5 = Task(5,"Task5",5,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.COOKING)
-task6 = Task(6,"Task6",3,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.SOCIAL)
-task7 = Task(7,"Task7",1.5,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.MISCELLANEOUS)
-task8 = Task(8,"Task8",3,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.UNIVERSITY)
-task9 = Task(9,"Task9",6,Priority.MEDIUM,(),(51.513056,-0.117352),TaskType.UNIVERSITY)
-task10 = Task(10,"Task10",2,Priority.LOW,(),(51.513056,-0.117352),TaskType.WORK)
-task11 = Task(11,"Task11",3,Priority.LOW,(),(51.513056,-0.117352),TaskType.COOKING)
+task3 = Task(3,"Task3",6,2,(),(51.513056,-0.117352),0)
+task2 = Task(2,"Task2",1,2,(task3,),(51.513056,-0.117352),1)
+task1 = Task(1,"Task1",4,2,(task2,task3),(51.513056,-0.117352),0)
+task4 = Task(4,"Task4",2.5,2,(),(51.513056,-0.117352),2)
+task5 = Task(5,"Task5",5,1,(),(51.513056,-0.117352),2)
+task6 = Task(6,"Task6",3,1,(),(51.513056,-0.117352),3)
+task7 = Task(7,"Task7",1.5,1,(),(51.513056,-0.117352),6)
+task8 = Task(8,"Task8",3,1,(),(51.513056,-0.117352),0)
+task9 = Task(9,"Task9",6,1,(),(51.513056,-0.117352),0)
+task10 = Task(10,"Task10",2,0,(),(51.513056,-0.117352),1)
+task11 = Task(11,"Task11",3,0,(),(51.513056,-0.117352),2)
 tasksToBeAllocated = [task1,task2,task3,task4,task5,task6,task7,task8,task9,task10,task11]
 
 taskAllocator = TaskAllocator()

@@ -38,28 +38,29 @@ class TaskAllocator:
 
     def knapsackAllocator(self,tasksToAllocate,userRequirements,breakType):
 
-        # print(len(tasksToAllocate))
-
-        schedule = defaultdict(list)
-
-        currentDay = datetime.now().weekday() + 1
-        currentTime = userRequirements.getCurrentDayStart(currentDay)
+        schedule = defaultdict(lambda: (0, []))
+    
+        day = 1
+        weekday = datetime.now().weekday() + 1
+        currentTime = userRequirements.getCurrentDayStart(weekday)
         while len(tasksToAllocate) != 0:
             currentTask = tasksToAllocate[0]
-            if currentTime + currentTask.duration <= userRequirements.getCurrentDayEnd(currentDay):
+            if currentTime + currentTask.duration <= userRequirements.getCurrentDayEnd(weekday):
                 newAllocatedTask = AllocatedTask(currentTask.getID(),currentTask.getName(),currentTime,
                                     currentTime+currentTask.getDuration(),currentTask.getPriority(),currentTask.getPriorTasks(),
                                     currentTask.getLocation(),currentTask.getCategory())
-                schedule[currentDay].append(newAllocatedTask)
+                schedule[day] = (weekday, schedule[day][1])
+                schedule[day][1].append(newAllocatedTask)
                 tasksToAllocate.pop(0)
                 currentTime += currentTask.getDuration()
             else:
-                if currentDay == 6:
-                    currentDay = 0
-                    currentTime = userRequirements.getCurrentDayStart(currentDay)
+                if weekday == 6:
+                    weekday = 0
+                    currentTime = userRequirements.getCurrentDayStart(weekday)
                 else: 
-                    currentDay += 1
-                    currentTime = userRequirements.getCurrentDayStart(currentDay)
+                    weekday += 1
+                    currentTime = userRequirements.getCurrentDayStart(weekday)
+                day += 1
         return schedule
             
 task3 = Task(3,"Task3",6,2,(),(51.513056,-0.117352),0)
@@ -71,9 +72,12 @@ task6 = Task(6,"Task6",3,1,(),(51.513056,-0.117352),3)
 task7 = Task(7,"Task7",1.5,1,(),(51.513056,-0.117352),6)
 task8 = Task(8,"Task8",3,1,(),(51.513056,-0.117352),0)
 task9 = Task(9,"Task9",6,1,(),(51.513056,-0.117352),0)
-task10 = Task(10,"Task10",2,0,(),(51.513056,-0.117352),1)
-task11 = Task(11,"Task11",3,0,(),(51.513056,-0.117352),2)
-tasksToBeAllocated = [task1,task2,task3,task4,task5,task6,task7,task8,task9,task10,task11]
+task10 = Task(10,"Task10",5,0,(),(51.513056,-0.117352),1)
+task11 = Task(11,"Task11",7,0,(),(51.513056,-0.117352),2)
+task12 = Task(12,"Task12",3,1,(),(51.513056,-0.117352),0)
+task13 = Task(13,"Task13",2,0,(),(51.513056,-0.117352),5)
+task14 = Task(14,"Task14",1,0,(),(51.513056,-0.117352),6)
+tasksToBeAllocated = [task1,task2,task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13,task14]
 
 taskAllocator = TaskAllocator()
 
@@ -87,7 +91,22 @@ schedule = taskAllocator.knapsackAllocator(sortedTasks,userRequirements,breakTyp
 
 for key, val in schedule.items():
     print("DAY: " + str(key))
-    for task in val:
+    match val[0]:
+        case 0:
+            print("MONDAY")
+        case 1:
+            print("TUESDAY")
+        case 2:
+            print("WEDNESDAY")
+        case 3:
+            print("THURSDAY")
+        case 4:
+            print("FRIDAY")
+        case 5:
+            print("SATURDAY")
+        case 6:
+            print("SUNDAY")
+    for task in val[1]:
         print(f"{task.getName()}  Start: {task.getStartTime()}, End: {task.getEndTime()}")
     
 

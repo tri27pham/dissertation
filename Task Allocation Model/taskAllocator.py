@@ -4,6 +4,7 @@
 from prioritiesEnum import Priority
 from taskCategoryEnum import TaskCategory
 from weekdayEnum import Weekday
+from breakTypeEnum import BreakType
 from task import Task
 from datetime import datetime
 from userRequirements import UserRequirements
@@ -35,7 +36,7 @@ class TaskAllocator:
 
         return stack
 
-    def knapsackAllocator(self,tasksToAllocate,userRequirements):
+    def knapsackAllocator(self,tasksToAllocate,userRequirements,breakType):
 
         # print(len(tasksToAllocate))
 
@@ -43,18 +44,20 @@ class TaskAllocator:
 
         currentDay = datetime.now().weekday() + 1
         currentTime = userRequirements.getCurrentDayStart(currentDay)
-        for task in tasksToAllocate:
-            if currentTime + task.duration <= userRequirements.getCurrentDayEnd(currentDay):
-                newAllocatedTask = AllocatedTask(task.getID(),task.getName(),currentTime,
-                                    currentTime+task.getDuration(),task.getPriority(),task.getPriorTasks(),
-                                    task.getLocation(),task.getCategory())
+        while len(tasksToAllocate) != 0:
+            currentTask = tasksToAllocate[0]
+            if currentTime + currentTask.duration <= userRequirements.getCurrentDayEnd(currentDay):
+                newAllocatedTask = AllocatedTask(currentTask.getID(),currentTask.getName(),currentTime,
+                                    currentTime+currentTask.getDuration(),currentTask.getPriority(),currentTask.getPriorTasks(),
+                                    currentTask.getLocation(),currentTask.getCategory())
                 schedule[currentDay].append(newAllocatedTask)
-                currentTime += task.getDuration()
+                tasksToAllocate.pop(0)
+                currentTime += currentTask.getDuration()
             else:
                 if currentDay == 6:
                     currentDay = 0
                     currentTime = userRequirements.getCurrentDayStart(currentDay)
-                else:
+                else: 
                     currentDay += 1
                     currentTime = userRequirements.getCurrentDayStart(currentDay)
         return schedule
@@ -78,7 +81,9 @@ sortedTasks = taskAllocator.topologicalSort(tasksToBeAllocated)
 
 userRequirements = UserRequirements(9,16,9,18,9,18,9,18,9,18,9,18,9,18)
 
-schedule = taskAllocator.knapsackAllocator(sortedTasks,userRequirements)
+breakType = BreakType.SHORT 
+
+schedule = taskAllocator.knapsackAllocator(sortedTasks,userRequirements,breakType)
 
 for key, val in schedule.items():
     print("DAY: " + str(key))

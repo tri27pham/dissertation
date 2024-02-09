@@ -11,6 +11,9 @@ from userRequirements import UserRequirements
 from allocatedTask import AllocatedTask
 from collections import defaultdict
 
+import googlemaps
+import math
+
 class TaskAllocator:
 
     def topologicalSort(self,tasks):
@@ -89,6 +92,20 @@ breakType = BreakType.SHORT
 
 schedule = taskAllocator.knapsackAllocator(sortedTasks,userRequirements,breakType)
 
+
+gmaps_client = googlemaps.Client(key = "AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294")
+now = datetime.now()
+
+source = "51.513056,-0.117352"
+destination = "51.503162, -0.086852"
+
+result = gmaps_client.directions(source,destination, mode='transit',departure_time=now)
+
+duration_in_seconds = result[0]['legs'][0]['duration']['value']
+duration_in_minutes = duration_in_seconds // 60  
+rounded_duration_in_minutes = int(math.ceil(duration_in_minutes / 5)) * 5
+print(rounded_duration_in_minutes)
+
 for key, val in schedule.items():
     print("DAY: " + str(key))
     match val[0]:
@@ -109,4 +126,5 @@ for key, val in schedule.items():
     for task in val[1]:
         print(f"{task.getName()}  Start: {task.getStartTime()}, End: {task.getEndTime()}")
     
+
 

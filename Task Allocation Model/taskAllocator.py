@@ -16,7 +16,7 @@ import math
 
 class TaskAllocator:
 
-    def topologicalSort(self,tasks):
+    def topologicalSort(self, tasks):
         result = []  # To store the topological order
         visited = set()  # To keep track of visited tasks during DFS
         stack = []  # To keep track of tasks in the order they are finished
@@ -25,32 +25,40 @@ class TaskAllocator:
             nonlocal visited
             visited.add(task)
 
-            # Recursively explore dependencies
             for prior_task in task.getPriorTasks():
                 if prior_task not in visited:
                     dfs(prior_task)
 
             stack.append(task)
 
-        # Iterate through all tasks in the graph
+        # Sort tasks by priority: HIGH, MEDIUM, LOW
+        tasks.sort(key=lambda x: x.getPriority(), reverse=True)
+
         for task in tasks:
             if task not in visited:
                 dfs(task)
 
         return stack
 
+
     def knapsackAllocator(self,tasksToAllocate,userRequirements,breakType):
 
         schedule = defaultdict(lambda: (0, []))
     
-        day = datetime.now().date() + timedelta(days=1)
-        weekday = datetime.now().weekday() + 1
-        currentTime = userRequirements.getCurrentDayStart(weekday)
+        day = datetime.now().date()
+        weekday = datetime.now().weekday()
+
+        current_time = datetime.now()
+        mins = current_time.hour * 60 + datetime.now().minute
+        mins_to_next_30 = int((30 - (mins % 30)) % 30)
+        print(type(mins))
+        print(type(mins_to_next_30))
+        currentTime = mins + mins_to_next_30
+
         while len(tasksToAllocate) != 0:
             currentTask = tasksToAllocate[0]
             if len(schedule[day][-1]) != 0:                
                 travelTime = self.getTravelTime(currentTime,schedule[day][1][-1].getLocation(),currentTask.getLocation())
-                # travelTime = 0
             else:
                 travelTime = 0
             if travelTime + currentTime + currentTask.duration <= userRequirements.getCurrentDayEnd(weekday):
@@ -75,11 +83,6 @@ class TaskAllocator:
 
         convertedTime = self.mins_to_datetime(time)
 
-        print(time)
-        print(convertedTime)
-        print(source)
-        print(destination)
-
         gmaps_client = googlemaps.Client(key = "AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294")
 
         result = gmaps_client.directions(source,destination, mode='transit',departure_time=datetime.now())
@@ -101,20 +104,20 @@ class TaskAllocator:
         return "{:02d}:{:02d}".format(hours, minutes)
 
 
-task3 = Task(3,"Task3",120,2,(),(51.513056,-0.117352),0)
-task2 = Task(2,"Task2",120,2,(task3,),(51.503162, -0.086852),1)
-task1 = Task(1,"Task1",60,2,(task2,task3),(51.513056,-0.117352),0)
-task4 = Task(4,"Task4",120,2,(),(51.503162, -0.086852),2)
-task5 = Task(5,"Task5",300,1,(),(51.513056,-0.117352),2)
-task6 = Task(6,"Task6",180,1,(),(51.503162, -0.086852),3)
-task7 = Task(7,"Task7",75,1,(),(51.513056,-0.117352),6)
-task8 = Task(8,"Task8",180,1,(),(51.513056,-0.117352),0)
-task9 = Task(9,"Task9",165,1,(),(51.513056,-0.117352),0)
-task10 = Task(10,"Task10",265,0,(),(51.513056,-0.117352),1)
-task11 = Task(11,"Task11",375,0,(),(51.513056,-0.117352),2)
-task12 = Task(12,"Task12",130,1,(),(51.513056,-0.117352),0)
-task13 = Task(13,"Task13",215,0,(),(51.513056,-0.117352),5)
-task14 = Task(14,"Task14",145,0,(),(51.513056,-0.117352),6)
+task3 = Task(3,"Task3",120,3,(),(51.513056,-0.117352),0)
+task2 = Task(2,"Task2",120,3,(task3,),(51.503162, -0.086852),1)
+task1 = Task(1,"Task1",60,3,(task2,task3),(51.513056,-0.117352),0)
+task4 = Task(4,"Task4",120,3,(),(51.503162, -0.086852),2)
+task5 = Task(5,"Task5",300,2,(),(51.513056,-0.117352),2)
+task6 = Task(6,"Task6",180,2,(),(51.503162, -0.086852),3)
+task7 = Task(7,"Task7",75,2,(),(51.513056,-0.117352),6)
+task8 = Task(8,"Task8",180,2,(),(51.513056,-0.117352),0)
+task9 = Task(9,"Task9",165,2,(),(51.513056,-0.117352),0)
+task10 = Task(10,"Task10",265,1,(),(51.513056,-0.117352),1)
+task11 = Task(11,"Task11",375,1,(),(51.513056,-0.117352),2)
+task12 = Task(12,"Task12",130,2,(),(51.513056,-0.117352),0)
+task13 = Task(13,"Task13",215,1,(),(51.513056,-0.117352),5)
+task14 = Task(14,"Task14",145,1,(),(51.513056,-0.117352),6)
 tasksToBeAllocated = [task1,task2,task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13,task14]
 
 taskAllocator = TaskAllocator()

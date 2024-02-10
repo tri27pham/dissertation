@@ -15,13 +15,7 @@ class Task:
         # duration in hours - type: String 
         self.duration = duration 
         # priority level - type: Enum [ LOW, MEDIUM, HIGH ]
-        match priority:
-            case 0:
-                self.priority = Priority.LOW
-            case 1:
-                self.priority = Priority.MEDIUM
-            case 2:
-                self.priority = Priority.HIGH
+        self.priority = priority
         # tasks that must be completed first - type: set of Task
         self.priorTasks = priorTasks 
         # <lat,long> of location of task - default = None

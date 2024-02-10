@@ -33,13 +33,7 @@ class AllocatedTask:
         return self.endTime
 
     def getPriority(self):
-        match self.priority:
-            case Priority.LOW: 
-                return "LOW"
-            case Priority.MEDIUM:
-                return "MEDIUM"
-            case Priority.HIGH:
-                return "HIGH"
+        return self.priority
     
     def getPriorTasks(self):
         return self.priorTasks

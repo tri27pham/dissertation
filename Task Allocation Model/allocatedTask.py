@@ -1,3 +1,5 @@
+from prioritiesEnum import Priority
+
 class AllocatedTask:
     
     def __init__(self,taskID,name,startTime,endTime,priority,priorTasks,location,category):
@@ -31,7 +33,13 @@ class AllocatedTask:
         return self.endTime
 
     def getPriority(self):
-        return self.priority
+        match self.priority:
+            case Priority.LOW: 
+                return "LOW"
+            case Priority.MEDIUM:
+                return "MEDIUM"
+            case Priority.HIGH:
+                return "HIGH"
     
     def getPriorTasks(self):
         return self.priorTasks

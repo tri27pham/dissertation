@@ -48,14 +48,19 @@ class TaskAllocator:
         currentTime = userRequirements.getCurrentDayStart(weekday)
         while len(tasksToAllocate) != 0:
             currentTask = tasksToAllocate[0]
-            if currentTime + currentTask.duration <= userRequirements.getCurrentDayEnd(weekday):
-                newAllocatedTask = AllocatedTask(currentTask.getID(),currentTask.getName(),currentTime,
-                                    currentTime+currentTask.getDuration(),currentTask.getPriority(),currentTask.getPriorTasks(),
+            if len(schedule[day][-1]) != 0:                
+                travelTime = self.getTravelTime(currentTime,schedule[day][1][-1].getLocation(),currentTask.getLocation())
+                # travelTime = 0
+            else:
+                travelTime = 0
+            if travelTime + currentTime + currentTask.duration <= userRequirements.getCurrentDayEnd(weekday):
+                newAllocatedTask = AllocatedTask(currentTask.getID(),currentTask.getName(),currentTime+travelTime,
+                                    currentTime+travelTime+currentTask.getDuration(),currentTask.getPriority(),currentTask.getPriorTasks(),
                                     currentTask.getLocation(),currentTask.getCategory())
                 schedule[day] = (weekday, schedule[day][1])
                 schedule[day][1].append(newAllocatedTask)
                 tasksToAllocate.pop(0)
-                currentTime += currentTask.getDuration()
+                currentTime += travelTime + currentTask.getDuration()
             else:
                 if weekday == 6:
                     weekday = 0
@@ -66,32 +71,42 @@ class TaskAllocator:
                 day = day + timedelta(days=1)
         return schedule
 
-    def getTravelTime(time,source,destination):
+    def getTravelTime(self,time,source,destination):
+
+        convertedTime = self.mins_to_datetime(time)
+
+        print(time)
+        print(convertedTime)
+        print(source)
+        print(destination)
 
         gmaps_client = googlemaps.Client(key = "AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294")
 
-        result = gmaps_client.directions(source,destination, mode='transit',departure_time=time)
+        result = gmaps_client.directions(source,destination, mode='transit',departure_time=datetime.now())
 
-        duration_in_seconds = result[0]['legs'][0]['duration']['value']
-        duration_in_minutes = duration_in_seconds // 60  
-        rounded_duration_in_minutes = int(math.ceil(duration_in_minutes / 5)) * 5
+        if result:
+            duration_in_seconds = result[0]['legs'][0]['duration']['value']
+            duration_in_minutes = duration_in_seconds // 60  
+            rounded_duration_in_minutes = int(math.ceil(duration_in_minutes / 5)) * 5
+            return rounded_duration_in_minutes
+        else:
+            return 0
 
-        return rounded_duration_in_minutes
-
-    def mins_to_datetime(mins):
+    def mins_to_datetime(self,mins):
         hours, minutes = divmod(mins, 60)
-        return datetime.combine(datetime.today(), datetime.min.time()) + timedelta(hours=hours, minutes=minutes)
+        return datetime(datetime.today().year, datetime.today().month, datetime.today().day, hours, minutes)
+
+    def mins_to_string(self,mins):
+        hours, minutes = divmod(mins, 60)
+        return "{:02d}:{:02d}".format(hours, minutes)
 
 
-# (hours,minutes)
-
-
-task3 = Task(3,"Task3",360,2,(),(51.513056,-0.117352),0)
-task2 = Task(2,"Task2",60,2,(task3,),(51.513056,-0.117352),1)
-task1 = Task(1,"Task1",240,2,(task2,task3),(51.513056,-0.117352),0)
-task4 = Task(4,"Task4",120,2,(),(51.513056,-0.117352),2)
+task3 = Task(3,"Task3",120,2,(),(51.513056,-0.117352),0)
+task2 = Task(2,"Task2",120,2,(task3,),(51.503162, -0.086852),1)
+task1 = Task(1,"Task1",60,2,(task2,task3),(51.513056,-0.117352),0)
+task4 = Task(4,"Task4",120,2,(),(51.503162, -0.086852),2)
 task5 = Task(5,"Task5",300,1,(),(51.513056,-0.117352),2)
-task6 = Task(6,"Task6",180,1,(),(51.513056,-0.117352),3)
+task6 = Task(6,"Task6",180,1,(),(51.503162, -0.086852),3)
 task7 = Task(7,"Task7",75,1,(),(51.513056,-0.117352),6)
 task8 = Task(8,"Task8",180,1,(),(51.513056,-0.117352),0)
 task9 = Task(9,"Task9",165,1,(),(51.513056,-0.117352),0)
@@ -112,9 +127,6 @@ breakType = BreakType.SHORT
 
 schedule = taskAllocator.knapsackAllocator(sortedTasks,userRequirements,breakType)
 
-
-
-
 for key, val in schedule.items():
     match val[0]:
         case 0:
@@ -132,7 +144,7 @@ for key, val in schedule.items():
         case 6:
             print("SUNDAY "+ str(key))
     for task in val[1]:
-        print(f"{task.getName()}  Start: {task.getStartTime()}, End: {task.getEndTime()}")
+        print(f"{task.getName()}  Start: {taskAllocator.mins_to_string(task.getStartTime())}, End: {taskAllocator.mins_to_string(task.getEndTime())}, Priority: {task.getPriority()}")
     
 
 

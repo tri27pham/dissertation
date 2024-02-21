@@ -11,8 +11,13 @@ from userRequirements import UserRequirements
 from allocatedTask import AllocatedTask
 from collections import defaultdict
 
-import googlemaps
+
 import math
+import random
+
+import requests
+
+import googlemaps
 
 class TaskAllocator:
 
@@ -56,7 +61,7 @@ class TaskAllocator:
 
             currentTask = tasksToAllocate[0]
             if len(schedule[currentDay][-1]) != 0:                
-                travelTime = self.getTravelTime(currentTime,schedule[currentDay][1][-1].getLocation(),currentTask.getLocation())
+                travelTime = self.getTravelTimeFree(currentTime,schedule[currentDay][1][-1].getLocation(),currentTask.getLocation())
             else:
                 travelTime = timedelta(0,0)
             TDcurrentTime = timedelta(hours=currentTime.hour,minutes=currentTime.minute)
@@ -101,20 +106,57 @@ class TaskAllocator:
                 currentDay = currentDay + timedelta(days=1)
         return schedule
 
-    def getTravelTime(self,time,source,destination):
+    def getTravelTimeFree(self,time,source,destination):
+        random_num = random.randint(0, 6)
+        random_mult_5 = random_num * 5
+        return timedelta(minutes=random_mult_5)
 
-        gmaps_client = googlemaps.Client(key = "AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294")
+    def getTravelTimePaid(self,time,source,destination):
 
-        result = gmaps_client.directions(source,destination, mode='transit',departure_time=datetime.now())
+        # print(type(time))
 
-        if result:
-            duration_in_seconds = result[0]['legs'][0]['duration']['value']
-            duration_in_minutes = duration_in_seconds // 60  
-            rounded_duration_in_minutes = int(math.ceil(duration_in_minutes / 5)) * 5
-            hours, mins = divmod(rounded_duration_in_minutes,60)
-            return timedelta(hours=hours,minutes=mins)
+        url = 'https://routes.googleapis.com/directions/v2:computeRoutes'
+        headers = {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': 'AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294',
+            'X-Goog-FieldMask': 'routes.duration'
+        }
+        data = {
+            "origin": {
+                "location": {
+                    "latLng": {
+                        "latitude": 51.513056,
+                        "longitude": -0.117352
+                    }
+                }
+            },
+            "destination": {
+                "location": {
+                    "latLng": {
+                        "latitude": 51.503162,
+                        "longitude": -0.086852
+                    }
+                }
+            },
+            "travelMode": "TRANSIT",
+            "languageCode": "en-US",
+            "units": "IMPERIAL"
+        }
+
+        response = requests.post(url, json=data, headers=headers)
+
+        if response.status_code == 200:
+            # print("Request successful.")
+            # print("Response:", response.json())
+            response_data = response.json()
+            time_seconds_string = response_data['routes'][0]['duration']
+            time_seconds_int = int(time_seconds_string[:-1])
+            minutes = time_seconds_int / 60
+            rounded_minutes =  math.ceil(minutes / 5) * 5
+            return timedelta(minutes=rounded_minutes)
         else:
-            return timedelta(0)
+            # print("Request failed with status code:", response.status_code)
+            return timedelta()
 
     def mins_to_datetime(self,mins):
         hours, minutes = divmod(mins, 60)

@@ -61,7 +61,7 @@ class TaskAllocator:
 
             currentTask = tasksToAllocate[0]
             if len(schedule[currentDay][-1]) != 0:                
-                travelTime = self.getTravelTimeFree(currentTime,schedule[currentDay][1][-1].getLocation(),currentTask.getLocation())
+                travelTime = self.getTravelTimePaid(currentTime,schedule[currentDay][1][-1].getLocation(),currentTask.getLocation())
             else:
                 travelTime = timedelta(0,0)
             TDcurrentTime = timedelta(hours=currentTime.hour,minutes=currentTime.minute)
@@ -125,16 +125,16 @@ class TaskAllocator:
             "origin": {
                 "location": {
                     "latLng": {
-                        "latitude": 51.513056,
-                        "longitude": -0.117352
+                        "latitude": source[0],
+                        "longitude": source[1]
                     }
                 }
             },
             "destination": {
                 "location": {
                     "latLng": {
-                        "latitude": 51.503162,
-                        "longitude": -0.086852
+                        "latitude": destination[0],
+                        "longitude": destination[1]
                     }
                 }
             },
@@ -145,9 +145,9 @@ class TaskAllocator:
 
         response = requests.post(url, json=data, headers=headers)
 
-        if response.status_code == 200:
-            # print("Request successful.")
-            # print("Response:", response.json())
+        if response.status_code == 200 and response.json():
+            print("Request successful.")
+            print("Response:", response.json())
             response_data = response.json()
             time_seconds_string = response_data['routes'][0]['duration']
             time_seconds_int = int(time_seconds_string[:-1])

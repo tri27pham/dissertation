@@ -7,7 +7,7 @@ from taskCategoryEnum import TaskCategory
 
 class Task:
 
-    def __init__(self,taskID,name,duration,priority,priorTasks,location,category):
+    def __init__(self,taskID,name,duration,priority,prior_tasks,location,category):
         # identifier unique to task - type: Int
         self.taskID = taskID 
         # task name
@@ -17,7 +17,7 @@ class Task:
         # priority level - type: Enum [ LOW, MEDIUM, HIGH ]
         self.priority = priority
         # tasks that must be completed first - type: set of Task
-        self.priorTasks = priorTasks 
+        self.prior_tasks = prior_tasks 
         # <lat,long> of location of task - default = None
         self.location = location     
         # category of task   
@@ -40,20 +40,20 @@ class Task:
     def getID(self):
         return self.taskID
 
-    def getDuration(self):
+    def get_duration(self):
         return self.duration
 
-    def getPriority(self):
+    def get_priority(self):
         return self.priority
     
-    def getPriorTasks(self):
-        return self.priorTasks
+    def get_prior_tasks(self):
+        return self.prior_tasks
     
-    def getLocation(self):
+    def get_location(self):
         return self.location
     
-    def getName(self):
+    def get_name(self):
         return self.name
     
-    def getCategory(self):
+    def get_category(self):
         return self.category

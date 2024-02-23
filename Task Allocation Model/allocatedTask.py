@@ -2,19 +2,19 @@ from prioritiesEnum import Priority
 
 class AllocatedTask:
     
-    def __init__(self,taskID,name,startTime,endTime,priority,priorTasks,location,category):
+    def __init__(self,taskID,name,start_time,end_time,priority,prior_tasks,location,category):
         # identifier unique to task - type: Int
         self.taskID = taskID 
         # task name
         self.name = name
         # time task begins
-        self.startTime = startTime
+        self.start_time = start_time
         # time task ends
-        self.endTime = endTime
+        self.end_time = end_time
         # priority level - type: Enum [ LOW, MEDIUM, HIGH ]
         self.priority = priority 
         # tasks that must be completed first - type: set of Task
-        self.priorTasks = priorTasks 
+        self.prior_tasks = prior_tasks 
         # <lat,long> of location of task - default = None
         self.location = location        
         # category of task - type: String - default = None
@@ -23,23 +23,23 @@ class AllocatedTask:
     def getID(self):
         return self.taskID
     
-    def getName(self):
+    def get_name(self):
         return self.name
 
-    def getStartTime(self):
-        return self.startTime
+    def get_start_time(self):
+        return self.start_time
 
-    def getEndTime(self):
-        return self.endTime
+    def get_end_time(self):
+        return self.end_time
 
-    def getPriority(self):
+    def get_priority(self):
         return self.priority
     
-    def getPriorTasks(self):
-        return self.priorTasks
+    def get_prior_tasks(self):
+        return self.prior_tasks
     
-    def getLocation(self):
+    def get_location(self):
         return self.location
     
-    def getCategory(self):
-        return self.taskType
+    def get_category(self):
+        return self.category

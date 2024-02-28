@@ -22,7 +22,8 @@ import googlemaps
 
 class TaskAllocator:
 
-    def __init__(self):
+    def __init__(self,user_requirements):
+        self.user_requirements = user_requirements
         self.schedule = {}
         self.task_dict = {}
 
@@ -57,7 +58,7 @@ class TaskAllocator:
         last_date = max(dates)
 
         current_date = first_date
-
+       
         while current_date <= last_date:
             self.schedule[current_date] = self.create_new_daily_schedule(interval)
             current_date += timedelta(days=1)
@@ -67,7 +68,6 @@ class TaskAllocator:
         interval = timedelta(minutes=1)
 
         self.populate_schedule(tasks,interval)
-
 
         for task in tasks:
             date = task.get_date()
@@ -90,7 +90,7 @@ class TaskAllocator:
         daily_schedule = {}
 
         current_time = start_time
-        for i in range(1439):
+        for i in range(1440):
             daily_schedule[current_time] = None
             dt_current_time = datetime.combine(datetime.today(),current_time)
             updated_time = dt_current_time + interval
@@ -98,7 +98,7 @@ class TaskAllocator:
 
         return daily_schedule
 
-    def knapsack_allocator(self,tasks_to_allocate,user_requirements):
+    def knapsack_allocator(self,tasks_to_allocate):
 
         schedule = self.schedule
         task_dict = self.task_dict
@@ -126,27 +126,22 @@ class TaskAllocator:
             # there is a task allocated at this time slot, so travel time to be calculated
             else:
                 previous_task = schedule[date][current_time]
-                # print(current_task.getID())
-                # travel_time = self.get_travel_time_free(task_dict[previous_task].get_location(),current_task.get_location())
                 travel_time = self.travel_times_matrix[previous_task][current_task.getID()]
 
-                # make a for loop that iterate for the time of travel time and set schedule[date][current_time]
+            needed_time = travel_time + current_task.get_duration()
+            print(f"needed time: {needed_time}")
+            print(f"current time: {current_time}")
 
-                int_travel_time = int(travel_time.total_seconds() / 60)
-                for i in range(int_travel_time):
-                    schedule[date][current_time] = "travel"
-                    current_time = self.incrementTime(current_time)
+            available_time_slot = self.get_available_time_slot(date,weekday,self.increment_time(current_time))
+            print(f"available time: {available_time_slot}")
 
-                # while schedule[date][current_time] != None:
-                #     schedule[date][current_time] = "travel"
-                #     current_time = self.incrementTime(current_time)
-            
-            if self.dt_to_td(current_time) + travel_time + current_task.get_duration() \
-                <= self.dt_to_td(user_requirements.get_current_day_end(weekday)):
+            if travel_time + current_task.get_duration() <= available_time_slot:
+
+            # if self.dt_to_td(current_time) + travel_time + current_task.get_duration() \
+            #     <= self.dt_to_td(self.user_requirements.get_current_day_end(weekday)):
                 # current time and travel time to get start time of task
                 # current time and travel time and duration to get end time of task
                 # update current time to end time
-                
                 task_start_time = datetime.combine(date, datetime.min.time()) + self.dt_to_td(current_time) + travel_time
                 task_end_time = datetime.combine(date, datetime.min.time()) + self.dt_to_td(current_time) + travel_time + current_task.get_duration()
 
@@ -156,12 +151,19 @@ class TaskAllocator:
 
                 task_dict[new_allocated_task.getID()] = new_allocated_task
                 
+                # make a for loop that iterate for the time of travel time and set schedule[date][current_time]
+                current_time = self.increment_time(current_time)
+                int_travel_time = int(travel_time.total_seconds() / 60)
+                for i in range(int_travel_time):
+                    schedule[date][current_time] = "travel"
+                    current_time = self.increment_time(current_time)
+
                 time = task_start_time.time()
-                
+
                 while time <= task_end_time.time():
                     # print(f"{time} : {task_end_time}")
                     schedule[date][time] = new_allocated_task.getID()
-                    time = self.incrementTime(time)
+                    time = self.increment_time(time)
                 
                 # print("exited")
                 current_time = task_end_time.time()
@@ -171,10 +173,10 @@ class TaskAllocator:
             else:
                 if weekday == 6:
                     weekday = 0
-                    current_time = user_requirements.get_current_day_start(weekday)
+                    current_time = self.user_requirements.get_current_day_start(weekday)
                 else: 
                     weekday += 1
-                    current_time = user_requirements.get_current_day_start(weekday)
+                    current_time = self.user_requirements.get_current_day_start(weekday)
                 date = date + timedelta(days=1)
         
         self.schedule = schedule
@@ -269,6 +271,128 @@ class TaskAllocator:
         #     print("Request failed with status code:", response.status_code)
         #     # return timedelta()
 
+    def mins_to_datetime(self,mins):
+        hours, minutes = divmod(mins, 60)
+        return datetime(datetime.today().year, datetime.today().month, datetime.today().day, hours, minutes)
+
+    def mins_to_string(self,mins):
+        hours, minutes = divmod(mins, 60)
+        return "{:02d}:{:02d}".format(hours, minutes)
+
+    def increment_time(self,time):
+        new_time = datetime.combine(datetime.today(),time) + timedelta(minutes=1)
+        return new_time.time()
+
+    def decrement_time(self,time):
+        new_time = datetime.combine(datetime.today(),time) - timedelta(minutes=1)
+        return new_time.time()
+
+    def dt_to_td(self,time):
+        return timedelta(hours=time.hour,minutes=time.minute)
+
+    def get_task_dict(self,taskId):
+        return self.task_dict[taskId]
+
+    def get_available_time_slot(self,date,weekday,time):
+
+        total_time_available = timedelta()
+
+        daily_schedule = self.schedule[date]
+        end_of_day = self.user_requirements.get_current_day_end(weekday)
+
+        while daily_schedule[time] == None and time <= end_of_day:
+            # print(time)
+            total_time_available += timedelta(minutes=1)
+            time = self.increment_time(time)
+
+
+        # print(total_time_available)
+        return total_time_available
+        # print(f"total: {total_time_available}")
+        # print("busy time: " + str(time))
+        # print(f"task at busy time: {daily_schedule[time]}")
+
+
+# hard tasks
+
+dt1_startx = datetime.now() + timedelta(hours=1)
+dt1_start = dt1_startx.replace(second=0, microsecond=0)
+dt1_endx = datetime.now() + timedelta(hours=2)
+dt1_end = dt1_endx.replace(second=0, microsecond=0)
+
+dt2_startx = datetime.now() + timedelta(hours=18)
+dt2_start = dt2_startx.replace(second=0, microsecond=0)
+dt2_endx = datetime.now() + timedelta(hours=20)
+dt2_end = dt2_endx.replace(second=0, microsecond=0)
+
+dt3_startx = datetime.now() + timedelta(hours=24)
+dt3_start = dt3_startx.replace(second=0, microsecond=0)
+dt3_endx = datetime.now() + timedelta(hours=25)
+dt3_end = dt3_endx.replace(second=0, microsecond=0)
+
+dt4_startx = datetime.now() + timedelta(days=2)
+dt4_start = dt4_startx.replace(second=0, microsecond=0)
+dt4_endx = datetime.now() + timedelta(days=2,hours=1)
+dt4_end = dt4_endx.replace(second=0, microsecond=0)
+
+dt5_startx = datetime.now() + timedelta(days=2, hours=2)
+dt5_start = dt5_startx.replace(second=0, microsecond=0)
+dt5_endx = datetime.now() + timedelta(days=2, hours=4)
+dt5_end = dt5_endx.replace(second=0, microsecond=0)
+
+hardTask1 = HardTask("h1","HardTask1",dt1_start,dt1_end)
+hardTask2 = HardTask("h2","HardTask2",dt2_start,dt2_end)
+hardTask3 = HardTask("h3","HardTask3",dt3_start,dt3_end)
+hardTask4 = HardTask("h4","HardTask4",dt4_start,dt4_end)
+hardTask5 = HardTask("h5","HardTask5",dt5_start,dt5_end)
+
+hard_tasks = [hardTask1,hardTask2,hardTask3,hardTask4,hardTask4,hardTask5]
+
+# tasks to allocate
+task2 = Task(2,"OME Content",timedelta(hours=2,minutes=0),3,(),(51.513056,-0.117352),0)
+task1 = Task(1,"NSE Content",timedelta(hours=2,minutes=0),3,(task2,),(51.503162, -0.086852),1)
+task0 = Task(0,"ML1 Content",timedelta(hours=1,minutes=0),3,(task1,task2),(51.513056,-0.117352),0)
+task3 = Task(3,"Push session",timedelta(hours=2,minutes=0),3,(),(51.503162, -0.086852),2)
+task4 = Task(4,"Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),2)
+task5 = Task(5,"Pull session",timedelta(hours=2,minutes=0),2,(),(51.503162, -0.086852),3)
+task6 = Task(6,"10k",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),6)
+task7 = Task(7,"Dissertation",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
+task8 = Task(8,"Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
+task9 = Task(9,"Push session",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),1)
+task10 = Task(10,"Coursework",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),2)
+task11 = Task(11,"Legs session",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
+task12 = Task(12,"Dissertation",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),5)
+task13 = Task(13,"5k",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),6)
+tasks_to_be_allocated = [task0,task1,task2,task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13]
+
+
+nine_am = time(hour=9, minute=0, second=0)
+five_pm = time(hour=18, minute=0, second=0)
+
+user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
+
+task_allocator = TaskAllocator(user_requirements)
+
+breakType = BreakType.SHORT 
+
+task_allocator.allocate_hard_tasks(hard_tasks)
+sorted_tasks = task_allocator.topological_sort(tasks_to_be_allocated)
+task_allocator.get_travel_times(sorted_tasks)
+task_allocator.knapsack_allocator(sorted_tasks)
+
+for k, v in task_allocator.schedule.items():
+    for time, task in v.items():
+        if task != None:
+            if type(task) == HardTask:
+                name = task.get_name()
+            elif isinstance(task, str):
+                name = task
+            else:
+                name = task_allocator.get_task_dict(task).get_name()
+            print(f"{k} {time}: {name}")
+        else:
+             print(f"{k} {time}: empty")
+        
 
     # def get_travel_time_paid(self,source,destination):
 
@@ -319,102 +443,3 @@ class TaskAllocator:
     #     else:
     #         # print("Request failed with status code:", response.status_code)
     #         return timedelta()
-
-    def mins_to_datetime(self,mins):
-        hours, minutes = divmod(mins, 60)
-        return datetime(datetime.today().year, datetime.today().month, datetime.today().day, hours, minutes)
-
-    def mins_to_string(self,mins):
-        hours, minutes = divmod(mins, 60)
-        return "{:02d}:{:02d}".format(hours, minutes)
-
-    def incrementTime(self,time):
-        new_time = datetime.combine(datetime.today(),time) + timedelta(minutes=1)
-        return new_time.time()
-
-    def dt_to_td(self,time):
-        return timedelta(hours=time.hour,minutes=time.minute)
-
-    def get_task_dict(self,taskId):
-        return self.task_dict[taskId]
-
-# hard tasks
-
-dt1_startx = datetime.now() + timedelta(hours=2)
-dt1_start = dt1_startx.replace(second=0, microsecond=0)
-dt1_endx = datetime.now() + timedelta(hours=3)
-dt1_end = dt1_endx.replace(second=0, microsecond=0)
-
-dt2_startx = datetime.now() + timedelta(hours=20)
-dt2_start = dt2_startx.replace(second=0, microsecond=0)
-dt2_endx = datetime.now() + timedelta(hours=22)
-dt2_end = dt2_endx.replace(second=0, microsecond=0)
-
-dt3_startx = datetime.now() + timedelta(hours=24)
-dt3_start = dt3_startx.replace(second=0, microsecond=0)
-dt3_endx = datetime.now() + timedelta(hours=25)
-dt3_end = dt3_endx.replace(second=0, microsecond=0)
-
-dt4_startx = datetime.now() + timedelta(days=2)
-dt4_start = dt4_startx.replace(second=0, microsecond=0)
-dt4_endx = datetime.now() + timedelta(days=2,hours=1)
-dt4_end = dt4_endx.replace(second=0, microsecond=0)
-
-dt5_startx = datetime.now() + timedelta(days=2, hours=2)
-dt5_start = dt5_startx.replace(second=0, microsecond=0)
-dt5_endx = datetime.now() + timedelta(days=2, hours=4)
-dt5_end = dt5_endx.replace(second=0, microsecond=0)
-
-hardTask1 = HardTask("h1","HardTask1",dt1_start,dt1_end)
-hardTask2 = HardTask("h2","HardTask2",dt2_start,dt2_end)
-hardTask3 = HardTask("h3","HardTask3",dt3_start,dt3_end)
-hardTask4 = HardTask("h4","HardTask4",dt4_start,dt4_end)
-hardTask5 = HardTask("h5","HardTask5",dt5_start,dt5_end)
-
-hard_tasks = [hardTask1,hardTask2,hardTask3,hardTask4,hardTask4,hardTask5]
-
-# tasks to allocate
-task2 = Task(2,"OME Content",timedelta(hours=2,minutes=0),3,(),(51.513056,-0.117352),0)
-task1 = Task(1,"NSE Content",timedelta(hours=2,minutes=0),3,(task2,),(51.503162, -0.086852),1)
-task0 = Task(0,"ML1 Content",timedelta(hours=1,minutes=0),3,(task1,task2),(51.513056,-0.117352),0)
-task3 = Task(3,"Push session",timedelta(hours=2,minutes=0),3,(),(51.503162, -0.086852),2)
-task4 = Task(4,"Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),2)
-task5 = Task(5,"Pull session",timedelta(hours=2,minutes=0),2,(),(51.503162, -0.086852),3)
-task6 = Task(6,"10k",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),6)
-task7 = Task(7,"Dissertation",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
-task8 = Task(8,"Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
-task9 = Task(9,"Push session",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),1)
-task10 = Task(10,"Coursework",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),2)
-task11 = Task(11,"Legs session",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
-task12 = Task(12,"Dissertation",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),5)
-task13 = Task(13,"5k",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),6)
-tasks_to_be_allocated = [task0,task1,task2,task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13]
-
-task_allocator = TaskAllocator()
-
-
-
-nine_am = time(hour=9, minute=0, second=0)
-five_pm = time(hour=18, minute=0, second=0)
-
-user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
-
-breakType = BreakType.SHORT 
-
-task_allocator.allocate_hard_tasks(hard_tasks)
-sorted_tasks = task_allocator.topological_sort(tasks_to_be_allocated)
-task_allocator.get_travel_times(sorted_tasks)
-task_allocator.knapsack_allocator(sorted_tasks,user_requirements)
-
-for k, v in task_allocator.schedule.items():
-    for time, task in v.items():
-        if task != None:
-            if type(task) == HardTask:
-                name = task.get_name()
-            elif isinstance(task, str):
-                name = task
-            else:
-                name = task_allocator.get_task_dict(task).get_name()
-            print(f"{k} {time}: {name}")
-        
-

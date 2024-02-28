@@ -126,10 +126,20 @@ class TaskAllocator:
             # there is a task allocated at this time slot, so travel time to be calculated
             else:
                 previous_task = schedule[date][current_time]
-                travel_time = self.get_travel_time_paid(task_dict[previous_task].get_location(),current_task.get_location())
-                while schedule[date][current_time] != None:
+                # print(current_task.getID())
+                # travel_time = self.get_travel_time_free(task_dict[previous_task].get_location(),current_task.get_location())
+                travel_time = self.travel_times_matrix[previous_task][current_task.getID()]
+
+                # make a for loop that iterate for the time of travel time and set schedule[date][current_time]
+
+                int_travel_time = int(travel_time.total_seconds() / 60)
+                for i in range(int_travel_time):
                     schedule[date][current_time] = "travel"
                     current_time = self.incrementTime(current_time)
+
+                # while schedule[date][current_time] != None:
+                #     schedule[date][current_time] = "travel"
+                #     current_time = self.incrementTime(current_time)
             
             if self.dt_to_td(current_time) + travel_time + current_task.get_duration() \
                 <= self.dt_to_td(user_requirements.get_current_day_end(weekday)):
@@ -147,6 +157,7 @@ class TaskAllocator:
                 task_dict[new_allocated_task.getID()] = new_allocated_task
                 
                 time = task_start_time.time()
+                
                 while time <= task_end_time.time():
                     # print(f"{time} : {task_end_time}")
                     schedule[date][time] = new_allocated_task.getID()
@@ -174,55 +185,140 @@ class TaskAllocator:
         random_mult_5 = random_num * 5
         return timedelta(minutes=random_mult_5)
 
-    def get_travel_time_paid(self,source,destination):
+    def get_travel_times(self,tasks):
 
-        # print(type(time))
+        # list of all locations of tasks
+        locations = []
 
-        if source == None or destination == None:
-            return timedelta()
+        # maps index of task in locations array to taskID
+        task_to_location = defaultdict(int)
 
-        url = 'https://routes.googleapis.com/directions/v2:computeRoutes'
-        headers = {
-            'Content-Type': 'application/json',
-            'X-Goog-Api-Key': 'AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294',
-            'X-Goog-FieldMask': 'routes.duration'
-        }
-        data = {
-            "origin": {
-                "location": {
-                    "latLng": {
-                        "latitude": source[0],
-                        "longitude": source[1]
+        idx = 0
+
+        # create location waypoint for each location and add into locations array
+        for task in tasks:
+
+            location = {
+                "waypoint": {
+                    "location": {
+                        "latLng": {
+                            "latitude": task.get_location()[0],
+                            "longitude": task.get_location()[1]
+                        }
                     }
                 }
-            },
-            "destination": {
-                "location": {
-                    "latLng": {
-                        "latitude": destination[0],
-                        "longitude": destination[1]
-                    }
-                }
-            },
-            "travelMode": "TRANSIT",
-            "languageCode": "en-US",
-            "units": "IMPERIAL"
-        }
+            }
 
-        response = requests.post(url, json=data, headers=headers)
+            task_to_location[idx] = task.getID()
+            locations.append(location)
+            idx += 1
 
-        if response.status_code == 200 and response.json():
-            print("Request successful.")
-            print("Response:", response.json())
-            response_data = response.json()
-            time_seconds_string = response_data['routes'][0]['duration']
-            time_seconds_int = int(time_seconds_string[:-1])
-            minutes = time_seconds_int / 60
-            rounded_minutes =  math.ceil(minutes / 5) * 5
-            return timedelta(minutes=rounded_minutes)
-        else:
-            # print("Request failed with status code:", response.status_code)
-            return timedelta()
+
+        # # create HTTP request to Google Routes API
+        # url = 'https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix'
+        # headers = {
+        #     'Content-Type': 'application/json',
+        #     'X-Goog-Api-Key': 'AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294',
+        #     'X-Goog-FieldMask': 'originIndex,destinationIndex,duration'
+        # }
+        # data = {
+        #     "origins": locations,
+        #     "destinations": locations,
+        #     "languageCode": "en-US",
+        #     "units": "IMPERIAL"
+        # }
+
+        # # call request and store response
+        # response = requests.post(url, json=data, headers=headers)
+            
+        # response_data = response.json()
+
+        # print(response_data)
+
+        response_data = [{'originIndex': 10, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 13, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 10, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 13, 'duration': '925s'}, {'originIndex': 0, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 10, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 12, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 11, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 13, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 13, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 7, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 12, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 9, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 11, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 0, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 11, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 12, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 5, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 5, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 9, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 3, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 5, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 5, 'destinationIndex': 12, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 0, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 6, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 2, 'duration': '925s'}, {'originIndex': 6, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 5, 'destinationIndex': 10, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 8, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 1, 'destinationIndex': 12, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 8, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 7, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 4, 'duration': '925s'}, {'originIndex': 4, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 7, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 5, 'destinationIndex': 9, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 13, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 1, 'destinationIndex': 4, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 4, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 0, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 10, 'duration': '925s'}, {'originIndex': 2, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 0, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 5, 'destinationIndex': 11, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 11, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 7, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 0, 'duration': '925s'}, {'originIndex': 6, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 3, 'destinationIndex': 12, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 6, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 7, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 2, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 8, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 11, 'duration': '925s'}, {'originIndex': 4, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 1, 'destinationIndex': 13, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 10, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 6, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 2, 'duration': '925s'}, {'originIndex': 6, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 10, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 1, 'destinationIndex': 8, 'duration': '925s'}, {'originIndex': 2, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 3, 'destinationIndex': 9, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 9, 'duration': '925s'}]
+
+        # create a 2D array that has dimensions n x n, where n is the number of tasks
+        len_sides = len(locations)
+        travel_times_matrix = [[None] * len_sides for _ in range(len_sides)]
+        
+        # fetch the taskID from the index
+        # assign the duration to the [x][y] of the matrix
+        for i in range(len(response_data)):
+            originTask = task_to_location[response_data[i]['originIndex']]
+            destinationTask = task_to_location[response_data[i]['destinationIndex']]
+            duration = int(response_data[i]['duration'][:-1])
+            rounded_duration = math.ceil(duration / 300) * 5
+            travel_times_matrix[int(originTask)][int(destinationTask)] = timedelta(minutes=rounded_duration)
+        
+        self.travel_times_matrix = travel_times_matrix
+
+        # for row in travel_times_matrix:
+        #     print(row[1:])
+                
+
+        # if response.status_code == 200 and response.json():
+        #     print("Request successful.")
+        #     print("Response:", response.json())
+        #     # response_data = response.json()
+        #     # time_seconds_string = response_data['routes'][0]['duration']
+        #     # time_seconds_int = int(time_seconds_string[:-1])
+        #     # minutes = time_seconds_int / 60
+        #     # rounded_minutes =  math.ceil(minutes / 5) * 5
+        #     # return timedelta(minutes=rounded_minutes)
+        # else:
+        #     print("Request failed with status code:", response.status_code)
+        #     # return timedelta()
+
+
+    # def get_travel_time_paid(self,source,destination):
+
+    #     # print(type(time))
+
+    #     if source == None or destination == None:
+    #         return timedelta()
+
+    #     url = 'https://routes.googleapis.com/directions/v2:computeRoutes'
+    #     headers = {
+    #         'Content-Type': 'application/json',
+    #         'X-Goog-Api-Key': 'AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294',
+    #         'X-Goog-FieldMask': 'routes.duration'
+    #     }
+    #     data = {
+    #         "origin": {
+    #             "location": {
+    #                 "latLng": {
+    #                     "latitude": source[0],
+    #                     "longitude": source[1]
+    #                 }
+    #             }
+    #         },
+    #         "destination": {
+    #             "location": {
+    #                 "latLng": {
+    #                     "latitude": destination[0],
+    #                     "longitude": destination[1]
+    #                 }
+    #             }
+    #         },
+    #         "travelMode": "TRANSIT",
+    #         "languageCode": "en-US",
+    #         "units": "IMPERIAL"
+    #     }
+
+    #     response = requests.post(url, json=data, headers=headers)
+
+    #     if response.status_code == 200 and response.json():
+    #         print("Request successful.")
+    #         print("Response:", response.json())
+    #         response_data = response.json()
+    #         time_seconds_string = response_data['routes'][0]['duration']
+    #         time_seconds_int = int(time_seconds_string[:-1])
+    #         minutes = time_seconds_int / 60
+    #         rounded_minutes =  math.ceil(minutes / 5) * 5
+    #         return timedelta(minutes=rounded_minutes)
+    #     else:
+    #         # print("Request failed with status code:", response.status_code)
+    #         return timedelta()
 
     def mins_to_datetime(self,mins):
         hours, minutes = divmod(mins, 60)
@@ -278,25 +374,25 @@ hardTask5 = HardTask("h5","HardTask5",dt5_start,dt5_end)
 hard_tasks = [hardTask1,hardTask2,hardTask3,hardTask4,hardTask4,hardTask5]
 
 # tasks to allocate
-task3 = Task("s3","OME Content",timedelta(hours=2,minutes=0),3,(),(51.513056,-0.117352),0)
-task2 = Task("s2","NSE Content",timedelta(hours=2,minutes=0),3,(task3,),(51.503162, -0.086852),1)
-task1 = Task("s1","ML1 Content",timedelta(hours=1,minutes=0),3,(task2,task3),(51.513056,-0.117352),0)
-task4 = Task("s4","Push session",timedelta(hours=2,minutes=0),3,(),(51.503162, -0.086852),2)
-task5 = Task("s5","Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),2)
-task6 = Task("s6","Pull session",timedelta(hours=2,minutes=0),2,(),(51.503162, -0.086852),3)
-task7 = Task("s7","10k",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),6)
-task8 = Task("s8","Dissertation",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
-task9 = Task("s9","Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
-task10 = Task("s10","Push session",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),1)
-task11 = Task("s11","Coursework",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),2)
-task12 = Task("s12","Legs session",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
-task13 = Task("s13","Dissertation",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),5)
-task14 = Task("s14","5k",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),6)
-tasks_to_be_allocated = [task1,task2,task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13,task14]
+task2 = Task(2,"OME Content",timedelta(hours=2,minutes=0),3,(),(51.513056,-0.117352),0)
+task1 = Task(1,"NSE Content",timedelta(hours=2,minutes=0),3,(task2,),(51.503162, -0.086852),1)
+task0 = Task(0,"ML1 Content",timedelta(hours=1,minutes=0),3,(task1,task2),(51.513056,-0.117352),0)
+task3 = Task(3,"Push session",timedelta(hours=2,minutes=0),3,(),(51.503162, -0.086852),2)
+task4 = Task(4,"Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),2)
+task5 = Task(5,"Pull session",timedelta(hours=2,minutes=0),2,(),(51.503162, -0.086852),3)
+task6 = Task(6,"10k",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),6)
+task7 = Task(7,"Dissertation",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
+task8 = Task(8,"Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
+task9 = Task(9,"Push session",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),1)
+task10 = Task(10,"Coursework",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),2)
+task11 = Task(11,"Legs session",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
+task12 = Task(12,"Dissertation",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),5)
+task13 = Task(13,"5k",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),6)
+tasks_to_be_allocated = [task0,task1,task2,task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13]
 
 task_allocator = TaskAllocator()
 
-sorted_tasks = task_allocator.topological_sort(tasks_to_be_allocated)
+
 
 nine_am = time(hour=9, minute=0, second=0)
 five_pm = time(hour=18, minute=0, second=0)
@@ -306,6 +402,8 @@ user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,fiv
 breakType = BreakType.SHORT 
 
 task_allocator.allocate_hard_tasks(hard_tasks)
+sorted_tasks = task_allocator.topological_sort(tasks_to_be_allocated)
+task_allocator.get_travel_times(sorted_tasks)
 task_allocator.knapsack_allocator(sorted_tasks,user_requirements)
 
 for k, v in task_allocator.schedule.items():

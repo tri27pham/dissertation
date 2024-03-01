@@ -1,39 +1,59 @@
 # Task Class
 # contains the information regarding each task to be allocated
 
-from enums import Priority
+from prioritiesEnum import Priority
+from taskCategoryEnum import TaskCategory
+
 
 class Task:
 
-    def __init__(self,taskID,duration,priority,priorTasks=None,location=None,name,taskType=None,inOutDoor=None):
-        self.taskID = taskID # identifier unique to task
-        self.duration = duration # duration in hours
-        self.priority = priority # priority level [ LOW, MEDIUM, HIGH ]
-        self.priorTasks = priorTasks # list<Task> of tasks that must be completed first
-        self.location = location # <lat,long> of location of task, can be locationless(None)
+    def __init__(self,taskID,name,duration,priority,prior_tasks,location,category):
+        # identifier unique to task - type: Int
+        self.taskID = taskID 
+        # task name
         self.name = name
-        self.taskType = taskType # category of task, eg. uni, work, fitness, etc.
-        self.inOutDoor = inOutDoor # whether a task is situated indoors/outdoors
+        # duration in hours - type: String 
+        self.duration = duration 
+        # priority level - type: Enum [ LOW, MEDIUM, HIGH ]
+        self.priority = priority
+        # tasks that must be completed first - type: set of Task
+        self.prior_tasks = prior_tasks 
+        # <lat,long> of location of task - default = None
+        self.location = location     
+        # category of task   
+        match category:
+            case 0:
+                self.category = TaskCategory.UNIVERSITY
+            case 1:
+                self.category = TaskCategory.WORK
+            case 2:
+                self.category = TaskCategory.HEALTH
+            case 3:
+                self.category = TaskCategory.SOCIAL
+            case 4:
+                self.category = TaskCategory.FAMILY
+            case 5:
+                self.category = TaskCategory.HOBBIES
+            case 6:
+                self.category = TaskCategory.MISCELLANEOUS
 
-    def getDuration:
+    def getID(self):
+        return self.taskID
+
+    def get_duration(self):
         return self.duration
 
-    def getPriority:
+    def get_priority(self):
         return self.priority
     
-    def getPriorTasks:
-        return self.priorTasks
+    def get_prior_tasks(self):
+        return self.prior_tasks
     
-    def getLocation:
+    def get_location(self):
         return self.location
     
-    def getName:
+    def get_name(self):
         return self.name
     
-    def getTaskType:
-        return self.taskType
-    
-    def getInOutDoor:
-        return self.inOutDoor
-    
-
+    def get_category(self):
+        return self.category

@@ -311,9 +311,7 @@ class TaskAllocator:
         # print("busy time: " + str(time))
         # print(f"task at busy time: {daily_schedule[time]}")
 
-
 # hard tasks
-
 dt1_startx = datetime.now() + timedelta(hours=1)
 dt1_start = dt1_startx.replace(second=0, microsecond=0)
 dt1_endx = datetime.now() + timedelta(hours=2)
@@ -392,53 +390,3 @@ for k, v in task_allocator.schedule.items():
         else:
              print(f"{k} {time}: empty")
         
-
-    # def get_travel_time_paid(self,source,destination):
-
-    #     # print(type(time))
-
-    #     if source == None or destination == None:
-    #         return timedelta()
-
-    #     url = 'https://routes.googleapis.com/directions/v2:computeRoutes'
-    #     headers = {
-    #         'Content-Type': 'application/json',
-    #         'X-Goog-Api-Key': 'AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294',
-    #         'X-Goog-FieldMask': 'routes.duration'
-    #     }
-    #     data = {
-    #         "origin": {
-    #             "location": {
-    #                 "latLng": {
-    #                     "latitude": source[0],
-    #                     "longitude": source[1]
-    #                 }
-    #             }
-    #         },
-    #         "destination": {
-    #             "location": {
-    #                 "latLng": {
-    #                     "latitude": destination[0],
-    #                     "longitude": destination[1]
-    #                 }
-    #             }
-    #         },
-    #         "travelMode": "TRANSIT",
-    #         "languageCode": "en-US",
-    #         "units": "IMPERIAL"
-    #     }
-
-    #     response = requests.post(url, json=data, headers=headers)
-
-    #     if response.status_code == 200 and response.json():
-    #         print("Request successful.")
-    #         print("Response:", response.json())
-    #         response_data = response.json()
-    #         time_seconds_string = response_data['routes'][0]['duration']
-    #         time_seconds_int = int(time_seconds_string[:-1])
-    #         minutes = time_seconds_int / 60
-    #         rounded_minutes =  math.ceil(minutes / 5) * 5
-    #         return timedelta(minutes=rounded_minutes)
-    #     else:
-    #         # print("Request failed with status code:", response.status_code)
-    #         return timedelta()

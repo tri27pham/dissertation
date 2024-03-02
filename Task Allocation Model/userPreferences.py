@@ -11,8 +11,8 @@ class UserPreferences:
         self.midday = datetime.combine(datetime.today(), datetime.min.time()).replace(hour=12, minute=0, second=0).time()
         self.midweek = 3
 
-        self.university_morning = True
-        self.university_evening = False
+        self.university_morning = False
+        self.university_evening = True
         self.university_start_of_week = True
         self.university_end_of_week = False
 

@@ -2,15 +2,15 @@ from prioritiesEnum import Priority
 
 class AllocatedTask:
     
-    def __init__(self,taskID,name,start_time,end_time,priority,prior_tasks,location,category):
+    def __init__(self,taskID,name,start_datetime,end_datetime,priority,prior_tasks,location,category):
         # identifier unique to task - type: Int
         self.taskID = taskID 
         # task name
         self.name = name
         # time task begins
-        self.start_time = start_time
+        self.start_datetime = start_datetime
         # time task ends
-        self.end_time = end_time
+        self.end_datetime = end_datetime
         # priority level - type: Enum [ LOW, MEDIUM, HIGH ]
         self.priority = priority 
         # tasks that must be completed first - type: set of Task
@@ -27,10 +27,16 @@ class AllocatedTask:
         return self.name
 
     def get_start_time(self):
-        return self.start_time
-
+        return self.start_datetime.time()
+    
     def get_end_time(self):
-        return self.end_time
+        return self.end_datetime.time()
+
+    def get_start_datetime(self):
+        return self.start_datetime
+
+    def get_end_datetime(self):
+        return self.end_datetime
 
     def get_priority(self):
         return self.priority

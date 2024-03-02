@@ -319,11 +319,11 @@ class TaskAllocator:
                 if time_slot is not None:
                     all_tasks.add(time_slot)
 
-        allocated_tasks_refs = [task for task in all_tasks if task.startswith('s')]
+        allocated_tasks_refs = [task for task in all_tasks if task != "travel"]
         
         for task_ref in allocated_tasks_refs:
             task = self.task_dict[task_ref]
-            print(f"NAME: {task.get_name()}, TIME: {task.get_start_time()} - {task.get_end_time()}")
+            print(f"NAME: {task.get_name()}, TIME: {task.get_start_datetime()} - {task.get_end_datetime()}")
               
 
 # hard tasks

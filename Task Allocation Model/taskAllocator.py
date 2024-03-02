@@ -8,6 +8,7 @@ from breakTypeEnum import BreakType
 from task import Task
 from datetime import datetime, timedelta, time
 from userRequirements import UserRequirements
+from userPreferences import UserPreferences
 from allocatedTask import AllocatedTask
 from collections import defaultdict
 from hardTask import HardTask
@@ -26,6 +27,25 @@ class TaskAllocator:
         self.user_requirements = user_requirements
         self.schedule = {}
         self.task_dict = {}
+
+    def find_topological_orders(self,tasks):
+
+        def backtrack(current_order):
+            if len(current_order) == len(tasks):
+                topological_orders.append(current_order[:])
+                return
+
+            for task in tasks:
+                if task not in current_order and all(parent in current_order for parent in task.get_prior_tasks()):
+                    current_order.append(task)
+                    backtrack(current_order)
+                    current_order.pop()
+
+        topological_orders = []
+        backtrack([])
+        # print(topological_orders)
+        return topological_orders
+
 
     def topological_sort(self, tasks):
         result = []  # To store the topological order
@@ -126,14 +146,12 @@ class TaskAllocator:
             # there is a task allocated at this time slot, so travel time to be calculated
             else:
                 previous_task = schedule[date][current_time]
+                # print(previous_task)
                 travel_time = self.travel_times_matrix[previous_task][current_task.getID()]
 
             needed_time = travel_time + current_task.get_duration()
-            print(f"needed time: {needed_time}")
-            print(f"current time: {current_time}")
 
             available_time_slot = self.get_available_time_slot(date,weekday,self.increment_time(current_time))
-            print(f"available time: {available_time_slot}")
 
             if travel_time + current_task.get_duration() <= available_time_slot:
 
@@ -178,7 +196,7 @@ class TaskAllocator:
                     weekday += 1
                     current_time = self.user_requirements.get_current_day_start(weekday)
                 date = date + timedelta(days=1)
-        
+
         self.schedule = schedule
         self.task_dict = task_dict
 
@@ -188,6 +206,7 @@ class TaskAllocator:
         return timedelta(minutes=random_mult_5)
 
     def get_travel_times(self,tasks):
+
 
         # list of all locations of tasks
         locations = []
@@ -200,75 +219,99 @@ class TaskAllocator:
         # create location waypoint for each location and add into locations array
         for task in tasks:
 
-            location = {
-                "waypoint": {
-                    "location": {
-                        "latLng": {
-                            "latitude": task.get_location()[0],
-                            "longitude": task.get_location()[1]
+            # print(task.get_name())
+
+            if task.get_location() is not None:
+
+                location = {
+                    "waypoint": {
+                        "location": {
+                            "latLng": {
+                                "latitude": task.get_location()[0],
+                                "longitude": task.get_location()[1]
+                            }
                         }
                     }
                 }
-            }
 
-            task_to_location[idx] = task.getID()
-            locations.append(location)
-            idx += 1
+                task_to_location[idx] = task.getID()
+                locations.append(location)
+                idx += 1
 
-
-        # # create HTTP request to Google Routes API
-        # url = 'https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix'
-        # headers = {
-        #     'Content-Type': 'application/json',
-        #     'X-Goog-Api-Key': 'AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294',
-        #     'X-Goog-FieldMask': 'originIndex,destinationIndex,duration'
-        # }
-        # data = {
-        #     "origins": locations,
-        #     "destinations": locations,
-        #     "languageCode": "en-US",
-        #     "units": "IMPERIAL"
-        # }
+        print(task_to_location)
+        
+        # create HTTP request to Google Routes API
+        url = 'https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix'
+        headers = {
+            'Content-Type': 'application/json',
+            'X-Goog-Api-Key': 'AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294',
+            'X-Goog-FieldMask': 'originIndex,destinationIndex,duration'
+        }
+        data = {
+            "origins": locations,
+            "destinations": locations,
+            "languageCode": "en-US",
+            "units": "IMPERIAL"
+        }
 
         # # call request and store response
         # response = requests.post(url, json=data, headers=headers)
             
         # response_data = response.json()
 
+        response_data = [{'originIndex': 19, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 19, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 19, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 19, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 18, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 18, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 18, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 18, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 19, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 17, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 17, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 18, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 17, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 18, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 17, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 16, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 16, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 17, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 16, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 15, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 15, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 17, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 16, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 16, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 15, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 14, 'destinationIndex': 19, 'duration': '925s'}, {'originIndex': 14, 'destinationIndex': 16, 'duration': '925s'}, {'originIndex': 11, 'destinationIndex': 10, 'duration': '925s'}, {'originIndex': 14, 'destinationIndex': 13, 'duration': '925s'}, {'originIndex': 14, 'destinationIndex': 18, 'duration': '925s'}, {'originIndex': 15, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 14, 'destinationIndex': 17, 'duration': '925s'}, {'originIndex': 14, 'destinationIndex': 14, 'duration': '0s'}, {'originIndex': 14, 'destinationIndex': 5, 'duration': '925s'}, {'originIndex': 14, 'destinationIndex': 15, 'duration': '925s'}, {'originIndex': 14, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 14, 'destinationIndex': 3, 'duration': '925s'}, {'originIndex': 14, 'destinationIndex': 6, 'duration': '925s'}, {'originIndex': 14, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 14, 'destinationIndex': 10, 'duration': '925s'}, {'originIndex': 14, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 15, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 14, 'destinationIndex': 8, 'duration': '925s'}, {'originIndex': 14, 'destinationIndex': 12, 'duration': '925s'}, {'originIndex': 13, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 14, 'destinationIndex': 1, 'duration': '925s'}, {'originIndex': 13, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 14, 'destinationIndex': 2, 'duration': '925s'}, {'originIndex': 13, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 13, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 13, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 13, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 14, 'destinationIndex': 4, 'duration': '925s'}, {'originIndex': 12, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 12, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 12, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 14, 'destinationIndex': 0, 'duration': '925s'}, {'originIndex': 12, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 12, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 19, 'duration': '925s'}, {'originIndex': 12, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 17, 'duration': '925s'}, {'originIndex': 11, 'destinationIndex': 16, 'duration': '925s'}, {'originIndex': 12, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 18, 'duration': '925s'}, {'originIndex': 11, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 15, 'duration': '925s'}, {'originIndex': 13, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 13, 'duration': '925s'}, {'originIndex': 9, 'destinationIndex': 1, 'duration': '925s'}, {'originIndex': 11, 'destinationIndex': 12, 'duration': '925s'}, {'originIndex': 11, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 4, 'duration': '925s'}, {'originIndex': 11, 'destinationIndex': 8, 'duration': '925s'}, {'originIndex': 11, 'destinationIndex': 2, 'duration': '925s'}, {'originIndex': 11, 'destinationIndex': 5, 'duration': '925s'}, {'originIndex': 11, 'destinationIndex': 0, 'duration': '925s'}, {'originIndex': 10, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 10, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 10, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 11, 'destinationIndex': 3, 'duration': '925s'}, {'originIndex': 10, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 1, 'duration': '925s'}, {'originIndex': 11, 'destinationIndex': 14, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 6, 'duration': '925s'}, {'originIndex': 10, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 10, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 10, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 16, 'duration': '925s'}, {'originIndex': 9, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 14, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 6, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 3, 'duration': '925s'}, {'originIndex': 9, 'destinationIndex': 8, 'duration': '925s'}, {'originIndex': 9, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 2, 'duration': '925s'}, {'originIndex': 9, 'destinationIndex': 5, 'duration': '925s'}, {'originIndex': 10, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 12, 'duration': '925s'}, {'originIndex': 9, 'destinationIndex': 4, 'duration': '925s'}, {'originIndex': 9, 'destinationIndex': 18, 'duration': '925s'}, {'originIndex': 9, 'destinationIndex': 15, 'duration': '925s'}, {'originIndex': 9, 'destinationIndex': 13, 'duration': '925s'}, {'originIndex': 10, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 17, 'duration': '925s'}, {'originIndex': 9, 'destinationIndex': 19, 'duration': '925s'}, {'originIndex': 10, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 10, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 0, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 8, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 8, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 8, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 7, 'destinationIndex': 19, 'duration': '925s'}, {'originIndex': 7, 'destinationIndex': 17, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 18, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 16, 'duration': '925s'}, {'originIndex': 7, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 14, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 3, 'duration': '925s'}, {'originIndex': 7, 'destinationIndex': 12, 'duration': '925s'}, {'originIndex': 7, 'destinationIndex': 5, 'duration': '925s'}, {'originIndex': 7, 'destinationIndex': 8, 'duration': '925s'}, {'originIndex': 7, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 15, 'duration': '925s'}, {'originIndex': 7, 'destinationIndex': 6, 'duration': '925s'}, {'originIndex': 7, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 13, 'duration': '925s'}, {'originIndex': 6, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 2, 'duration': '925s'}, {'originIndex': 6, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 0, 'duration': '925s'}, {'originIndex': 6, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 7, 'destinationIndex': 10, 'duration': '925s'}, {'originIndex': 6, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 6, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 6, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 6, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 4, 'duration': '925s'}, {'originIndex': 6, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 6, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 5, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 1, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 5, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 5, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 4, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 4, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 4, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 4, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 3, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 3, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 3, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 3, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 2, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 2, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 2, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 1, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 1, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 1, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 1, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 18, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 0, 'destinationIndex': 15, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 17, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 16, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 14, 'duration': '863s'}, {'originIndex': 0, 'destinationIndex': 9, 'duration': '863s'}, {'originIndex': 0, 'destinationIndex': 7, 'duration': '863s'}, {'originIndex': 0, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 19, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 11, 'duration': '863s'}, {'originIndex': 0, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 5, 'duration': '0s'}]
+        
+        # print(f"len: {len(response_data)}")
+
         # print(response_data)
 
-        response_data = [{'originIndex': 6, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 9, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 8, 'duration': '863s'}, {'originIndex': 7, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 11, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 2, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 10, 'destinationIndex': 8, 'duration': '863s'}, {'originIndex': 0, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 2, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 13, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 2, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 7, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 8, 'duration': '863s'}, {'originIndex': 2, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 2, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 0, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 6, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 12, 'destinationIndex': 8, 'duration': '863s'}, {'originIndex': 0, 'destinationIndex': 13, 'duration': '0s'}, {'originIndex': 2, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 12, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 13, 'destinationIndex': 8, 'duration': '863s'}, {'originIndex': 2, 'destinationIndex': 0, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 8, 'duration': '863s'}, {'originIndex': 0, 'destinationIndex': 11, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 10, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 9, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 0, 'destinationIndex': 7, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 6, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 0, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 11, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 1, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 8, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 8, 'duration': '863s'}, {'originIndex': 10, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 7, 'destinationIndex': 8, 'duration': '863s'}, {'originIndex': 11, 'destinationIndex': 8, 'duration': '863s'}, {'originIndex': 12, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 7, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 13, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 12, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 8, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 12, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 1, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 4, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 4, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 3, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 11, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 9, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 5, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 8, 'destinationIndex': 12, 'duration': '925s'}, {'originIndex': 6, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 10, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 3, 'destinationIndex': 1, 'duration': '0s'}, {'originIndex': 9, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 2, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 6, 'destinationIndex': 8, 'duration': '863s'}, {'originIndex': 8, 'destinationIndex': 13, 'duration': '925s'}, {'originIndex': 11, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 6, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 10, 'destinationIndex': 1, 'duration': '863s'}, {'originIndex': 3, 'destinationIndex': 2, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 11, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 9, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 13, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 9, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 2, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 7, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 10, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 0, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 4, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 6, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 8, 'duration': '0s'}, {'originIndex': 3, 'destinationIndex': 6, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 4, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 7, 'duration': '925s'}, {'originIndex': 9, 'destinationIndex': 5, 'duration': '863s'}, {'originIndex': 5, 'destinationIndex': 9, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 5, 'duration': '0s'}, {'originIndex': 1, 'destinationIndex': 4, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 2, 'duration': '925s'}, {'originIndex': 7, 'destinationIndex': 3, 'duration': '863s'}, {'originIndex': 1, 'destinationIndex': 7, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 6, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 10, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 9, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 7, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 10, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 13, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 3, 'duration': '0s'}, {'originIndex': 5, 'destinationIndex': 11, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 0, 'duration': '925s'}, {'originIndex': 8, 'destinationIndex': 0, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 12, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 6, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 11, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 13, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 0, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 10, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 2, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 12, 'duration': '925s'}, {'originIndex': 1, 'destinationIndex': 11, 'duration': '925s'}, {'originIndex': 5, 'destinationIndex': 12, 'duration': '925s'}, {'originIndex': 3, 'destinationIndex': 4, 'duration': '925s'}]
         # create a 2D array that has dimensions n x n, where n is the number of tasks
         len_sides = len(locations)
         travel_times_matrix = [[None] * len_sides for _ in range(len_sides)]
+
+        # default_timedelta = lambda: timedelta(minutes=0)
+        # travel_time_dict = defaultdict(default_timedelta)
+
+        travel_time_dict = {}
+
+        for i in range(len(response_data)):
+            origin = task_to_location[response_data[i]['originIndex']]
+            destination = task_to_location[response_data[i]['destinationIndex']]
+            duration = int(response_data[i]['duration'][:-1])
+            rounded_duration = math.ceil(duration / 300) * 5
+            if origin not in travel_time_dict:
+                travel_time_dict[origin] = {}
+            
+            # Initialize destination key if it doesn't exist
+            if destination not in travel_time_dict[origin]:
+                travel_time_dict[origin][destination] = timedelta(minutes=rounded_duration)
+            else:
+                travel_time_dict[origin][destination] += timedelta(minutes=rounded_duration)
+            # travel_time_dict[origin][destination] = timedelta(minutes=rounded_duration)
+        
+        self.travel_times_matrix = travel_time_dict
+
+        
+        # for source, destination in travel_time_dict.items():
+        #     for k,v in destination.items():
+        #         print(f"source: {source}, destination: {k}, {v}")
+
+        # print("done")
+
+            # travel_times_matrix[int(originTask)][int(destinationTask)] = timedelta(minutes=rounded_duration)
+        
+        # print(count)
         
         # fetch the taskID from the index
         # assign the duration to the [x][y] of the matrix
-        for i in range(len(response_data)):
-            originTask = task_to_location[response_data[i]['originIndex']]
-            destinationTask = task_to_location[response_data[i]['destinationIndex']]
-            duration = int(response_data[i]['duration'][:-1])
-            rounded_duration = math.ceil(duration / 300) * 5
-            travel_times_matrix[int(originTask)][int(destinationTask)] = timedelta(minutes=rounded_duration)
+        # for i in range(len(response_data)):
+        #     originTask = task_to_location[response_data[i]['originIndex']]
+        #     destinationTask = task_to_location[response_data[i]['destinationIndex']]
+        #     duration = int(response_data[i]['duration'][:-1])
+        #     rounded_duration = math.ceil(duration / 300) * 5
+        #     travel_times_matrix[int(originTask)][int(destinationTask)] = timedelta(minutes=rounded_duration)
         
-        self.travel_times_matrix = travel_times_matrix
-
-        # for row in travel_times_matrix:
-        #     print(row[1:])
-                
-
-        # if response.status_code == 200 and response.json():
-        #     print("Request successful.")
-        #     print("Response:", response.json())
-        #     # response_data = response.json()
-        #     # time_seconds_string = response_data['routes'][0]['duration']
-        #     # time_seconds_int = int(time_seconds_string[:-1])
-        #     # minutes = time_seconds_int / 60
-        #     # rounded_minutes =  math.ceil(minutes / 5) * 5
-        #     # return timedelta(minutes=rounded_minutes)
-        # else:
-        #     print("Request failed with status code:", response.status_code)
-        #     # return timedelta()
+        # self.travel_times_matrix = travel_times_matrix
 
     def mins_to_datetime(self,mins):
         hours, minutes = divmod(mins, 60)
@@ -311,6 +354,25 @@ class TaskAllocator:
         # print("busy time: " + str(time))
         # print(f"task at busy time: {daily_schedule[time]}")
 
+    def get_allocated_tasks(self):
+        
+        all_tasks = set()
+        for daily_schedule in self.schedule.values():
+            for time_slot in daily_schedule.values():
+                if time_slot is not None:
+                    all_tasks.add(time_slot)
+
+        allocated_tasks_refs = {task for task in all_tasks if isinstance(task, int)}
+        allocated_tasks = []
+
+        for task_ref in allocated_tasks_refs:
+            task = self.get_task_dict(task_ref)
+            allocated_tasks.append(task)
+            # print(f"TASK: {task.get_name()}, START DATE: {task.get_start_time()}, END DATE: {task.get_end_time()}, CATEGORY: {task.get_category()}")
+            
+        return allocated_tasks
+
+
 # hard tasks
 dt1_startx = datetime.now() + timedelta(hours=1)
 dt1_start = dt1_startx.replace(second=0, microsecond=0)
@@ -337,17 +399,17 @@ dt5_start = dt5_startx.replace(second=0, microsecond=0)
 dt5_endx = datetime.now() + timedelta(days=2, hours=4)
 dt5_end = dt5_endx.replace(second=0, microsecond=0)
 
-hardTask1 = HardTask("h1","HardTask1",dt1_start,dt1_end)
-hardTask2 = HardTask("h2","HardTask2",dt2_start,dt2_end)
-hardTask3 = HardTask("h3","HardTask3",dt3_start,dt3_end)
-hardTask4 = HardTask("h4","HardTask4",dt4_start,dt4_end)
-hardTask5 = HardTask("h5","HardTask5",dt5_start,dt5_end)
+hardTask1 = HardTask("h1","HardTask1",dt1_start,dt1_end,(51.513056,-0.117352))
+hardTask2 = HardTask("h2","HardTask2",dt2_start,dt2_end,(51.513056,-0.117352))
+hardTask3 = HardTask("h3","HardTask3",dt3_start,dt3_end,(51.513056,-0.117352))
+hardTask4 = HardTask("h4","HardTask4",dt4_start,dt4_end,(51.513056,-0.117352))
+hardTask5 = HardTask("h5","HardTask5",dt5_start,dt5_end,(51.513056,-0.117352))
 
 hard_tasks = [hardTask1,hardTask2,hardTask3,hardTask4,hardTask4,hardTask5]
 
 # tasks to allocate
 task2 = Task(2,"OME Content",timedelta(hours=2,minutes=0),3,(),(51.513056,-0.117352),0)
-task1 = Task(1,"NSE Content",timedelta(hours=2,minutes=0),3,(task2,),(51.503162, -0.086852),1)
+task1 = Task(1,"NSE Content",timedelta(hours=1,minutes=0),3,(task2,),(51.503162, -0.086852),1)
 task0 = Task(0,"ML1 Content",timedelta(hours=1,minutes=0),3,(task1,task2),(51.513056,-0.117352),0)
 task3 = Task(3,"Push session",timedelta(hours=2,minutes=0),3,(),(51.503162, -0.086852),2)
 task4 = Task(4,"Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),2)
@@ -372,10 +434,21 @@ task_allocator = TaskAllocator(user_requirements)
 
 breakType = BreakType.SHORT 
 
+all_tasks = hard_tasks + tasks_to_be_allocated
+task_allocator.get_travel_times(all_tasks)
+
 task_allocator.allocate_hard_tasks(hard_tasks)
 sorted_tasks = task_allocator.topological_sort(tasks_to_be_allocated)
-task_allocator.get_travel_times(sorted_tasks)
+
 task_allocator.knapsack_allocator(sorted_tasks)
+allocated_tasks = task_allocator.get_allocated_tasks()
+print("done")
+
+user_preferences = UserPreferences()
+# print(user_preferences.get_preferences_satisfied(allocated_tasks))
+
+# task_allocator.find_topological_orders(tasks_to_be_allocated)
+# print("test")
 
 for k, v in task_allocator.schedule.items():
     for time, task in v.items():

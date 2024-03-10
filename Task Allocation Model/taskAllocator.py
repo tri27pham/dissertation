@@ -12,7 +12,7 @@ from userPreferences import UserPreferences
 from allocatedTask import AllocatedTask
 from collections import defaultdict
 from hardTask import HardTask
-from geneticAlgorithm import GeneticAlgorithm
+# from geneticAlgorithm import GeneticAlgorithm
 
 
 import math
@@ -158,6 +158,16 @@ class TaskAllocator:
         # sorted_tasks = sorted(allocated_tasks, key=lambda task: task.get_start_datetime())
         # sorted_tasks_IDs = [task.getID() for task in sorted_tasks]
         # print(f"allocated: {sorted_tasks_IDs}")
+
+        # all_task_IDs = []
+        # for daily_schedule in schedule.values():
+        #     for time_slot in daily_schedule.values():
+        #         if time_slot is not None and time_slot not in all_task_IDs and time_slot != "travel":
+        #             all_task_IDs.append(time_slot)
+        # all_tasks = [self.task_dict[task_ID] for task_ID in all_task_IDs]
+        # sorted_tasks = sorted(all_tasks, key=lambda task: task.get_start_datetime())
+        # sorted_task_IDs = [task.getID() for task in sorted_tasks]
+        # print(f"allocated: {sorted_task_IDs}")
 
         return allocated_tasks
 
@@ -317,98 +327,98 @@ class TaskAllocator:
                     all_tasks.append(time_slot)
         print(all_tasks)
 
-# hard tasks
-dt1_startx = datetime.now() + timedelta(hours=1)
-dt1_start = dt1_startx.replace(second=0, microsecond=0)
-dt1_endx = datetime.now() + timedelta(hours=2)
-dt1_end = dt1_endx.replace(second=0, microsecond=0)
+# # hard tasks
+# dt1_startx = datetime.now() + timedelta(hours=1)
+# dt1_start = dt1_startx.replace(second=0, microsecond=0)
+# dt1_endx = datetime.now() + timedelta(hours=2)
+# dt1_end = dt1_endx.replace(second=0, microsecond=0)
 
-dt2_startx = datetime.now() + timedelta(hours=18)
-dt2_start = dt2_startx.replace(second=0, microsecond=0)
-dt2_endx = datetime.now() + timedelta(hours=20)
-dt2_end = dt2_endx.replace(second=0, microsecond=0)
+# dt2_startx = datetime.now() + timedelta(hours=18)
+# dt2_start = dt2_startx.replace(second=0, microsecond=0)
+# dt2_endx = datetime.now() + timedelta(hours=20)
+# dt2_end = dt2_endx.replace(second=0, microsecond=0)
 
-dt3_startx = datetime.now() + timedelta(hours=24)
-dt3_start = dt3_startx.replace(second=0, microsecond=0)
-dt3_endx = datetime.now() + timedelta(hours=25)
-dt3_end = dt3_endx.replace(second=0, microsecond=0)
+# dt3_startx = datetime.now() + timedelta(hours=24)
+# dt3_start = dt3_startx.replace(second=0, microsecond=0)
+# dt3_endx = datetime.now() + timedelta(hours=25)
+# dt3_end = dt3_endx.replace(second=0, microsecond=0)
 
-dt4_startx = datetime.now() + timedelta(days=2)
-dt4_start = dt4_startx.replace(second=0, microsecond=0)
-dt4_endx = datetime.now() + timedelta(days=2,hours=1)
-dt4_end = dt4_endx.replace(second=0, microsecond=0)
+# dt4_startx = datetime.now() + timedelta(days=2)
+# dt4_start = dt4_startx.replace(second=0, microsecond=0)
+# dt4_endx = datetime.now() + timedelta(days=2,hours=1)
+# dt4_end = dt4_endx.replace(second=0, microsecond=0)
 
-dt5_startx = datetime.now() + timedelta(days=2, hours=2)
-dt5_start = dt5_startx.replace(second=0, microsecond=0)
-dt5_endx = datetime.now() + timedelta(days=2, hours=4)
-dt5_end = dt5_endx.replace(second=0, microsecond=0)
+# dt5_startx = datetime.now() + timedelta(days=2, hours=2)
+# dt5_start = dt5_startx.replace(second=0, microsecond=0)
+# dt5_endx = datetime.now() + timedelta(days=2, hours=4)
+# dt5_end = dt5_endx.replace(second=0, microsecond=0)
 
-hardTask1 = HardTask("h1","HardTask1",dt1_start,dt1_end,(51.513056,-0.117352))
-hardTask2 = HardTask("h2","HardTask2",dt2_start,dt2_end,(51.513056,-0.117352))
-hardTask3 = HardTask("h3","HardTask3",dt3_start,dt3_end,(51.513056,-0.117352))
-hardTask4 = HardTask("h4","HardTask4",dt4_start,dt4_end,(51.513056,-0.117352))
-hardTask5 = HardTask("h5","HardTask5",dt5_start,dt5_end,(51.513056,-0.117352))
+# hardTask1 = HardTask("h1","HardTask1",dt1_start,dt1_end,(51.513056,-0.117352))
+# hardTask2 = HardTask("h2","HardTask2",dt2_start,dt2_end,(51.513056,-0.117352))
+# hardTask3 = HardTask("h3","HardTask3",dt3_start,dt3_end,(51.513056,-0.117352))
+# hardTask4 = HardTask("h4","HardTask4",dt4_start,dt4_end,(51.513056,-0.117352))
+# hardTask5 = HardTask("h5","HardTask5",dt5_start,dt5_end,(51.513056,-0.117352))
 
-hard_tasks = [hardTask1,hardTask2,hardTask3,hardTask4,hardTask4,hardTask5]
+# hard_tasks = [hardTask1,hardTask2,hardTask3,hardTask4,hardTask4,hardTask5]
 
-# tasks to allocate
-task2 = Task("s2","OME Content",timedelta(hours=2,minutes=0),3,(),(51.513056,-0.117352),0)
-task1 = Task("s1","NSE Content",timedelta(hours=1,minutes=0),3,(task2,),(51.503162, -0.086852),1)
-task0 = Task("s0","ML1 Content",timedelta(hours=1,minutes=0),3,(task1,task2),(51.513056,-0.117352),0)
-task3 = Task("s3","Push session",timedelta(hours=2,minutes=0),3,(),(51.503162, -0.086852),2)
-task4 = Task("s4","Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),2)
-task5 = Task("s5","Pull session",timedelta(hours=2,minutes=0),2,(),(51.503162, -0.086852),3)
-task6 = Task("s6","10k",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),6)
-task7 = Task("s7","Dissertation",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
-task8 = Task("s8","Work",timedelta(hours=2,minutes=0),2,(),(51.503162,-0.086852),0)
-task9 = Task("s9","Push session",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),1)
-task10 = Task("s10","Coursework",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),2)
-task11 = Task("s11","Legs session",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
-task12 = Task("s12","Dissertation",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),5)
-task13 = Task("s13","5k",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),6)
-tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13,task0,task1,task2]
+# # tasks to allocate
+# task2 = Task("s2","OME Content",timedelta(hours=2,minutes=0),3,(),(51.513056,-0.117352),0)
+# task1 = Task("s1","NSE Content",timedelta(hours=1,minutes=0),3,(task2,),(51.503162, -0.086852),1)
+# task0 = Task("s0","ML1 Content",timedelta(hours=1,minutes=0),3,(task1,task2),(51.513056,-0.117352),0)
+# task3 = Task("s3","Push session",timedelta(hours=2,minutes=0),3,(),(51.503162, -0.086852),2)
+# task4 = Task("s4","Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),2)
+# task5 = Task("s5","Pull session",timedelta(hours=2,minutes=0),2,(),(51.503162, -0.086852),3)
+# task6 = Task("s6","10k",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),6)
+# task7 = Task("s7","Dissertation",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
+# task8 = Task("s8","Work",timedelta(hours=2,minutes=0),2,(),(51.503162,-0.086852),0)
+# task9 = Task("s9","Push session",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),1)
+# task10 = Task("s10","Coursework",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),2)
+# task11 = Task("s11","Legs session",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
+# task12 = Task("s12","Dissertation",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),5)
+# task13 = Task("s13","5k",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),6)
+# tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13,task0,task1,task2]
 
-task_dict = {}
+# task_dict = {}
 
-for task in tasks_to_be_allocated:
-    task_dict[task.getID()] = task
+# for task in tasks_to_be_allocated:
+#     task_dict[task.getID()] = task
 
-nine_am = time(hour=9, minute=0, second=0)
-five_pm = time(hour=18, minute=0, second=0)
+# nine_am = time(hour=9, minute=0, second=0)
+# five_pm = time(hour=18, minute=0, second=0)
 
-user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
+# user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
 
-all_tasks = hard_tasks + tasks_to_be_allocated
+# all_tasks = hard_tasks + tasks_to_be_allocated
 
-task_allocator = TaskAllocator(user_requirements,all_tasks)
-task_allocator.allocate_hard_tasks(hard_tasks)
-task_allocator.get_travel_times(all_tasks)
+# task_allocator = TaskAllocator(user_requirements,all_tasks)
+# task_allocator.allocate_hard_tasks(hard_tasks)
+# task_allocator.get_travel_times(all_tasks)
 
-user_preferences = UserPreferences()
+# user_preferences = UserPreferences()
 
-ga = GeneticAlgorithm(tasks_to_be_allocated,10)
-ga.create_first_generation()
+# ga = GeneticAlgorithm(tasks_to_be_allocated,10)
+# ga.create_first_generation()
 
-for order in ga.initial_population:
-    tasks = []
-    for task_ID in order:
-        tasks.append(task_dict[task_ID])
-    allocated_tasks = task_allocator.knapsack_allocator(tasks)
-    points = user_preferences.get_preferences_satisfied(allocated_tasks)
-    print(f"ORDER: {order}, POINTS: {points}")
+# for order in ga.initial_population:
+#     tasks = []
+#     for task_ID in order:
+#         tasks.append(task_dict[task_ID])
+#     allocated_tasks = task_allocator.knapsack_allocator(tasks)
+#     points = user_preferences.get_preferences_satisfied(allocated_tasks)
+#     print(f"ORDER: {order}, POINTS: {points}")
 
 
 
-# for k, v in task_allocator.schedule.items():
-#     for time, task in v.items():
-#         if task != None:
-#             if type(task) == HardTask:
-#                 name = task.get_name()
-#             elif isinstance(task, str):
-#                 name = task
-#             else:
-#                 name = task_allocator.get_task_dict(task).get_name()
-#             print(f"{k} {time}: {name}")
-#         else:
-#              print(f"{k} {time}: empty")
+# # for k, v in task_allocator.schedule.items():
+# #     for time, task in v.items():
+# #         if task != None:
+# #             if type(task) == HardTask:
+# #                 name = task.get_name()
+# #             elif isinstance(task, str):
+# #                 name = task
+# #             else:
+# #                 name = task_allocator.get_task_dict(task).get_name()
+# #             print(f"{k} {time}: {name}")
+# #         else:
+# #              print(f"{k} {time}: empty")
         

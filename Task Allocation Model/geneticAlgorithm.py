@@ -1,3 +1,6 @@
+# from userPreferences import UserPreferences
+# from taskAllocator import TaskAllocator
+
 from collections import defaultdict
 from task import Task
 from random import shuffle
@@ -8,11 +11,13 @@ class GeneticAlgorithm:
     def __init__(self,tasks,population_size):
 
         self.tasks = tasks
-        self.task_ref = {}
+        self.task_dict = {}
         for task in tasks:
-            self.task_ref[task.getID()] = task
-
+            self.task_dict[task.getID()] = task
         self.population_size = population_size
+
+        # self.user_preferences = UserPreferences()
+        # self.task_allocator = task_allocator
 
     # initialise
     def create_first_generation(self):
@@ -20,7 +25,7 @@ class GeneticAlgorithm:
         orders = set()
         
         # get task IDs of all tasks
-        task_IDs = [task_ID for task_ID in self.task_ref.keys()]
+        task_IDs = [task_ID for task_ID in self.task_dict.keys()]
         # get an initial topological order
         top_order = self.topological_sort(task_IDs)
         # add initial topological order to list of orders
@@ -32,7 +37,6 @@ class GeneticAlgorithm:
                 orders.add(tuple(new_order))
 
         self.initial_population = orders
-
 
     def shuffle(self,order):
         
@@ -75,14 +79,13 @@ class GeneticAlgorithm:
 
         return new_order
 
-
     def get_important_nodes(self,order):
 
         incoming_edges = set()
         outgoing_edges = set()
 
         for task in order:
-            task_object = self.task_ref[task]
+            task_object = self.task_dict[task]
             for prior_task in task_object.get_prior_tasks():
                 incoming_edges.add(task)
                 outgoing_edges.add(prior_task.getID())
@@ -96,7 +99,7 @@ class GeneticAlgorithm:
         for task_ref in order:
             # print(f"set: {seen}")
             if task_ref is not None:
-                for prior_task in self.task_ref[task_ref].get_prior_tasks():
+                for prior_task in self.task_dict[task_ref].get_prior_tasks():
                     if prior_task.getID() not in seen:
                         return False
                 seen.add(task_ref)
@@ -108,7 +111,7 @@ class GeneticAlgorithm:
         stack = []  # To keep track of tasks in the order they are finished
 
         # convert list of task IDs to list of actual Task objects
-        tasks = [self.task_ref[task_ID] for task_ID in task_IDs]
+        tasks = [self.task_dict[task_ID] for task_ID in task_IDs]
 
         def dfs(task):
 
@@ -133,8 +136,81 @@ class GeneticAlgorithm:
 
     # select
 
+    # choices = []
+    # for order in self.initial_population:
+    #     tasks = [self.task_dict[task_ref] for task_ref in order]
+    #     allocated_tasks = self.task_allocator.knapsack_allocator(schedule,tasks)
+    #     points = self.user_preferences.get_preferences_satisfied(allocated_tasks)
+    #     choices.append(order,points)
+
     # crossover
 
     # mutate
 
     # terminate 
+
+# # hard tasks
+# dt1_startx = datetime.now() + timedelta(hours=1)
+# dt1_start = dt1_startx.replace(second=0, microsecond=0)
+# dt1_endx = datetime.now() + timedelta(hours=2)
+# dt1_end = dt1_endx.replace(second=0, microsecond=0)
+
+# dt2_startx = datetime.now() + timedelta(hours=18)
+# dt2_start = dt2_startx.replace(second=0, microsecond=0)
+# dt2_endx = datetime.now() + timedelta(hours=20)
+# dt2_end = dt2_endx.replace(second=0, microsecond=0)
+
+# dt3_startx = datetime.now() + timedelta(hours=24)
+# dt3_start = dt3_startx.replace(second=0, microsecond=0)
+# dt3_endx = datetime.now() + timedelta(hours=25)
+# dt3_end = dt3_endx.replace(second=0, microsecond=0)
+
+# dt4_startx = datetime.now() + timedelta(days=2)
+# dt4_start = dt4_startx.replace(second=0, microsecond=0)
+# dt4_endx = datetime.now() + timedelta(days=2,hours=1)
+# dt4_end = dt4_endx.replace(second=0, microsecond=0)
+
+# dt5_startx = datetime.now() + timedelta(days=2, hours=2)
+# dt5_start = dt5_startx.replace(second=0, microsecond=0)
+# dt5_endx = datetime.now() + timedelta(days=2, hours=4)
+# dt5_end = dt5_endx.replace(second=0, microsecond=0)
+
+# hardTask1 = HardTask("h1","HardTask1",dt1_start,dt1_end,(51.513056,-0.117352))
+# hardTask2 = HardTask("h2","HardTask2",dt2_start,dt2_end,(51.513056,-0.117352))
+# hardTask3 = HardTask("h3","HardTask3",dt3_start,dt3_end,(51.513056,-0.117352))
+# hardTask4 = HardTask("h4","HardTask4",dt4_start,dt4_end,(51.513056,-0.117352))
+# hardTask5 = HardTask("h5","HardTask5",dt5_start,dt5_end,(51.513056,-0.117352))
+
+# hard_tasks = [hardTask1,hardTask2,hardTask3,hardTask4,hardTask4,hardTask5]
+
+# # tasks to allocate
+# task2 = Task("s2","OME Content",timedelta(hours=2,minutes=0),3,(),(51.513056,-0.117352),0)
+# task1 = Task("s1","NSE Content",timedelta(hours=1,minutes=0),3,(task2,),(51.503162, -0.086852),1)
+# task0 = Task("s0","ML1 Content",timedelta(hours=1,minutes=0),3,(task1,task2),(51.513056,-0.117352),0)
+# task3 = Task("s3","Push session",timedelta(hours=2,minutes=0),3,(),(51.503162, -0.086852),2)
+# task4 = Task("s4","Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),2)
+# task5 = Task("s5","Pull session",timedelta(hours=2,minutes=0),2,(),(51.503162, -0.086852),3)
+# task6 = Task("s6","10k",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),6)
+# task7 = Task("s7","Dissertation",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
+# task8 = Task("s8","Work",timedelta(hours=2,minutes=0),2,(),(51.503162,-0.086852),0)
+# task9 = Task("s9","Push session",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),1)
+# task10 = Task("s10","Coursework",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),2)
+# task11 = Task("s11","Legs session",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
+# task12 = Task("s12","Dissertation",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),5)
+# task13 = Task("s13","5k",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),6)
+# tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13,task0,task1,task2]
+
+# nine_am = time(hour=9, minute=0, second=0)
+# five_pm = time(hour=18, minute=0, second=0)
+
+# user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
+
+# task_allocator = TaskAllocator(user_requirements)
+# all_tasks = hard_tasks + tasks_to_be_allocated
+# task_allocator.get_travel_times(all_tasks)
+# initial_schedule = {}
+# initial_schedule = task_allocator.allocate_hard_tasks(initial_schedule,hard_tasks)
+# schedule = copy.copy(initial_schedule)
+
+# ga = GeneticAlgorithm(tasks_to_be_allocated,10,task_allocator)
+# ga.create_first_generation()

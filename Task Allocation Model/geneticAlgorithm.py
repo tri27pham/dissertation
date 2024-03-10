@@ -31,8 +31,7 @@ class GeneticAlgorithm:
             if new_order not in orders:
                 orders.add(tuple(new_order))
 
-        for order in orders:
-            print(order)
+        self.initial_population = orders
 
 
     def shuffle(self,order):

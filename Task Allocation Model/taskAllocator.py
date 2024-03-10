@@ -17,6 +17,7 @@ from geneticAlgorithm import GeneticAlgorithm
 
 import math
 import random
+import copy
 
 import requests
 
@@ -53,7 +54,7 @@ class TaskAllocator:
 
         return stack
 
-    def populate_schedule(self,tasks,interval):
+    def populate_schedule(self,schedule,tasks,interval):
 
         dates = [task.get_date() for task in tasks]
         first_date = min(dates)
@@ -62,14 +63,16 @@ class TaskAllocator:
         current_date = first_date
        
         while current_date <= last_date:
-            self.schedule[current_date] = self.create_new_daily_schedule(interval)
+            schedule[current_date] = self.create_new_daily_schedule(interval)
             current_date += timedelta(days=1)
 
-    def allocate_hard_tasks(self,tasks):
+        return schedule
+
+    def allocate_hard_tasks(self,schedule,tasks):
 
         interval = timedelta(minutes=1)
 
-        self.populate_schedule(tasks,interval)
+        self.populate_schedule(schedule,tasks,interval)
 
         for task in tasks:
             date = task.get_date()
@@ -79,10 +82,12 @@ class TaskAllocator:
             current_time = start_time
             while current_time <= end_time:
                 self.task_dict[task.getID()] = task
-                self.schedule[date][current_time] = task.getID()
+                schedule[date][current_time] = task.getID()
                 dt_current_time = datetime.combine(datetime.today(),current_time)
                 updated_time = dt_current_time + interval
                 current_time = updated_time.time()
+        
+        return schedule
 
     def create_new_daily_schedule(self,interval=timedelta(minutes=1)):
 
@@ -100,9 +105,9 @@ class TaskAllocator:
 
         return daily_schedule
 
-    def knapsack_allocator(self,tasks_to_allocate):
+    def knapsack_allocator(self,schedule,tasks_to_allocate):
 
-        schedule = self.schedule
+        # schedule = self.schedule
         task_dict = self.task_dict
 
         date = datetime.now().date()
@@ -132,7 +137,7 @@ class TaskAllocator:
 
             needed_time = travel_time + current_task.get_duration()
 
-            available_time_slot = self.get_available_time_slot(date,weekday,self.increment_time(current_time))
+            available_time_slot = self.get_available_time_slot(schedule,date,weekday,self.increment_time(current_time))
 
             if travel_time + current_task.get_duration() <= available_time_slot:
 
@@ -176,8 +181,17 @@ class TaskAllocator:
                     current_time = self.user_requirements.get_current_day_start(weekday)
                 date = date + timedelta(days=1)
 
-        self.schedule = schedule
-        self.task_dict = task_dict
+        return self.get_allocated_tasks(schedule)
+
+        # all_tasks = []
+        # for daily_schedule in schedule.values():
+        #     for time_slot in daily_schedule.values():
+        #         if time_slot is not None and time_slot not in all_tasks and time_slot != "travel":
+        #             all_tasks.append(time_slot)
+        # print(f"allocated: {all_tasks}")
+
+        # self.schedule = schedule
+        # self.task_dict = task_dict
 
     def get_travel_time_free(self,source,destination):
         random_num = random.randint(0, 6)
@@ -282,11 +296,11 @@ class TaskAllocator:
     def get_task_dict(self,taskId):
         return self.task_dict[taskId]
 
-    def get_available_time_slot(self,date,weekday,time):
+    def get_available_time_slot(self,schedule,date,weekday,time):
 
         total_time_available = timedelta()
 
-        daily_schedule = self.schedule[date]
+        daily_schedule = schedule[date]
         end_of_day = self.user_requirements.get_current_day_end(weekday)
 
         while daily_schedule[time] == None and time <= end_of_day:
@@ -295,10 +309,10 @@ class TaskAllocator:
 
         return total_time_available
 
-    def get_allocated_tasks(self):
+    def get_allocated_tasks(self,schedule):
         
         all_tasks = set()
-        for daily_schedule in self.schedule.values():
+        for daily_schedule in schedule.values():
             for time_slot in daily_schedule.values():
                 if time_slot is not None:
                     all_tasks.add(time_slot)
@@ -312,20 +326,27 @@ class TaskAllocator:
             
         return allocated_tasks
 
-    def display_all_tasks(self):
+    # def display_all_tasks(self):
 
-        all_tasks = set()
+    #     all_tasks = set()
+    #     for daily_schedule in self.schedule.values():
+    #         for time_slot in daily_schedule.values():
+    #             if time_slot is not None:
+    #                 all_tasks.add(time_slot)
+
+    #     allocated_tasks_refs = [task for task in all_tasks if task != "travel"]
+        
+    #     for task_ref in allocated_tasks_refs:
+    #         task = self.task_dict[task_ref]
+    #         print(f"NAME: {task.get_name()}, TIME: {task.get_start_datetime()} - {task.get_end_datetime()}")
+
+    def get_task_ordering(self):
+        all_tasks = []
         for daily_schedule in self.schedule.values():
             for time_slot in daily_schedule.values():
-                if time_slot is not None:
-                    all_tasks.add(time_slot)
-
-        allocated_tasks_refs = [task for task in all_tasks if task != "travel"]
-        
-        for task_ref in allocated_tasks_refs:
-            task = self.task_dict[task_ref]
-            print(f"NAME: {task.get_name()}, TIME: {task.get_start_datetime()} - {task.get_end_datetime()}")
-              
+                if time_slot is not None and time_slot not in all_tasks and time_slot != "travel":
+                    all_tasks.append(time_slot)
+        print(all_tasks)
 
 # hard tasks
 dt1_startx = datetime.now() + timedelta(hours=1)
@@ -378,6 +399,10 @@ task12 = Task("s12","Dissertation",timedelta(hours=2,minutes=0),1,(),(51.513056,
 task13 = Task("s13","5k",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),6)
 tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13,task0,task1,task2]
 
+task_dict = {}
+
+for task in tasks_to_be_allocated:
+    task_dict[task.getID()] = task
 
 nine_am = time(hour=9, minute=0, second=0)
 five_pm = time(hour=18, minute=0, second=0)
@@ -386,24 +411,29 @@ user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,fiv
 
 task_allocator = TaskAllocator(user_requirements)
 
-breakType = BreakType.SHORT 
-
 all_tasks = hard_tasks + tasks_to_be_allocated
 task_allocator.get_travel_times(all_tasks)
 
-task_allocator.allocate_hard_tasks(hard_tasks)
-sorted_tasks = task_allocator.topological_sort(tasks_to_be_allocated)
 
-task_allocator.knapsack_allocator(sorted_tasks)
-allocated_tasks = task_allocator.get_allocated_tasks()
-
-# task_allocator.display_all_tasks()
 
 user_preferences = UserPreferences()
 # print(f"POINTS: {user_preferences.get_preferences_satisfied(allocated_tasks)}")
 
+initial_schedule = {}
+initial_schedule = task_allocator.allocate_hard_tasks(initial_schedule,hard_tasks)
+schedule = copy.copy(initial_schedule)
+
 ga = GeneticAlgorithm(tasks_to_be_allocated,10)
 ga.create_first_generation()
+
+for order in ga.initial_population:
+    schedule = copy.copy(initial_schedule)
+    tasks = []
+    for task_ID in order:
+        tasks.append(task_dict[task_ID])
+    allocated_tasks = task_allocator.knapsack_allocator(schedule,tasks)
+    points = user_preferences.get_preferences_satisfied(allocated_tasks)
+    print(f"ORDER: {order}, POINTS: {points}")
 
 
 # for k, v in task_allocator.schedule.items():

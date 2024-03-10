@@ -41,6 +41,8 @@ class GeneticAlgorithm:
 
         self.initial_population = orders
 
+
+        print("INITIAL POPULATION")
         for order in self.initial_population:
             tasks = []
             for task_ID in order:
@@ -154,6 +156,12 @@ class GeneticAlgorithm:
             points = self.user_preferences.get_preferences_satisfied(allocated_tasks)
             choices.append([order,points])
         sorted_choices = sorted(choices, key=lambda x: x[1], reverse=True)
+        
+        print()
+        print("BEST FROM INITIAL POPULATION")
+        for order in sorted_choices[:2]:
+            print(f"ORDER: {order[0]}, POINTS: {order[1]}")
+
         return sorted_choices[:2]
 
 
@@ -234,11 +242,5 @@ user_preferences = UserPreferences()
 
 ga = GeneticAlgorithm(tasks_to_be_allocated,10,task_allocator)
 ga.create_first_generation()
-
-
-print("===================================BEST===================================")
-
-best = ga.select()
-for order in best:
-    print(f"ORDER: {order[0]}, POINTS: {order[1]}")
+ga.select()
 

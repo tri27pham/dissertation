@@ -402,7 +402,7 @@ allocated_tasks = task_allocator.get_allocated_tasks()
 user_preferences = UserPreferences()
 # print(f"POINTS: {user_preferences.get_preferences_satisfied(allocated_tasks)}")
 
-ga = GeneticAlgorithm(tasks_to_be_allocated,5)
+ga = GeneticAlgorithm(tasks_to_be_allocated,10)
 ga.create_first_generation()
 
 

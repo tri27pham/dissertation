@@ -17,33 +17,22 @@ class GeneticAlgorithm:
     # initialise
     def create_first_generation(self):
 
-        orders = []
+        orders = set()
         
         # get task IDs of all tasks
         task_IDs = [task_ID for task_ID in self.task_ref.keys()]
         # get an initial topological order
         top_order = self.topological_sort(task_IDs)
         # add initial topological order to list of orders
-        orders.append(top_order)
+        orders.add(tuple(top_order))
 
-        self.shuffle(top_order)
-        
-        # Repeat to generate n-1 additional random orderings
-        for _ in range(self.population_size-1):
-            break
-            shuffled_order = top_order[:]  # Copy the initial topological ordering
-            shuffle(shuffled_order)  # Shuffle the vertices randomly
-            # break
-            # Check if the shuffled order remains acyclic
-            if self.is_acyclic(shuffled_order):
-                orders.append(shuffled_order)
-            else:
-                # If the shuffled order is cyclic, discard it and try shuffling again
-                while not self.is_acyclic(shuffled_order):
-                    shuffle(shuffled_order)
-                orders.append(shuffled_order)
-    
-        # return orders
+        while len(orders) <= self.population_size:
+            new_order = tuple(self.shuffle(top_order))
+            if new_order not in orders:
+                orders.add(tuple(new_order))
+
+        for order in orders:
+            print(order)
 
 
     def shuffle(self,order):
@@ -84,6 +73,8 @@ class GeneticAlgorithm:
             if new_order[index] is None:
                 new_order[index] = unimportant_nodes[0]
                 unimportant_nodes.pop(0)
+
+        return new_order
 
 
     def get_important_nodes(self,order):

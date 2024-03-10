@@ -12,6 +12,7 @@ from userPreferences import UserPreferences
 from allocatedTask import AllocatedTask
 from collections import defaultdict
 from hardTask import HardTask
+from geneticAlgorithm import GeneticAlgorithm
 
 
 import math
@@ -375,7 +376,7 @@ task10 = Task("s10","Coursework",timedelta(hours=2,minutes=0),1,(),(51.513056,-0
 task11 = Task("s11","Legs session",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
 task12 = Task("s12","Dissertation",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),5)
 task13 = Task("s13","5k",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),6)
-tasks_to_be_allocated = [task0,task1,task2,task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13]
+tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13,task0,task1,task2]
 
 
 nine_am = time(hour=9, minute=0, second=0)
@@ -396,10 +397,14 @@ sorted_tasks = task_allocator.topological_sort(tasks_to_be_allocated)
 task_allocator.knapsack_allocator(sorted_tasks)
 allocated_tasks = task_allocator.get_allocated_tasks()
 
-task_allocator.display_all_tasks()
+# task_allocator.display_all_tasks()
 
 user_preferences = UserPreferences()
-print(user_preferences.get_preferences_satisfied(allocated_tasks))
+# print(f"POINTS: {user_preferences.get_preferences_satisfied(allocated_tasks)}")
+
+ga = GeneticAlgorithm(tasks_to_be_allocated,5)
+ga.create_first_generation()
+
 
 # for k, v in task_allocator.schedule.items():
 #     for time, task in v.items():

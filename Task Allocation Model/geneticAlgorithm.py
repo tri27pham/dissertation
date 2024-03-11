@@ -39,17 +39,18 @@ class GeneticAlgorithm:
             if new_order not in orders:
                 orders.add(tuple(new_order))
 
-        self.initial_population = orders
+        initial_population = []
+        for order in orders:
+            tasks = [self.task_dict[task_ref] for task_ref in order]
+            allocated_tasks = self.task_allocator.knapsack_allocator(tasks)
+            points = self.user_preferences.get_preferences_satisfied(allocated_tasks)
+            initial_population.append([order,points])
 
+        self.initial_population = initial_population
 
         print("INITIAL POPULATION")
         for order in self.initial_population:
-            tasks = []
-            for task_ID in order:
-                tasks.append(task_dict[task_ID])
-            allocated_tasks = task_allocator.knapsack_allocator(tasks)
-            points = user_preferences.get_preferences_satisfied(allocated_tasks)
-            print(f"ORDER: {order}, POINTS: {points}")
+            print(f"ORDER: {order[0]}, POINTS: {order[1]}")
 
     def shuffle(self,order):
         
@@ -149,20 +150,18 @@ class GeneticAlgorithm:
 
     # select
     def select(self):
-        choices = []
-        for order in self.initial_population:
-            tasks = [self.task_dict[task_ref] for task_ref in order]
-            allocated_tasks = self.task_allocator.knapsack_allocator(tasks)
-            points = self.user_preferences.get_preferences_satisfied(allocated_tasks)
-            choices.append([order,points])
-        sorted_choices = sorted(choices, key=lambda x: x[1], reverse=True)
+        
+        # sort the initial orders based on their points
+        sorted_orders = sorted(self.initial_population, key=lambda x: x[1], reverse=True)
+        # get the 2 highest scoring orders
+        best = sorted_orders[:2]
         
         print()
         print("BEST FROM INITIAL POPULATION")
-        for order in sorted_choices[:2]:
+        for order in best:
             print(f"ORDER: {order[0]}, POINTS: {order[1]}")
 
-        return sorted_choices[:2]
+        return best
 
 
     # crossover

@@ -149,7 +149,7 @@ class GeneticAlgorithm:
         return sorted_tasks_IDs
 
     # select
-    def select(self):
+    def select_best_from_initial(self):
         
         # sort the initial orders based on their points
         sorted_orders = sorted(self.initial_population, key=lambda x: x[1], reverse=True)
@@ -161,12 +161,60 @@ class GeneticAlgorithm:
         for order in best:
             print(f"ORDER: {order[0]}, POINTS: {order[1]}")
 
-        return best
+        return [order[0] for order in best]
 
+    # create new generations
+    def create_new_generations(self):
 
-    # crossover
+        # get parents
+        parents = self.select_best_from_initial()
 
-    # mutate
+        mother = parents[0]
+        father = parents[1]
+
+        print()
+        print("CREATE NEW GENERATIONS")
+        print(f"MOTHER: {mother}")
+        print(f"FATHER: {father}")
+
+        # crossover
+        index = random.randint(0,len(mother))
+        len_segment = random.randint(1,len(mother)-1-index)
+
+        # get important nodes
+        important_nodes = self.topological_sort(self.get_important_nodes(mother))
+
+        # create an empty array to represent child
+        child = [None] * len(mother)
+        
+        # get segment from mother
+        segment = mother[index:index+len_segment]
+
+        # copy segment from mother to child
+        for idx in range(len_segment):
+            child[index+idx] = segment[idx]
+
+        # check to see if segment contains any important nodes 
+        important_segment_nodes = list(set(important_nodes) & set(segment))
+
+        if len(important_segment_nodes) > 0 and len(important_segment_nodes) < len(important_nodes):
+
+            # get important nodes that must be placed before / after segment
+            prior_index = float('inf')
+            post_index = float('-inf')
+
+            for segment_node in important_segment_nodes:
+                prior_index = min(prior_index, important_nodes.index(segment_node))
+                post_index = max(post_index, len(important_nodes) - important_nodes[::-1].index(segment_node) - 1)
+
+            prior = important_nodes[:prior_index]
+            post = important_nodes[post_index + 1:]
+
+            print(f"BEFORE: {prior}, AFTER: {post}")
+
+        print(f"CHILD: {child}")
+
+        # mutate
 
     # terminate 
 
@@ -205,10 +253,10 @@ hardTask5 = HardTask("h5","HardTask5",dt5_start,dt5_end,(51.513056,-0.117352))
 hard_tasks = [hardTask1,hardTask2,hardTask3,hardTask4,hardTask4,hardTask5]
 
 # tasks to allocate
-task2 = Task("s2","OME Content",timedelta(hours=2,minutes=0),3,(),(51.513056,-0.117352),0)
-task1 = Task("s1","NSE Content",timedelta(hours=1,minutes=0),3,(task2,),(51.503162, -0.086852),1)
-task0 = Task("s0","ML1 Content",timedelta(hours=1,minutes=0),3,(task1,task2),(51.513056,-0.117352),0)
 task3 = Task("s3","Push session",timedelta(hours=2,minutes=0),3,(),(51.503162, -0.086852),2)
+task2 = Task("s2","OME Content",timedelta(hours=2,minutes=0),3,(task3,),(51.513056,-0.117352),0)
+task1 = Task("s1","NSE Content",timedelta(hours=1,minutes=0),3,(task2,),(51.503162, -0.086852),1)
+task0 = Task("s0","ML1 Content",timedelta(hours=1,minutes=0),3,(task1,),(51.513056,-0.117352),0)
 task4 = Task("s4","Work",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),2)
 task5 = Task("s5","Pull session",timedelta(hours=2,minutes=0),2,(),(51.503162, -0.086852),3)
 task6 = Task("s6","10k",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),6)
@@ -219,7 +267,7 @@ task10 = Task("s10","Coursework",timedelta(hours=2,minutes=0),1,(),(51.513056,-0
 task11 = Task("s11","Legs session",timedelta(hours=2,minutes=0),2,(),(51.513056,-0.117352),0)
 task12 = Task("s12","Dissertation",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),5)
 task13 = Task("s13","5k",timedelta(hours=2,minutes=0),1,(),(51.513056,-0.117352),6)
-tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task10,task11,task12,task13,task0,task1,task2]
+tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task11,task12,task13,task0,task1,task2,task10]
 
 task_dict = {}
 
@@ -241,5 +289,5 @@ user_preferences = UserPreferences()
 
 ga = GeneticAlgorithm(tasks_to_be_allocated,10,task_allocator)
 ga.create_first_generation()
-ga.select()
+ga.create_new_generations()
 

@@ -68,6 +68,8 @@ class GeneticAlgorithm:
 
         # ASSIGN IMPORTANT TASKS
 
+        # assigns nodes randomly into an array while maintaining order
+
         while len(important_nodes) != 0:
             # get random new index from after furthest index so far and last element
             index = random.randint(node_start,len(new_order)-1)
@@ -163,8 +165,11 @@ class GeneticAlgorithm:
 
         return [order[0] for order in best]
 
+    # def create_new_generation(self,mother,father):
+
+
     # create new generations
-    def create_new_generations(self):
+    def evolve(self):
 
         # get parents
         parents = self.select_best_from_initial()
@@ -179,7 +184,7 @@ class GeneticAlgorithm:
 
         # crossover
         index = random.randint(0,len(mother))
-        len_segment = random.randint(1,len(mother)-1-index)
+        len_segment = random.randint(1,len(mother)-index)
 
         # get important nodes
         important_nodes = self.topological_sort(self.get_important_nodes(mother))
@@ -197,9 +202,14 @@ class GeneticAlgorithm:
         # check to see if segment contains any important nodes 
         important_segment_nodes = list(set(important_nodes) & set(segment))
 
+        start_segment = child[:index]
+        end_segment = child[index+len_segment:]
+
+        print(f"CHILD: {child}")
+
+        # get important nodes that must be placed before / after segment
         if len(important_segment_nodes) > 0 and len(important_segment_nodes) < len(important_nodes):
 
-            # get important nodes that must be placed before / after segment
             prior_index = float('inf')
             post_index = float('-inf')
 
@@ -210,7 +220,46 @@ class GeneticAlgorithm:
             prior = important_nodes[:prior_index]
             post = important_nodes[post_index + 1:]
 
-            print(f"BEFORE: {prior}, AFTER: {post}")
+            node_start = 0
+            while len(prior) != 0:
+                # get random new index from after furthest index so far and last element
+                new_index = random.randint(node_start,index-1)
+                # assign task at this index
+                child[new_index] = prior[0]
+                # check that this placement maintains acyclic nature and remains enough space for remaining tasks
+                if (index - 1 - new_index >= len(prior)-1):
+                    # update node_start index to next available space
+                    node_start = new_index + 1
+                    # remove the task that was just placed in the order
+                    prior.remove(prior[0])
+                else:
+                    # remove allocated task is it doesn't meet requirementse
+                    child[new_index] = None
+
+            node_start = index + len_segment
+            while len(post) != 0:
+                # get random new index from after furthest index so far and last element
+                new_index = random.randint(node_start,len(child)-1)
+                # assign task at this index
+                child[new_index] = post[0]
+                # check that this placement maintains acyclic nature and remains enough space for remaining tasks
+                if (len(child) - 1 - new_index >= len(prior)-1):
+                    # update node_start index to next available space
+                    node_start = new_index + 1
+                    # remove the task that was just placed in the order
+                    post.remove(post[0])
+                else:
+                    # remove allocated task is it doesn't meet requirementse
+                    child[new_index] = None
+                # break
+
+        remaining_nodes = list(set(father)-set(child))
+
+        random.shuffle(remaining_nodes)
+        for index in range(len(child)):
+            if child[index] is None:
+                child[index] = remaining_nodes[0]
+                remaining_nodes.pop(0)
 
         print(f"CHILD: {child}")
 
@@ -289,5 +338,5 @@ user_preferences = UserPreferences()
 
 ga = GeneticAlgorithm(tasks_to_be_allocated,10,task_allocator)
 ga.create_first_generation()
-ga.create_new_generations()
+ga.evolve()
 

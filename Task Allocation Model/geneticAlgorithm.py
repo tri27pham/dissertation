@@ -13,6 +13,8 @@ class GeneticAlgorithm:
 
     def __init__(self,tasks,population_size,task_allocator):
 
+        self.generation_size = 10
+
         self.tasks = tasks
         self.task_dict = {}
         for task in tasks:
@@ -165,26 +167,32 @@ class GeneticAlgorithm:
 
         return [order[0] for order in best]
 
-    # def create_new_generation(self,mother,father):
-
-
-    # create new generations
     def evolve(self):
 
-        # get parents
         parents = self.select_best_from_initial()
 
         mother = parents[0]
         father = parents[1]
 
-        print()
-        print("CREATE NEW GENERATIONS")
-        print(f"MOTHER: {mother}")
-        print(f"FATHER: {father}")
+        new_generation = set() 
+
+        while len(new_generation) <= self.generation_size:
+            new_child = tuple(self.create_child(mother,father))
+            if new_child not in new_generation:
+                new_generation.add(new_child)
+        
+        print("=======================================================================")
+
+        for child in new_generation:
+            print(child)
+
+
+    # create new generations
+    def create_child(self,mother,father):
 
         # crossover
-        index = random.randint(0,len(mother))
-        len_segment = random.randint(1,len(mother)-index)
+        index = random.randint(0,len(mother)-2)
+        len_segment = random.randint(1,len(mother)-1-index)
 
         # get important nodes
         important_nodes = self.topological_sort(self.get_important_nodes(mother))
@@ -204,8 +212,6 @@ class GeneticAlgorithm:
 
         start_segment = child[:index]
         end_segment = child[index+len_segment:]
-
-        print(f"CHILD: {child}")
 
         # get important nodes that must be placed before / after segment
         if len(important_segment_nodes) > 0 and len(important_segment_nodes) < len(important_nodes):
@@ -238,12 +244,13 @@ class GeneticAlgorithm:
 
             node_start = index + len_segment
             while len(post) != 0:
+                # print(f"{node_start}, {len(child)-1}")
                 # get random new index from after furthest index so far and last element
                 new_index = random.randint(node_start,len(child)-1)
                 # assign task at this index
                 child[new_index] = post[0]
                 # check that this placement maintains acyclic nature and remains enough space for remaining tasks
-                if (len(child) - 1 - new_index >= len(prior)-1):
+                if (len(child) - 1 - new_index >= len(post)-1):
                     # update node_start index to next available space
                     node_start = new_index + 1
                     # remove the task that was just placed in the order
@@ -251,6 +258,7 @@ class GeneticAlgorithm:
                 else:
                     # remove allocated task is it doesn't meet requirementse
                     child[new_index] = None
+                # print(f"CHILD: {child}")
                 # break
 
         remaining_nodes = list(set(father)-set(child))
@@ -261,9 +269,23 @@ class GeneticAlgorithm:
                 child[index] = remaining_nodes[0]
                 remaining_nodes.pop(0)
 
-        print(f"CHILD: {child}")
+        # print(f"CHILD: {child}")
 
         # mutate
+        
+        for i in range(len(child)-1):
+            new_child = child
+            probability = random.random()
+            if probability <= 0.1:
+                current_node = child[i]
+                swap_index = random.randint(0,len(child)-1)
+                swap_node = child[swap_index]
+                new_child[swap_index] = current_node
+                new_child[i] = swap_node
+                if self.is_acyclic(new_child):
+                    child = new_child
+            
+        return child
 
     # terminate 
 

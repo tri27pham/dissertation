@@ -18,28 +18,28 @@ class UserPreferences:
 
         self.work_morning = False
         self.work_evening = True
-        self.work_start_of_week = False
+        self.work_start_of_week = True
         self.work_end_of_week = False
 
         self.health_morning = True
         self.health_evening = False
         self.health_start_of_week = False
-        self.health_end_of_week = False
+        self.health_end_of_week = True
         
-        self.social_morning = False
+        self.social_morning = True
         self.social_evening = False
         self.social_start_of_week = True
         self.social_end_of_week = False
 
-        self.family_morning = False
+        self.family_morning = True
         self.family_evening = False
-        self.family_start_of_week = False
+        self.family_start_of_week = True
         self.family_end_of_week = False
 
         self.hobbies_morning = False
-        self.hobbies_evening= False
+        self.hobbies_evening= True
         self.hobbies_start_of_week = False
-        self.hobbies_end_of_week = False      
+        self.hobbies_end_of_week = True      
 
         self.miscellaneous_morning = True
         self.miscellaneous_evening= False

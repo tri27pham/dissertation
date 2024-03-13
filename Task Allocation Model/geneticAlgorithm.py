@@ -165,27 +165,48 @@ class GeneticAlgorithm:
         for order in best:
             print(f"ORDER: {order[0]}, POINTS: {order[1]}")
 
+        print("====================================")
+
         return [order[0] for order in best]
 
     def evolve(self):
+
+        optimal = ((),0)
 
         parents = self.select_best_from_initial()
 
         mother = parents[0]
         father = parents[1]
 
-        new_generation = set() 
+        for i in range(10):
 
-        while len(new_generation) <= self.generation_size:
-            new_child = tuple(self.create_child(mother,father))
-            if new_child not in new_generation:
-                new_generation.add(new_child)
-        
-        print("=======================================================================")
+            new_generation = set() 
 
-        for child in new_generation:
-            print(child)
+            while len(new_generation) <= self.generation_size:
+                new_child = tuple(self.create_child(mother,father))
+                if new_child not in new_generation:
+                    tasks = [self.task_dict[task_ref] for task_ref in new_child]
+                    allocated_tasks = self.task_allocator.knapsack_allocator(tasks)
+                    points = self.user_preferences.get_preferences_satisfied(allocated_tasks)
+                    new_generation.add(tuple((new_child,points)))
 
+            sorted_orders = sorted(new_generation, key=lambda x: x[1], reverse=True)
+            # get best performing children / new parents
+            best = sorted_orders[:2]
+            mother_score = best[0]
+            father_score = best[1]
+
+            optimal = max((optimal, mother_score, father_score), key=lambda x: x[1])
+
+            mother = mother_score[0]
+            father = father_score[0]
+            print("===================================")
+            print(f"GENERATION {i}: {optimal[0]}, POINTS: {optimal[1]}")
+            print("===================================")
+
+        print("===================================")
+        print(f"OPTIMAL ORDER: {optimal[0]}, POINTS: {optimal[1]}")
+        print("===================================")
 
     # create new generations
     def create_child(self,mother,father):
@@ -225,13 +246,16 @@ class GeneticAlgorithm:
 
             prior = important_nodes[:prior_index]
             post = important_nodes[post_index + 1:]
-
+            
+            # print(f"PRIOR: {prior}, POST: {post}")
             node_start = 0
             while len(prior) != 0:
+                # print(prior[0])
                 # get random new index from after furthest index so far and last element
                 new_index = random.randint(node_start,index-1)
                 # assign task at this index
                 child[new_index] = prior[0]
+                # print(f"PRE-CHECK: {child}")
                 # check that this placement maintains acyclic nature and remains enough space for remaining tasks
                 if (index - 1 - new_index >= len(prior)-1):
                     # update node_start index to next available space
@@ -241,6 +265,7 @@ class GeneticAlgorithm:
                 else:
                     # remove allocated task is it doesn't meet requirementse
                     child[new_index] = None
+                # print(f"POST-CHECK: {child}")
 
             node_start = index + len_segment
             while len(post) != 0:
@@ -261,30 +286,70 @@ class GeneticAlgorithm:
                 # print(f"CHILD: {child}")
                 # break
 
+        # print("=====================================================================")
+        # print(f"IMPORTANT NODES: {child}")
+
+
+        # in the case that all the important nodes are not in the segment
+        # need to randomly assign while still maintaining order
+ 
         remaining_nodes = list(set(father)-set(child))
 
-        random.shuffle(remaining_nodes)
+        remaining_nodes_arr = [None] * len(remaining_nodes)
+        # print(f"ARR: {remaining_nodes_arr}")
+
+        remaining_important_nodes = self.topological_sort(list(set(remaining_nodes).intersection(set(important_nodes))))
+        # print(f"remaining_important_nodes: {remaining_important_nodes}")
+
+        remaining_unimportant_nodes = list(set(remaining_nodes)-set(important_nodes))
+        # print(f"remaining_unimportant_nodes: {remaining_unimportant_nodes}")
+
+        if len(remaining_important_nodes) != 0:
+
+            # random_indexes = [random.sample(0, len(remaining_nodes)-1) for _ in range(len(remaining_important_nodes))]
+
+            random_indexes_set = set()
+
+            while len(random_indexes_set) <= len(remaining_important_nodes)-1:
+                new_index = random.randint(0,len(remaining_nodes)-1)
+                if new_index not in random_indexes_set:
+                    random_indexes_set.add(new_index)
+            
+            random_indexes = sorted(list(random_indexes_set))
+
+            for idx in random_indexes:
+                # print(f"len: {remaining_important_nodes}")
+                remaining_nodes_arr[idx] = remaining_important_nodes[0]
+                remaining_important_nodes.pop(0)
+
+        for index in range(len(remaining_nodes_arr)):
+            if remaining_nodes_arr[index] is None:
+                remaining_nodes_arr[index] = remaining_unimportant_nodes[0]
+                remaining_unimportant_nodes.pop(0)
+
         for index in range(len(child)):
             if child[index] is None:
-                child[index] = remaining_nodes[0]
-                remaining_nodes.pop(0)
+                child[index] = remaining_nodes_arr[0]
+                remaining_nodes_arr.pop(0)
 
-        # print(f"CHILD: {child}")
+        print(f"CHILD: {child}")
+        # print("=====================================================================")
 
         # mutate
         
-        for i in range(len(child)-1):
-            new_child = child
-            probability = random.random()
-            if probability <= 0.1:
-                current_node = child[i]
-                swap_index = random.randint(0,len(child)-1)
-                swap_node = child[swap_index]
-                new_child[swap_index] = current_node
-                new_child[i] = swap_node
-                if self.is_acyclic(new_child):
-                    child = new_child
-            
+        # for i in range(len(child)-1):
+        #     new_child = child
+        #     probability = random.random()
+        #     if probability <= 0.1:
+        #         current_node = child[i]
+        #         swap_index = random.randint(0,len(child)-1)
+        #         swap_node = child[swap_index]
+        #         new_child[swap_index] = current_node
+        #         new_child[i] = swap_node
+        #         if self.is_acyclic(new_child):
+        #             child = new_child
+        
+        # print(f"CHILD: {child}")
         return child
 
     # terminate 

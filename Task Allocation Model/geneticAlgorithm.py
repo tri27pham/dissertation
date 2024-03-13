@@ -166,13 +166,17 @@ class GeneticAlgorithm:
     def evolve(self):
 
         optimal = ((),0)
+        same = 0
 
         parents = self.select_best_from_initial()
 
         mother = parents[0]
         father = parents[1]
 
-        for i in range(25):
+        generation = 1
+
+        while same < 20:
+            print(f"SAME: {same}")
 
             new_generation = set() 
 
@@ -190,13 +194,21 @@ class GeneticAlgorithm:
             mother_score = best[0]
             father_score = best[1]
 
-            optimal = max((optimal, mother_score, father_score), key=lambda x: x[1])
-
             mother = mother_score[0]
             father = father_score[0]
+
             print("===================================")
-            print(f"GENERATION {i}: {optimal[0]}, POINTS: {optimal[1]}")
+            print(f"GENERATION {generation}: {mother_score[0]}, POINTS: {mother_score[1]}")
             print("===================================")
+            generation += 1
+
+            # print(f"{previous_optimal}, {optimal[1]}")
+            if mother_score[1] > optimal[1]:
+                same = 0
+            else:
+                same += 1
+
+            optimal = max((optimal, mother_score, father_score), key=lambda x: x[1])
 
         print("===================================")
         print(f"OPTIMAL ORDER: {optimal[0]}, POINTS: {optimal[1]}")
@@ -340,7 +352,7 @@ class GeneticAlgorithm:
                 if self.is_acyclic(new_child):
                     child = new_child
         
-        print(f"CHILD: {child}")
+        # print(f"CHILD: {child}")
 
         return child
 

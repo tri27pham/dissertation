@@ -28,6 +28,12 @@ class HardTask:
     def get_end_time(self):
         return self.end_date_time.time()
     
+    def get_start_datetime(self):
+        return self.start_date_time
+    
+    def get_end_datetime(self):
+        return self.end_date_time
+
     def get_location(self):
         return self.location
     

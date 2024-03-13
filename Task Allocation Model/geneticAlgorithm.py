@@ -8,6 +8,7 @@ from task import Task
 from random import shuffle
 import random
 from datetime import datetime, timedelta, time
+import copy
 
 class GeneticAlgorithm:
 
@@ -159,13 +160,6 @@ class GeneticAlgorithm:
         sorted_orders = sorted(self.initial_population, key=lambda x: x[1], reverse=True)
         # get the 2 highest scoring orders
         best = sorted_orders[:2]
-        
-        print()
-        print("BEST FROM INITIAL POPULATION")
-        for order in best:
-            print(f"ORDER: {order[0]}, POINTS: {order[1]}")
-
-        print("====================================")
 
         return [order[0] for order in best]
 
@@ -178,7 +172,7 @@ class GeneticAlgorithm:
         mother = parents[0]
         father = parents[1]
 
-        for i in range(10):
+        for i in range(25):
 
             new_generation = set() 
 
@@ -332,24 +326,22 @@ class GeneticAlgorithm:
                 child[index] = remaining_nodes_arr[0]
                 remaining_nodes_arr.pop(0)
 
-        print(f"CHILD: {child}")
-        # print("=====================================================================")
-
         # mutate
         
-        # for i in range(len(child)-1):
-        #     new_child = child
-        #     probability = random.random()
-        #     if probability <= 0.1:
-        #         current_node = child[i]
-        #         swap_index = random.randint(0,len(child)-1)
-        #         swap_node = child[swap_index]
-        #         new_child[swap_index] = current_node
-        #         new_child[i] = swap_node
-        #         if self.is_acyclic(new_child):
-        #             child = new_child
+        for i in range(len(child)-1):
+            new_child = copy.copy(child)
+            probability = random.random()
+            if probability <= 0.1:
+                current_node = child[i]
+                swap_index = random.randint(0,len(child)-1)
+                swap_node = child[swap_index]
+                new_child[swap_index] = current_node
+                new_child[i] = swap_node
+                if self.is_acyclic(new_child):
+                    child = new_child
         
-        # print(f"CHILD: {child}")
+        print(f"CHILD: {child}")
+
         return child
 
     # terminate 

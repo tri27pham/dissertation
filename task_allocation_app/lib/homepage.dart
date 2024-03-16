@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'addTasks.dart';
 import 'package:intl/intl.dart';
+import 'navbar.dart';
 // import 'package:table_calendar/table_calendar.dart';
 
 class HomePage extends StatefulWidget {
@@ -55,12 +55,15 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.transparent,
         leading: Padding(
           padding: const EdgeInsets.all(8.0), // Add padding to the leading icon
-          child: IconButton(
-            icon: Icon(Icons.menu),
-            iconSize: 45,
-            onPressed: () {
-              print("MENU PRESSED");
-            },
+          child: Builder(
+            builder: (context) => IconButton(
+              icon: Icon(Icons.menu),
+              iconSize: 45,
+              onPressed: () {
+                print("MENU PRESSED");
+                Scaffold.of(context).openDrawer();
+              },
+            ),
           ),
         ),
         actions: [
@@ -110,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                 fontSize: 20, // Change the font size here
                 color: Color.fromARGB(
                     255, 80, 78, 78), // Change the color of the text here
-                fontWeight: FontWeight.w400,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -127,7 +130,7 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Transform.translate(
-                          offset: Offset(0, 20), // Adjust the offset as needed
+                          offset: Offset(0, 15), // Adjust the offset as needed
                           child: Container(
                             padding: EdgeInsets.symmetric(
                               horizontal:
@@ -220,6 +223,7 @@ class _HomePageState extends State<HomePage> {
           )),
         ],
       ),
+      drawer: NavBar(),
     );
   }
 }

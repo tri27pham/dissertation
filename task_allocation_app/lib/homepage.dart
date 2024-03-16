@@ -57,7 +57,10 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.all(8.0), // Add padding to the leading icon
           child: Builder(
             builder: (context) => IconButton(
-              icon: Icon(Icons.menu),
+              icon: Icon(
+                Icons.menu,
+                color: Color.fromARGB(255, 80, 78, 78),
+              ),
               iconSize: 45,
               onPressed: () {
                 print("MENU PRESSED");
@@ -202,9 +205,10 @@ class _HomePageState extends State<HomePage> {
               color: Colors.white,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: EdgeInsets.symmetric(vertical: 25),
+                    padding: EdgeInsets.fromLTRB(25.0, 30.0, 25.0, 5.0),
                     child: Text(
                       "TODAY'S TASKS",
                       textAlign: TextAlign.left,
@@ -215,6 +219,65 @@ class _HomePageState extends State<HomePage> {
                         fontWeight: FontWeight.w500, // Make the text bold
                         letterSpacing: 0,
                       ),
+                    ),
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.37,
+                    child: ListView(
+                      children: [
+                        UnconstrainedBox(
+                            child: Container(
+                          height: MediaQuery.of(context).size.height * 0.18,
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 236, 186,
+                                139), // Set the color of the container
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                        )),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.01,
+                        ),
+                        UnconstrainedBox(
+                            child: Container(
+                          height: MediaQuery.of(context).size.height * 0.18,
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 154, 205,
+                                221), // Set the color of the container
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                        )),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.01,
+                        ),
+                        UnconstrainedBox(
+                            child: Container(
+                          height: MediaQuery.of(context).size.height * 0.18,
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 187, 176,
+                                192), // Set the color of the container
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                        )),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.01,
+                        ),
+                        UnconstrainedBox(
+                            child: Container(
+                          height: MediaQuery.of(context).size.height * 0.18,
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 211, 158,
+                                180), // Set the color of the container
+                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                          ),
+                        )),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.01,
+                        ),
+                      ],
                     ),
                   ),
                 ],

@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
 import 'navbar.dart';
+import 'addTaskPopUp.dart';
 
 class ScheduleTasks extends StatelessWidget {
   const ScheduleTasks({super.key});
+
+  void displayAddTaskPopUp(BuildContext context) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext bc) {
+        return AddTaskPopUp();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +62,7 @@ class ScheduleTasks extends StatelessWidget {
                   width: MediaQuery.of(context).size.width * 0.4,
                   child: ElevatedButton(
                     onPressed: () {
-                      openAddTaskPopUp(context);
+                      displayAddTaskPopUp(context);
                     },
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all<OutlinedBorder>(
@@ -159,13 +170,13 @@ class ScheduleTasks extends StatelessWidget {
     );
   }
 
-  Future openAddTaskPopUp(BuildContext context) => showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-            content: Container(
-              height: MediaQuery.of(context).size.height * 0.2,
-              width: MediaQuery.of(context).size.width * 0.4,
-              color: Colors.black,
-            ),
-          ));
+  // void addTaskPopUp(context) {
+  //   showAddTaskPopUp(context, build_context) {
+  //     return Container(
+  //       height: MediaQuery.of(context).size.height * 0.6,
+  //       width: MediaQuery.of(context).size.width,
+  //       child: Text("test"),
+  //     );
+  //   }
+  // }
 }

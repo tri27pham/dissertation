@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 
@@ -11,6 +12,9 @@ class AddTaskPopUp extends StatefulWidget {
 class _AddTaskPopUpState extends State<AddTaskPopUp> {
   final TextEditingController _nameFieldController =
       TextEditingController(text: '');
+
+  int _selectedHours = 0;
+  int _selectedMinutes = 0;
 
   final TextEditingController _addressLine1FieldController =
       TextEditingController(text: '');
@@ -27,6 +31,13 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
   final _hasLocationController = ValueNotifier<bool>(true);
 
   List<bool> isSelected = [true, false, false];
+
+  int priority = 0;
+  var colors = [
+    const Color.fromARGB(255, 174, 228, 158),
+    const Color.fromARGB(255, 240, 221, 152),
+    const Color.fromARGB(255, 235, 124, 109)
+  ];
 
   String _categoryValue = 'UNIVERSITY';
   var categories = [
@@ -57,7 +68,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.86,
+      height: MediaQuery.of(context).size.height * 0.89,
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         color: Color.fromARGB(255, 248, 248, 248),
@@ -152,12 +163,91 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      height: MediaQuery.of(context).size.height * 0.045,
+                      height: MediaQuery.of(context).size.height * 0.07,
                       width: MediaQuery.of(context).size.width * 0.2,
                       decoration: BoxDecoration(
                         color: Color.fromARGB(255, 240, 240, 240),
                         borderRadius:
                             BorderRadius.circular(5), // Set the radius to 5
+                      ),
+                      child: CupertinoButton(
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              '$_selectedHours',
+                              style: TextStyle(
+                                fontSize: 18, // Set your desired font size
+                                fontWeight: FontWeight.w400,
+                                color:
+                                    Colors.black, // Set your desired text color
+                              ),
+                            ),
+                          ),
+                          onPressed: () => showCupertinoModalPopup(
+                              context: context,
+                              builder: (_) => SizedBox(
+                                  width: double.infinity,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.3,
+                                  child: CupertinoPicker(
+                                    backgroundColor: Colors.white,
+                                    itemExtent: 30,
+                                    scrollController:
+                                        FixedExtentScrollController(
+                                      initialItem: 0,
+                                    ),
+                                    children: const [
+                                      Text('0'),
+                                      Text('1'),
+                                      Text('2'),
+                                      Text('3'),
+                                      Text('4'),
+                                      Text('5'),
+                                      Text('6'),
+                                      Text('7'),
+                                      Text('8'),
+                                      Text('9'),
+                                      Text('10'),
+                                      Text('11'),
+                                      Text('12'),
+                                      Text('13'),
+                                      Text('14'),
+                                      Text('15'),
+                                      Text('16'),
+                                      Text('17'),
+                                      Text('18'),
+                                      Text('19'),
+                                      Text('20'),
+                                      Text('21'),
+                                      Text('22'),
+                                      Text('23'),
+                                    ],
+                                    onSelectedItemChanged: (int value) {
+                                      setState(() {
+                                        _selectedHours = value;
+                                      });
+                                    },
+                                  )))),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.01,
+                    ),
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.07,
+                      width: MediaQuery.of(context).size.width * 0.1,
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 240, 240, 240),
+                        borderRadius:
+                            BorderRadius.circular(5), // Set the radius to 5
+                      ),
+                      child: Center(
+                        child: Text(
+                          "h",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(
@@ -174,51 +264,118 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                       width: MediaQuery.of(context).size.width * 0.01,
                     ),
                     Container(
-                      height: MediaQuery.of(context).size.height * 0.045,
+                      height: MediaQuery.of(context).size.height * 0.07,
                       width: MediaQuery.of(context).size.width * 0.2,
                       decoration: BoxDecoration(
                         color: Color.fromARGB(255, 240, 240, 240),
                         borderRadius:
                             BorderRadius.circular(5), // Set the radius to 5
                       ),
+                      child: CupertinoButton(
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              '$_selectedMinutes',
+                              style: TextStyle(
+                                fontSize: 18, // Set your desired font size
+                                fontWeight: FontWeight.w400,
+                                color:
+                                    Colors.black, // Set your desired text color
+                              ),
+                            ),
+                          ),
+                          onPressed: () => showCupertinoModalPopup(
+                              context: context,
+                              builder: (_) => SizedBox(
+                                  width: double.infinity,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.3,
+                                  child: CupertinoPicker(
+                                    backgroundColor: Colors.white,
+                                    itemExtent: 30,
+                                    scrollController:
+                                        FixedExtentScrollController(
+                                      initialItem: 0,
+                                    ),
+                                    children: const [
+                                      Text('0'),
+                                      Text('5'),
+                                      Text('10'),
+                                      Text('15'),
+                                      Text('20'),
+                                      Text('25'),
+                                      Text('30'),
+                                      Text('35'),
+                                      Text('40'),
+                                      Text('45'),
+                                      Text('50'),
+                                      Text('55'),
+                                    ],
+                                    onSelectedItemChanged: (int value) {
+                                      setState(() {
+                                        _selectedMinutes = value * 5;
+                                      });
+                                    },
+                                  )))),
                     ),
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.01,
                     ),
                     Container(
-                      height: MediaQuery.of(context).size.height * 0.045,
-                      width: MediaQuery.of(context).size.width * 0.2,
+                      height: MediaQuery.of(context).size.height * 0.07,
+                      width: MediaQuery.of(context).size.width * 0.1,
                       decoration: BoxDecoration(
                         color: Color.fromARGB(255, 240, 240, 240),
                         borderRadius:
                             BorderRadius.circular(5), // Set the radius to 5
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          DropdownButton(
-                            value: _timeValue,
-                            items: timeValues.map((String item) {
-                              return DropdownMenuItem(
-                                  value: item, child: Text(item));
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _timeValue = newValue!;
-                              });
-                            },
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black,
-                            ),
-                            icon: const Icon(Icons.keyboard_arrow_down),
-                            borderRadius: BorderRadius.circular(10),
-                            underline: Container(),
+                      child: Center(
+                        child: Text(
+                          "m",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
                           ),
-                        ],
+                        ),
                       ),
                     ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.01,
+                    ),
+                    // Container(
+                    //   height: MediaQuery.of(context).size.height * 0.045,
+                    //   width: MediaQuery.of(context).size.width * 0.2,
+                    //   decoration: BoxDecoration(
+                    //     color: Color.fromARGB(255, 240, 240, 240),
+                    //     borderRadius:
+                    //         BorderRadius.circular(5), // Set the radius to 5
+                    //   ),
+                    //   child: Row(
+                    //     mainAxisAlignment: MainAxisAlignment.center,
+                    //     children: [
+                    //       DropdownButton(
+                    //         value: _timeValue,
+                    //         items: timeValues.map((String item) {
+                    //           return DropdownMenuItem(
+                    //               value: item, child: Text(item));
+                    //         }).toList(),
+                    //         onChanged: (String? newValue) {
+                    //           setState(() {
+                    //             _timeValue = newValue!;
+                    //           });
+                    //         },
+                    //         style: TextStyle(
+                    //           fontSize: 15,
+                    //           fontWeight: FontWeight.w400,
+                    //           color: Colors.black,
+                    //         ),
+                    //         icon: const Icon(Icons.keyboard_arrow_down),
+                    //         borderRadius: BorderRadius.circular(10),
+                    //         underline: Container(),
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
                   ],
                 )),
               ],
@@ -242,86 +399,22 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                   ),
                 ),
                 Center(
-                  child: Container(
-                      height: MediaQuery.of(context).size.height * 0.035,
-                      color: Color.fromARGB(255, 240, 240, 240),
-                      child: ToggleButtons(
-                        isSelected: isSelected,
-                        // fillColor: const Color.fromARGB(255, 149, 233, 152),
-                        renderBorder: false,
-                        children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.25,
-                            // height: MediaQuery.of(context).size.height * 0.07,
-                            color: isSelected[0]
-                                ? const Color.fromARGB(255, 149, 233,
-                                    152) // Selected color for the first button
-                                : Color.fromARGB(
-                                    255, 240, 240, 240), // Unselected color
-                            child: Center(
-                              child: Text(
-                                "LOW",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.25,
-                            // height: MediaQuery.of(context).size.height * 0.07,
-                            color: isSelected[1]
-                                ? Color.fromARGB(255, 233, 197,
-                                    149) // Selected color for the first button
-                                : Color.fromARGB(
-                                    255, 240, 240, 240), // Unselected color
-                            child: Center(
-                              child: Text(
-                                "MEDIUM",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.25,
-                            // height: MediaQuery.of(context).size.height * 0.07,
-                            color: isSelected[2]
-                                ? Color.fromARGB(255, 221, 163,
-                                    163) // Selected color for the first button
-                                : Color.fromARGB(
-                                    255, 240, 240, 240), // Unselected color
-                            child: Center(
-                              child: Text(
-                                "HIGH",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                        onPressed: (newIndex) {
-                          setState(() {
-                            for (int index = 0;
-                                index < isSelected.length;
-                                index++) {
-                              if (index == newIndex) {
-                                isSelected[index] = true;
-                              } else {
-                                isSelected[index] = false;
-                              }
-                            }
-                          });
-                        },
-                      )),
+                  child: CupertinoSlidingSegmentedControl<int>(
+                    groupValue: priority,
+                    thumbColor: colors[priority],
+                    children: {
+                      0: lowOption(),
+                      1: mediumOption(),
+                      2: highOption(),
+                    },
+                    onValueChanged: (value) {
+                      setState(() {
+                        if (value != null) {
+                          priority = value;
+                        }
+                      });
+                    },
+                  ),
                 ),
               ],
             ),
@@ -336,7 +429,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 50),
                   child: Text(
-                    "PRIORY TASKS",
+                    "PRIOR TASKS",
                     textAlign: TextAlign.left,
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
@@ -428,8 +521,8 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                       AdvancedSwitch(
                         controller: _hasLocationController,
                         initialValue: _hasLocationController.value,
-                        activeColor: const Color.fromARGB(255, 161, 211, 163),
-                        inactiveColor: const Color.fromARGB(255, 207, 158, 158),
+                        activeColor: Color.fromARGB(255, 174, 228, 158),
+                        inactiveColor: Color.fromARGB(255, 235, 124, 109),
                         activeChild: Container(
                           height: MediaQuery.of(context).size.height * 0.05,
                           width: MediaQuery.of(context).size.width * 0.05,
@@ -674,4 +767,16 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
       ),
     );
   }
+
+  Widget lowOption() => Container(
+        child: Text("LOW"),
+      );
+  Widget mediumOption() => Container(
+        // color: Color.fromARGB(255, 226, 203, 126),
+        child: Text("MEDIUM"),
+      );
+  Widget highOption() => Container(
+        // color: const Color.fromARGB(255, 192, 124, 119),
+        child: Text("HIGH"),
+      );
 }

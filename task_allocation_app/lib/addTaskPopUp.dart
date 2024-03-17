@@ -22,7 +22,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
   final TextEditingController _cityFieldController =
       TextEditingController(text: '');
 
-  final TextEditingController _countyFieldController =
+  final TextEditingController _areaNameFieldController =
       TextEditingController(text: '');
 
   final TextEditingController _areaCodeFieldController =
@@ -64,6 +64,10 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
   var timeValues = ['AM', 'PM'];
 
   bool hasLocation = true;
+
+  void printValues() {
+    print(_nameFieldController.text);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -342,40 +346,6 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.01,
                     ),
-                    // Container(
-                    //   height: MediaQuery.of(context).size.height * 0.045,
-                    //   width: MediaQuery.of(context).size.width * 0.2,
-                    //   decoration: BoxDecoration(
-                    //     color: Color.fromARGB(255, 240, 240, 240),
-                    //     borderRadius:
-                    //         BorderRadius.circular(5), // Set the radius to 5
-                    //   ),
-                    //   child: Row(
-                    //     mainAxisAlignment: MainAxisAlignment.center,
-                    //     children: [
-                    //       DropdownButton(
-                    //         value: _timeValue,
-                    //         items: timeValues.map((String item) {
-                    //           return DropdownMenuItem(
-                    //               value: item, child: Text(item));
-                    //         }).toList(),
-                    //         onChanged: (String? newValue) {
-                    //           setState(() {
-                    //             _timeValue = newValue!;
-                    //           });
-                    //         },
-                    //         style: TextStyle(
-                    //           fontSize: 15,
-                    //           fontWeight: FontWeight.w400,
-                    //           color: Colors.black,
-                    //         ),
-                    //         icon: const Icon(Icons.keyboard_arrow_down),
-                    //         borderRadius: BorderRadius.circular(10),
-                    //         underline: Container(),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
                   ],
                 )),
               ],
@@ -403,9 +373,9 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                     groupValue: priority,
                     thumbColor: colors[priority],
                     children: {
-                      0: lowOption(),
-                      1: mediumOption(),
-                      2: highOption(),
+                      0: priorityOption("LOW"),
+                      1: priorityOption("MEDIUM"),
+                      2: priorityOption("HIGH"),
                     },
                     onValueChanged: (value) {
                       setState(() {
@@ -627,7 +597,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                         offset: Offset(
                             0, -2), // Adjust the vertical offset as needed
                         child: TextField(
-                          controller: _countyFieldController,
+                          controller: _areaNameFieldController,
                           readOnly: !_hasLocationController.value,
                           decoration: InputDecoration(
                             hintText: "county/state",
@@ -742,7 +712,10 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
               height: MediaQuery.of(context).size.height * 0.05,
               width: MediaQuery.of(context).size.width * 0.4,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  printValues();
+                  Navigator.of(context).pop();
+                },
                 style: ButtonStyle(
                   shape: MaterialStateProperty.all<OutlinedBorder>(
                     RoundedRectangleBorder(
@@ -768,15 +741,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
     );
   }
 
-  Widget lowOption() => Container(
-        child: Text("LOW"),
-      );
-  Widget mediumOption() => Container(
-        // color: Color.fromARGB(255, 226, 203, 126),
-        child: Text("MEDIUM"),
-      );
-  Widget highOption() => Container(
-        // color: const Color.fromARGB(255, 192, 124, 119),
-        child: Text("HIGH"),
+  Widget priorityOption(String text) => Container(
+        child: Text(text),
       );
 }

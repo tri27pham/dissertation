@@ -1,14 +1,14 @@
 class TaskToAllocate {
   final String name;
-  final String hours;
-  final String minutes;
+  final int hours;
+  final int minutes;
   final int priority;
   final List<int> priorTasks;
   final String addressLine1;
   final String city;
   final String areaName;
   final String areaCode;
-  // final String
+  final int category;
 
   TaskToAllocate(
       this.name,
@@ -19,5 +19,19 @@ class TaskToAllocate {
       this.addressLine1,
       this.city,
       this.areaName,
-      this.areaCode);
+      this.areaCode,
+      this.category);
+
+  void printValues() {
+    print(name);
+    print(hours);
+    print(minutes);
+    print(priority);
+    print(priorTasks);
+    print(addressLine1);
+    print(city);
+    print(areaName);
+    print(areaCode);
+    print(category);
+  }
 }

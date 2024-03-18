@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'navbar.dart';
 import 'addTaskPopUp.dart';
+import 'taskToAllocate.dart';
+import 'task.dart';
 
 class ScheduleTasks extends StatelessWidget {
-  const ScheduleTasks({super.key});
+  ScheduleTasks({super.key});
+
+  List<TaskToAllocate> tasks = [];
 
   void displayAddTaskPopUp(BuildContext context) {
     showModalBottomSheet(
@@ -12,7 +16,11 @@ class ScheduleTasks extends StatelessWidget {
       builder: (BuildContext bc) {
         return AddTaskPopUp();
       },
-    );
+    ).then((newTask) {
+      if (newTask != null) {
+        newTask.printValues();
+      }
+    });
   }
 
   @override
@@ -64,6 +72,14 @@ class ScheduleTasks extends StatelessWidget {
                     onPressed: () {
                       displayAddTaskPopUp(context);
                     },
+                    child: Text(
+                      "ADD TASK",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.black,
+                      ),
+                    ),
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all<OutlinedBorder>(
                         RoundedRectangleBorder(
@@ -73,14 +89,6 @@ class ScheduleTasks extends StatelessWidget {
                       ),
                       backgroundColor: MaterialStateProperty.all<Color>(
                           Colors.amber.shade200),
-                    ),
-                    child: Text(
-                      "ADD TASK",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black,
-                      ),
                     ),
                   ),
                 ),
@@ -97,42 +105,7 @@ class ScheduleTasks extends StatelessWidget {
                   ),
                   child: ListView(
                     children: [
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.1,
-                        // width: MediaQuery.of(context).size.width * 0.1,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100, // Set color to blue
-                          borderRadius:
-                              BorderRadius.circular(15), // Set rounded corners
-                        ),
-                        child: Center(
-                          child: Text(
-                            'R',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.black, // Set text color to white
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.1,
-                        // width: MediaQuery.of(context).size.width * 0.1,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100, // Set color to blue
-                          borderRadius:
-                              BorderRadius.circular(15), // Set rounded corners
-                        ),
-                        child: Center(
-                          child: Text(
-                            'R',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.black, // Set text color to white
-                            ),
-                          ),
-                        ),
-                      ),
+                      TaskWidget(),
                     ],
                   ),
                 ),
@@ -169,14 +142,4 @@ class ScheduleTasks extends StatelessWidget {
       drawer: NavBar(),
     );
   }
-
-  // void addTaskPopUp(context) {
-  //   showAddTaskPopUp(context, build_context) {
-  //     return Container(
-  //       height: MediaQuery.of(context).size.height * 0.6,
-  //       width: MediaQuery.of(context).size.width,
-  //       child: Text("test"),
-  //     );
-  //   }
-  // }
 }

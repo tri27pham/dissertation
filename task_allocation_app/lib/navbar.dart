@@ -3,6 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:task_allocation_app/homepage.dart';
 import 'package:task_allocation_app/schedule.dart';
 import 'package:task_allocation_app/calendar.dart';
+import 'package:task_allocation_app/test.dart';
 
 class NavBar extends StatelessWidget {
   const NavBar({super.key});
@@ -91,7 +92,12 @@ class NavBar extends StatelessWidget {
                 fontSize: 15,
               ),
             ),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MyWidget()),
+              );
+            },
           ),
         ],
       ),

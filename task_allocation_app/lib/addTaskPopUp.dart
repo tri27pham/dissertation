@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
-import 'taskToAllocate.dart';
+import 'task.dart';
 
 class AddTaskPopUp extends StatefulWidget {
   const AddTaskPopUp({super.key});
@@ -63,18 +63,19 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
 
   bool hasLocation = true;
 
-  TaskToAllocate createNewTask() {
-    TaskToAllocate newTask = TaskToAllocate(
+  Task createNewTask() {
+    Task newTask = Task(
         _nameFieldController.text,
         _selectedHours,
         _selectedMinutes,
         _priority,
         [],
         _addressLine1FieldController.text,
-        _cityFieldController.text,
-        _areaNameFieldController.text,
-        _areaCodeFieldController.text,
-        _categoryValue);
+        // _cityFieldController.text,
+        // _areaNameFieldController.text,
+        // _areaCodeFieldController.text,
+        _categoryValue,
+        categories[_categoryValue]);
     return newTask;
   }
 
@@ -86,7 +87,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
         // HiddenButtonContainerState().toggleButtonVisibility();
       },
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.89,
+        height: MediaQuery.of(context).size.height * 0.75,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
           color: Color.fromARGB(255, 248, 248, 248),
@@ -667,7 +668,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                             controller: _addressLine1FieldController,
                             readOnly: !_hasLocationController.value,
                             decoration: InputDecoration(
-                              hintText: "address line 1",
+                              hintText: "enter address",
                               hintStyle: TextStyle(
                                 fontSize: 14,
                                 color: const Color.fromARGB(255, 196, 196, 196),
@@ -679,96 +680,96 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.01,
-                      ),
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.045,
-                        width: MediaQuery.of(context).size.width * 0.75,
-                        decoration: BoxDecoration(
-                          color: Color.fromARGB(255, 240, 240, 240),
-                          borderRadius: BorderRadius.circular(
-                              5), // Adjust the radius as needed
-                        ),
-                        child: Transform.translate(
-                          offset: Offset(
-                              0, -2), // Adjust the vertical offset as needed
-                          child: TextField(
-                            controller: _cityFieldController,
-                            readOnly: !_hasLocationController.value,
-                            decoration: InputDecoration(
-                              hintText: "city",
-                              hintStyle: TextStyle(
-                                fontSize: 14,
-                                color: const Color.fromARGB(255, 196, 196, 196),
-                                fontWeight: FontWeight.w300,
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.01,
-                      ),
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.045,
-                        width: MediaQuery.of(context).size.width * 0.75,
-                        decoration: BoxDecoration(
-                          color: Color.fromARGB(255, 240, 240, 240),
-                          borderRadius: BorderRadius.circular(
-                              5), // Adjust the radius as needed
-                        ),
-                        child: Transform.translate(
-                          offset: Offset(
-                              0, -2), // Adjust the vertical offset as needed
-                          child: TextField(
-                            controller: _areaNameFieldController,
-                            readOnly: !_hasLocationController.value,
-                            decoration: InputDecoration(
-                              hintText: "county/state",
-                              hintStyle: TextStyle(
-                                fontSize: 14,
-                                color: const Color.fromARGB(255, 196, 196, 196),
-                                fontWeight: FontWeight.w300,
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.01,
-                      ),
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.045,
-                        width: MediaQuery.of(context).size.width * 0.75,
-                        decoration: BoxDecoration(
-                          color: Color.fromARGB(255, 240, 240, 240),
-                          borderRadius: BorderRadius.circular(
-                              5), // Adjust the radius as needed
-                        ),
-                        child: Transform.translate(
-                          offset: Offset(
-                              0, -2), // Adjust the vertical offset as needed
-                          child: TextField(
-                            controller: _areaCodeFieldController,
-                            readOnly: !_hasLocationController.value,
-                            decoration: InputDecoration(
-                              hintText: "postcode/zipcode",
-                              hintStyle: TextStyle(
-                                fontSize: 14,
-                                color: const Color.fromARGB(255, 196, 196, 196),
-                                fontWeight: FontWeight.w300,
-                              ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(10),
-                            ),
-                          ),
-                        ),
-                      ),
+                      //   SizedBox(
+                      //     height: MediaQuery.of(context).size.height * 0.01,
+                      //   ),
+                      //   Container(
+                      //     height: MediaQuery.of(context).size.height * 0.045,
+                      //     width: MediaQuery.of(context).size.width * 0.75,
+                      //     decoration: BoxDecoration(
+                      //       color: Color.fromARGB(255, 240, 240, 240),
+                      //       borderRadius: BorderRadius.circular(
+                      //           5), // Adjust the radius as needed
+                      //     ),
+                      //     child: Transform.translate(
+                      //       offset: Offset(
+                      //           0, -2), // Adjust the vertical offset as needed
+                      //       child: TextField(
+                      //         controller: _cityFieldController,
+                      //         readOnly: !_hasLocationController.value,
+                      //         decoration: InputDecoration(
+                      //           hintText: "city",
+                      //           hintStyle: TextStyle(
+                      //             fontSize: 14,
+                      //             color: const Color.fromARGB(255, 196, 196, 196),
+                      //             fontWeight: FontWeight.w300,
+                      //           ),
+                      //           border: InputBorder.none,
+                      //           contentPadding: EdgeInsets.all(10),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      //   SizedBox(
+                      //     height: MediaQuery.of(context).size.height * 0.01,
+                      //   ),
+                      //   Container(
+                      //     height: MediaQuery.of(context).size.height * 0.045,
+                      //     width: MediaQuery.of(context).size.width * 0.75,
+                      //     decoration: BoxDecoration(
+                      //       color: Color.fromARGB(255, 240, 240, 240),
+                      //       borderRadius: BorderRadius.circular(
+                      //           5), // Adjust the radius as needed
+                      //     ),
+                      //     child: Transform.translate(
+                      //       offset: Offset(
+                      //           0, -2), // Adjust the vertical offset as needed
+                      //       child: TextField(
+                      //         controller: _areaNameFieldController,
+                      //         readOnly: !_hasLocationController.value,
+                      //         decoration: InputDecoration(
+                      //           hintText: "county/state",
+                      //           hintStyle: TextStyle(
+                      //             fontSize: 14,
+                      //             color: const Color.fromARGB(255, 196, 196, 196),
+                      //             fontWeight: FontWeight.w300,
+                      //           ),
+                      //           border: InputBorder.none,
+                      //           contentPadding: EdgeInsets.all(10),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      //   SizedBox(
+                      //     height: MediaQuery.of(context).size.height * 0.01,
+                      //   ),
+                      //   Container(
+                      //     height: MediaQuery.of(context).size.height * 0.045,
+                      //     width: MediaQuery.of(context).size.width * 0.75,
+                      //     decoration: BoxDecoration(
+                      //       color: Color.fromARGB(255, 240, 240, 240),
+                      //       borderRadius: BorderRadius.circular(
+                      //           5), // Adjust the radius as needed
+                      //     ),
+                      //     child: Transform.translate(
+                      //       offset: Offset(
+                      //           0, -2), // Adjust the vertical offset as needed
+                      //       child: TextField(
+                      //         controller: _areaCodeFieldController,
+                      //         readOnly: !_hasLocationController.value,
+                      //         decoration: InputDecoration(
+                      //           hintText: "postcode/zipcode",
+                      //           hintStyle: TextStyle(
+                      //             fontSize: 14,
+                      //             color: const Color.fromARGB(255, 196, 196, 196),
+                      //             fontWeight: FontWeight.w300,
+                      //           ),
+                      //           border: InputBorder.none,
+                      //           contentPadding: EdgeInsets.all(10),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
                     ],
                   )),
                 ],
@@ -846,7 +847,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                 width: MediaQuery.of(context).size.width * 0.4,
                 child: ElevatedButton(
                   onPressed: () {
-                    TaskToAllocate newTask = createNewTask();
+                    Task newTask = createNewTask();
                     Navigator.pop(context, newTask);
                   },
                   style: ButtonStyle(

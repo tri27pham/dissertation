@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'navbar.dart';
 import 'addTaskPopUp.dart';
-import 'taskToAllocate.dart';
 import 'task.dart';
+import 'taskWidget.dart';
 
-class ScheduleTasks extends StatelessWidget {
+class ScheduleTasks extends StatefulWidget {
   ScheduleTasks({super.key});
 
-  List<TaskToAllocate> tasks = [];
+  @override
+  _ScheduleTasksState createState() => _ScheduleTasksState();
+}
+
+class _ScheduleTasksState extends State<ScheduleTasks> {
+  List<Task> tasks = [];
 
   void displayAddTaskPopUp(BuildContext context) {
     showModalBottomSheet(
@@ -19,6 +24,9 @@ class ScheduleTasks extends StatelessWidget {
     ).then((newTask) {
       if (newTask != null) {
         newTask.printValues();
+        setState(() {
+          tasks.add(newTask); // Add the new task to the list
+        });
       }
     });
   }
@@ -93,22 +101,28 @@ class ScheduleTasks extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  padding: EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20), // Rounded corners
-                    border: Border.all(
-                      color: Colors.grey.shade300, // Border color
-                      width: 2, // Border width
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    padding: EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      borderRadius:
+                          BorderRadius.circular(20), // Rounded corners
+                      border: Border.all(
+                        color: Colors.grey.shade300, // Border color
+                        width: 2, // Border width
+                      ),
                     ),
-                  ),
-                  child: ListView(
-                    children: [
-                      TaskWidget(),
-                    ],
-                  ),
-                ),
+                    child: ListView.builder(
+                        itemCount: tasks.length,
+                        itemBuilder: (content, index) {
+                          return TaskWidget(task: tasks[index]);
+                        })
+                    // child: ListView(
+                    //   children: [
+                    //     TaskWidget(),
+                    //   ],
+                    // ),
+                    ),
                 Container(
                   height: MediaQuery.of(context).size.height * 0.1,
                   width: MediaQuery.of(context).size.width * 0.85,

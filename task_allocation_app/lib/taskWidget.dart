@@ -15,6 +15,14 @@ class _TaskWidget extends State<TaskWidget> {
 
   List<String> priorities = ["LOW", "MEDIUM", "HIGH"];
 
+  String trim(String input) {
+    if (input.length <= 50) {
+      return input;
+    } else {
+      return input.substring(0, 50);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -61,7 +69,7 @@ class _TaskWidget extends State<TaskWidget> {
                                 offset: Offset(0.0,
                                     0), // Adjust the X and Y offsets to move the text horizontally and vertically
                                 child: Text(
-                                  widget.task.location,
+                                  widget.task.locationName,
                                   style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w500),

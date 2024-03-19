@@ -4,10 +4,9 @@ class Task {
   final int minutes;
   final int priority;
   final List<int> priorTasks;
-  final String location;
-  // final String city;
-  // final String areaName;
-  // final String areaCode;
+  final String locationName;
+  final String locationLongitude;
+  final String locationLatitude;
   final int category;
   final String categoryName;
 
@@ -17,10 +16,9 @@ class Task {
       this.minutes,
       this.priority,
       this.priorTasks,
-      this.location,
-      // this.city,
-      // this.areaName,
-      // this.areaCode,
+      this.locationName,
+      this.locationLongitude,
+      this.locationLatitude,
       this.category,
       this.categoryName);
 
@@ -30,10 +28,9 @@ class Task {
     print(minutes);
     print(priority);
     print(priorTasks);
-    print(location);
-    // print(city);
-    // print(areaName);
-    // print(areaCode);
+    print(locationName);
+    print(locationLongitude);
+    print(locationLatitude);
     print(category);
   }
 

@@ -2,6 +2,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
 import 'task.dart';
+import 'locationSearch.dart';
+import 'dart:convert';
+import 'dart:ffi';
+
+import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:http/http.dart' as http;
+import 'package:uuid/data.dart';
+import 'package:uuid/uuid.dart';
 
 class AddTaskPopUp extends StatefulWidget {
   const AddTaskPopUp({super.key});
@@ -70,13 +79,68 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
         _selectedMinutes,
         _priority,
         [],
-        _addressLine1FieldController.text,
-        // _cityFieldController.text,
-        // _areaNameFieldController.text,
-        // _areaCodeFieldController.text,
+        _locationController.text,
+        longitude,
+        latitude,
         _categoryValue,
         categories[_categoryValue]);
     return newTask;
+  }
+
+  final TextEditingController _locationController = TextEditingController();
+
+  String latitude = "";
+  String longitude = "";
+
+  String sessionToken = '89025';
+
+  var uuid = Uuid();
+
+  List<dynamic> places = [];
+
+  void makeSuggestion(String input) async {
+    String apiKey = 'AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294';
+    String url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+    String request = '$url?input=$input&key=$apiKey&sessiontoken=$sessionToken';
+
+    var response = await http.get(Uri.parse(request));
+
+    var responseData = response.body.toString();
+
+    print("test");
+    print(responseData);
+    print("test");
+
+    if (response.statusCode == 200) {
+      setState(() {
+        places = jsonDecode(responseData)['predictions'];
+      });
+    } else {
+      throw Exception('FAILED');
+    }
+  }
+
+  void onModify() {
+    if (_locationController.text.isEmpty) {
+      setState(() {
+        places.clear(); // Empty the places list
+      });
+      return; // Exit the method early if the controller is empty
+    }
+    if (sessionToken == null) {
+      setState(() {
+        sessionToken = uuid.v4();
+      });
+    }
+    makeSuggestion(_locationController.text);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _locationController.addListener(() {
+      onModify();
+    });
   }
 
   @override
@@ -84,10 +148,13 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus(); // Remove focus from any text fields
+        setState(() {
+          places.clear();
+        });
         // HiddenButtonContainerState().toggleButtonVisibility();
       },
       child: Container(
-        height: MediaQuery.of(context).size.height * 0.75,
+        height: MediaQuery.of(context).size.height * 0.77,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
           color: Color.fromARGB(255, 248, 248, 248),
@@ -650,225 +717,155 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                       ],
                     ),
                   ),
-                  Center(
-                      child: Column(
-                    children: [
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.045,
-                        width: MediaQuery.of(context).size.width * 0.75,
-                        decoration: BoxDecoration(
-                          color: Color.fromARGB(255, 240, 240, 240),
-                          borderRadius: BorderRadius.circular(
-                              5), // Adjust the radius as needed
+                  LocationSearchBar(),
+                  // Center(
+                  //     child: Column(
+                  //   children: [
+                  //     Container(
+                  //       height: MediaQuery.of(context).size.height * 0.045,
+                  //       width: MediaQuery.of(context).size.width * 0.75,
+                  //       decoration: BoxDecoration(
+                  //         color: Color.fromARGB(255, 240, 240, 240),
+                  //         borderRadius: BorderRadius.circular(
+                  //             5), // Adjust the radius as needed
+                  //       ),
+                  //       child: Transform.translate(
+                  //         offset: Offset(
+                  //             0, -2), // Adjust the vertical offset as needed
+                  //         child: TextField(
+                  //           controller: _addressLine1FieldController,
+                  //           readOnly: !_hasLocationController.value,
+                  //           decoration: InputDecoration(
+                  //             hintText: "enter address",
+                  //             hintStyle: TextStyle(
+                  //               fontSize: 14,
+                  //               color: const Color.fromARGB(255, 196, 196, 196),
+                  //               fontWeight: FontWeight.w300,
+                  //             ),
+                  //             border: InputBorder.none,
+                  //             contentPadding: EdgeInsets.all(10),
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     ),
+                  //   ],
+                  // )),
+                ],
+              ),
+            ),
+            Stack(
+              children: [
+                if (places.length == 0)
+                  Container(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.01,
                         ),
-                        child: Transform.translate(
-                          offset: Offset(
-                              0, -2), // Adjust the vertical offset as needed
-                          child: TextField(
-                            controller: _addressLine1FieldController,
-                            readOnly: !_hasLocationController.value,
-                            decoration: InputDecoration(
-                              hintText: "enter address",
-                              hintStyle: TextStyle(
-                                fontSize: 14,
-                                color: const Color.fromARGB(255, 196, 196, 196),
-                                fontWeight: FontWeight.w300,
+                        Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 50),
+                                child: Text(
+                                  "CATEGORY",
+                                  textAlign: TextAlign.left,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
                               ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(10),
+                              Center(
+                                child: Container(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.05,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.75,
+                                  decoration: BoxDecoration(
+                                    color: Color.fromARGB(255, 240, 240, 240),
+                                    borderRadius: BorderRadius.circular(
+                                        5), // Set the radius to 5
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      DropdownButton<int>(
+                                        value: _categoryValue,
+                                        items: categories
+                                            .asMap()
+                                            .entries
+                                            .map((MapEntry<int, String> entry) {
+                                          return DropdownMenuItem<int>(
+                                            value: entry.key,
+                                            child: Text(entry.value),
+                                          );
+                                        }).toList(),
+                                        onChanged: (int? newValue) {
+                                          setState(() {
+                                            if (newValue != null) {
+                                              _categoryValue = newValue;
+                                            }
+                                          });
+                                        },
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.black,
+                                        ),
+                                        icon: const Icon(
+                                            Icons.keyboard_arrow_down),
+                                        borderRadius: BorderRadius.circular(10),
+                                        underline: Container(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.02,
+                        ),
+                        Center(
+                          child: Container(
+                            height: MediaQuery.of(context).size.height * 0.05,
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Task newTask = createNewTask();
+                                Navigator.pop(context, newTask);
+                              },
+                              style: ButtonStyle(
+                                shape:
+                                    MaterialStateProperty.all<OutlinedBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        10), // No rounding
+                                  ),
+                                ),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.amber.shade200),
+                              ),
+                              child: Text(
+                                "ADD TASK",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      //   SizedBox(
-                      //     height: MediaQuery.of(context).size.height * 0.01,
-                      //   ),
-                      //   Container(
-                      //     height: MediaQuery.of(context).size.height * 0.045,
-                      //     width: MediaQuery.of(context).size.width * 0.75,
-                      //     decoration: BoxDecoration(
-                      //       color: Color.fromARGB(255, 240, 240, 240),
-                      //       borderRadius: BorderRadius.circular(
-                      //           5), // Adjust the radius as needed
-                      //     ),
-                      //     child: Transform.translate(
-                      //       offset: Offset(
-                      //           0, -2), // Adjust the vertical offset as needed
-                      //       child: TextField(
-                      //         controller: _cityFieldController,
-                      //         readOnly: !_hasLocationController.value,
-                      //         decoration: InputDecoration(
-                      //           hintText: "city",
-                      //           hintStyle: TextStyle(
-                      //             fontSize: 14,
-                      //             color: const Color.fromARGB(255, 196, 196, 196),
-                      //             fontWeight: FontWeight.w300,
-                      //           ),
-                      //           border: InputBorder.none,
-                      //           contentPadding: EdgeInsets.all(10),
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      //   SizedBox(
-                      //     height: MediaQuery.of(context).size.height * 0.01,
-                      //   ),
-                      //   Container(
-                      //     height: MediaQuery.of(context).size.height * 0.045,
-                      //     width: MediaQuery.of(context).size.width * 0.75,
-                      //     decoration: BoxDecoration(
-                      //       color: Color.fromARGB(255, 240, 240, 240),
-                      //       borderRadius: BorderRadius.circular(
-                      //           5), // Adjust the radius as needed
-                      //     ),
-                      //     child: Transform.translate(
-                      //       offset: Offset(
-                      //           0, -2), // Adjust the vertical offset as needed
-                      //       child: TextField(
-                      //         controller: _areaNameFieldController,
-                      //         readOnly: !_hasLocationController.value,
-                      //         decoration: InputDecoration(
-                      //           hintText: "county/state",
-                      //           hintStyle: TextStyle(
-                      //             fontSize: 14,
-                      //             color: const Color.fromARGB(255, 196, 196, 196),
-                      //             fontWeight: FontWeight.w300,
-                      //           ),
-                      //           border: InputBorder.none,
-                      //           contentPadding: EdgeInsets.all(10),
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      //   SizedBox(
-                      //     height: MediaQuery.of(context).size.height * 0.01,
-                      //   ),
-                      //   Container(
-                      //     height: MediaQuery.of(context).size.height * 0.045,
-                      //     width: MediaQuery.of(context).size.width * 0.75,
-                      //     decoration: BoxDecoration(
-                      //       color: Color.fromARGB(255, 240, 240, 240),
-                      //       borderRadius: BorderRadius.circular(
-                      //           5), // Adjust the radius as needed
-                      //     ),
-                      //     child: Transform.translate(
-                      //       offset: Offset(
-                      //           0, -2), // Adjust the vertical offset as needed
-                      //       child: TextField(
-                      //         controller: _areaCodeFieldController,
-                      //         readOnly: !_hasLocationController.value,
-                      //         decoration: InputDecoration(
-                      //           hintText: "postcode/zipcode",
-                      //           hintStyle: TextStyle(
-                      //             fontSize: 14,
-                      //             color: const Color.fromARGB(255, 196, 196, 196),
-                      //             fontWeight: FontWeight.w300,
-                      //           ),
-                      //           border: InputBorder.none,
-                      //           contentPadding: EdgeInsets.all(10),
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                    ],
-                  )),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.01,
-            ),
-            Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 50),
-                    child: Text(
-                      "CATEGORY",
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                      ),
+                      ],
                     ),
                   ),
-                  Center(
-                    child: Container(
-                      height: MediaQuery.of(context).size.height * 0.05,
-                      width: MediaQuery.of(context).size.width * 0.75,
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 240, 240, 240),
-                        borderRadius:
-                            BorderRadius.circular(5), // Set the radius to 5
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          DropdownButton<int>(
-                            value: _categoryValue,
-                            items: categories
-                                .asMap()
-                                .entries
-                                .map((MapEntry<int, String> entry) {
-                              return DropdownMenuItem<int>(
-                                value: entry.key,
-                                child: Text(entry.value),
-                              );
-                            }).toList(),
-                            onChanged: (int? newValue) {
-                              setState(() {
-                                if (newValue != null) {
-                                  _categoryValue = newValue;
-                                }
-                              });
-                            },
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black,
-                            ),
-                            icon: const Icon(Icons.keyboard_arrow_down),
-                            borderRadius: BorderRadius.circular(10),
-                            underline: Container(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.02,
-            ),
-            Center(
-              child: Container(
-                height: MediaQuery.of(context).size.height * 0.05,
-                width: MediaQuery.of(context).size.width * 0.4,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Task newTask = createNewTask();
-                    Navigator.pop(context, newTask);
-                  },
-                  style: ButtonStyle(
-                    shape: MaterialStateProperty.all<OutlinedBorder>(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10), // No rounding
-                      ),
-                    ),
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.amber.shade200),
-                  ),
-                  child: Text(
-                    "ADD TASK",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w400,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
+                LocationSearchResults(),
+              ],
             ),
           ],
         ),
@@ -879,4 +876,105 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
   Widget priorityOption(String text) => Container(
         child: Text(text),
       );
+
+  Widget LocationSearchBar() => Material(
+          child: Container(
+        height: MediaQuery.of(context).size.height * 0.08,
+        width: MediaQuery.of(context).size.width * 0.9,
+        child: Center(
+            child: Container(
+          height: MediaQuery.of(context).size.height * 0.05,
+          width: MediaQuery.of(context).size.width * 0.75,
+          decoration: BoxDecoration(
+            color: Color.fromARGB(255, 240, 240, 240),
+            borderRadius:
+                BorderRadius.circular(5), // Adjust the radius as needed
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 85,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10,
+                  ),
+                  child: Transform.translate(
+                    offset: Offset(0, 4),
+                    child: TextFormField(
+                      controller: _locationController,
+                      decoration: InputDecoration(
+                        hintText: "enter location",
+                        hintStyle: TextStyle(
+                            color: Color.fromARGB(255, 207, 207, 207),
+                            fontWeight: FontWeight.w300),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 15,
+                child: Icon(
+                  CupertinoIcons.location_fill,
+                  size: 20,
+                ),
+              ),
+            ],
+          ),
+        )),
+      ));
+
+  Widget LocationSearchResults() {
+    if (places.isEmpty) {
+      return Container();
+    } else {
+      return Center(
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.15,
+          width: MediaQuery.of(context).size.width * 0.75,
+          child: ListView.builder(
+              itemCount: places.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  color: Colors.white,
+                  height: MediaQuery.of(context).size.height *
+                      0.05, // Specify the desired height
+                  width: MediaQuery.of(context).size.width, // Use full width
+                  child: ListTile(
+                    onTap: () async {
+                      List<Location> locations = await locationFromAddress(
+                          places[index]['description']);
+                      latitude = locations.last.latitude.toString();
+                      longitude = locations.last.longitude.toString();
+                      setState(() {
+                        _locationController.text = places[index]['description'];
+                      });
+                      setState(() {
+                        places.clear(); // Clear the places list
+                      });
+                    },
+                    title: Text(places[index]['description']),
+                  ),
+                );
+              }),
+        ),
+      );
+    }
+  }
 }
+
+// class LocationSearch extends StatefulWidget {
+//   // const LocationSearch({super.key});
+
+//   @override
+//   State<LocationSearch> createState() => _LocationSearchState();
+// }
+
+// class _LocationSearchState extends State<LocationSearch> {
+
+  
+
+

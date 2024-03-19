@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'addTasks.dart';
 import 'viewTasks.dart';
 import 'homepage.dart';
+import 'locationSearch.dart';
 
 void main() {
   runApp(const MyApp());

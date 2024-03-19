@@ -107,12 +107,69 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
     }
   }
 
+  bool checkInputs() {
+    if (_nameFieldController.text.isEmpty) {
+      showCupertinoDialog<void>(
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+                title: Text("BLANK NAME"),
+                content: Text("Give your task a name!"),
+                actions: [
+                  CupertinoDialogAction(
+                      child: Text("OK"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      })
+                ],
+              ));
+      return false;
+    }
+    if (_selectedHours == 0 && _selectedMinutes == 0) {
+      showCupertinoDialog<void>(
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+                title: Text("NO DURATION"),
+                content: Text("How long will your task take?"),
+                actions: [
+                  CupertinoDialogAction(
+                      child: Text("OK"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      })
+                ],
+              ));
+      return false;
+    }
+    if (_hasLocationController.value && _locationController.text.isEmpty) {
+      showCupertinoDialog<void>(
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+                title: Text("NO LOCATION"),
+                content: Text(
+                    "Give your task a location! (or select no location option)"),
+                actions: [
+                  CupertinoDialogAction(
+                      child: Text("OK"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      })
+                ],
+              ));
+      return false;
+    }
+    return true;
+  }
+
   Task createNewTask() {
     List<String> priorTasksIDs = [];
     for (var priorTask in priorTasks) {
       if (priorTask.selected) {
         priorTasksIDs.add(priorTask.task.taskID.toString());
       }
+    }
+    if (!_hasLocationController.value) {
+      longitude = "0";
+      latitude = "0";
     }
     Task newTask = Task(
         getNewTaskID(),
@@ -781,8 +838,12 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                             width: MediaQuery.of(context).size.width * 0.4,
                             child: ElevatedButton(
                               onPressed: () {
-                                Task newTask = createNewTask();
-                                Navigator.pop(context, newTask);
+                                if (checkInputs()) {
+                                  Task newTask = createNewTask();
+                                  Navigator.pop(context, newTask);
+                                } else {
+                                  // prompt user that they need to fill in fields
+                                }
                               },
                               style: ButtonStyle(
                                 shape:
@@ -852,6 +913,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                     offset: Offset(0, 4),
                     child: TextFormField(
                       controller: _locationController,
+                      enabled: _hasLocationController.value,
                       decoration: InputDecoration(
                         hintText: "enter location",
                         hintStyle: TextStyle(

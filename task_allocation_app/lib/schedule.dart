@@ -14,6 +14,12 @@ class ScheduleTasks extends StatefulWidget {
 class _ScheduleTasksState extends State<ScheduleTasks> {
   List<Task> tasks = [];
 
+  void createSchedule() {
+    for (var task in tasks) {
+      task.printValues();
+    }
+  }
+
   void displayAddTaskPopUp(BuildContext context) {
     showModalBottomSheet(
       isScrollControlled: true,
@@ -23,11 +29,9 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
       },
     ).then((newTask) {
       if (newTask != null) {
-        // newTask.printValues();
         setState(() {
-          tasks.add(newTask); // Add the new task to the list
+          tasks.add(newTask);
         });
-        // print("tasks: " + tasks.last.name);
       }
     });
   }
@@ -134,7 +138,9 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
                   height: MediaQuery.of(context).size.height * 0.1,
                   width: MediaQuery.of(context).size.width * 0.85,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      createSchedule();
+                    },
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all<OutlinedBorder>(
                         RoundedRectangleBorder(

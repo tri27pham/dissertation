@@ -19,7 +19,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
       isScrollControlled: true,
       context: context,
       builder: (BuildContext bc) {
-        return AddTaskPopUp();
+        return AddTaskPopUp(tasks: tasks);
       },
     ).then((newTask) {
       if (newTask != null) {
@@ -27,6 +27,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
         setState(() {
           tasks.add(newTask); // Add the new task to the list
         });
+        // print("tasks: " + tasks.last.name);
       }
     });
   }
@@ -78,6 +79,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
                   width: MediaQuery.of(context).size.width * 0.4,
                   child: ElevatedButton(
                     onPressed: () {
+                      // print("length of tasks: " + tasks.length.toString());
                       displayAddTaskPopUp(context);
                     },
                     child: Text(

@@ -1,4 +1,5 @@
 class Task {
+  final int taskID;
   final String name;
   final int hours;
   final int minutes;
@@ -11,6 +12,7 @@ class Task {
   final String categoryName;
 
   Task(
+      this.taskID,
       this.name,
       this.hours,
       this.minutes,
@@ -23,6 +25,7 @@ class Task {
       this.categoryName);
 
   void printValues() {
+    print(taskID);
     print(name);
     print(hours);
     print(minutes);
@@ -36,6 +39,7 @@ class Task {
 
   String getMinutes() {
     double minutesAsHours = (minutes / 60);
-    return minutesAsHours.toString().split('.').last;
+    String roundedHours = minutesAsHours.toStringAsFixed(1);
+    return roundedHours.split('.').last;
   }
 }

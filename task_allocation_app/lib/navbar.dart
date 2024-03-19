@@ -93,10 +93,10 @@ class NavBar extends StatelessWidget {
               ),
             ),
             onTap: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(builder: (context) => ()),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CheckboxListScreen()),
+              );
             },
           ),
         ],

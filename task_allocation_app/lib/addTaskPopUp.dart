@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_advanced_switch/flutter_advanced_switch.dart';
@@ -12,14 +14,36 @@ import 'package:http/http.dart' as http;
 import 'package:uuid/data.dart';
 import 'package:uuid/uuid.dart';
 
+class PriorTask {
+  final String name;
+  final bool selected;
+  PriorTask(this.name, this.selected);
+}
+
 class AddTaskPopUp extends StatefulWidget {
-  const AddTaskPopUp({super.key});
+  final List<Task> tasks;
+
+  AddTaskPopUp({required this.tasks});
 
   @override
   _AddTaskPopUpState createState() => _AddTaskPopUpState();
 }
 
 class _AddTaskPopUpState extends State<AddTaskPopUp> {
+  List<String> _selectedItems = [];
+  List<String> _options = [
+    'Option 1',
+    'Option 2',
+    'Option 3',
+    'Option 4',
+    'Option 5',
+    'Option 6',
+    'Option 7',
+    'Option 8',
+    'Option 9',
+    'Option 10',
+  ];
+
   final TextEditingController _nameFieldController =
       TextEditingController(text: '');
 
@@ -60,20 +84,32 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
     'MISCELLANEOUS',
   ];
 
-  String _priorTaskValue = '1';
-  var priorTasks = [
-    '1',
-    '2',
-    '3',
-    '4',
-    '5',
-    '6',
-  ];
+  // String _priorTaskValue = '1';
+  // var priorTasks = [
+  //   '1',
+  //   '2',
+  //   '3',
+  //   '4',
+  //   '5',
+  //   '6',
+  // ];
 
   bool hasLocation = true;
 
+  int getNewTaskID() {
+    if (widget.tasks.isEmpty) {
+      return 1;
+    } else {
+      List<int> taskIDs = widget.tasks.map((task) => task.taskID).toList();
+      int maxTaskID =
+          taskIDs.reduce((value, element) => value > element ? value : element);
+      return maxTaskID + 1;
+    }
+  }
+
   Task createNewTask() {
     Task newTask = Task(
+        getNewTaskID(),
         _nameFieldController.text,
         _selectedHours,
         _selectedMinutes,
@@ -98,6 +134,8 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
 
   List<dynamic> places = [];
 
+  bool _viewPriorTasks = false;
+
   void makeSuggestion(String input) async {
     String apiKey = 'AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294';
     String url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
@@ -107,9 +145,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
 
     var responseData = response.body.toString();
 
-    print("test");
-    print(responseData);
-    print("test");
+    // print(responseData);
 
     if (response.statusCode == 200) {
       setState(() {
@@ -135,9 +171,30 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
     makeSuggestion(_locationController.text);
   }
 
+  late List<PriorTask> priorTasks;
+
   @override
   void initState() {
+    print("INIT");
     super.initState();
+
+    print(widget.tasks);
+
+    // print("tasks: " + widget.tasks.last.name.toString());
+
+// PROBLEM SOMEWHERE HERE
+    if (widget.tasks.isNotEmpty) {
+      List<PriorTask> tasks = [];
+      for (var task in widget.tasks) {
+        print("test");
+        tasks.add(PriorTask(task.name, false));
+      }
+      priorTasks = tasks;
+      print("TASKS LENGTH:" + tasks.length.toString());
+    } else {
+      priorTasks = [];
+    }
+
     _locationController.addListener(() {
       onModify();
     });
@@ -150,6 +207,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
         FocusScope.of(context).unfocus(); // Remove focus from any text fields
         setState(() {
           places.clear();
+          _viewPriorTasks = false;
         });
         // HiddenButtonContainerState().toggleButtonVisibility();
       },
@@ -489,171 +547,42 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                     ),
                   ),
                   Center(
-                      child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.045,
-                        width: MediaQuery.of(context).size.width * 0.37,
-                        decoration: BoxDecoration(
-                          color: Color.fromARGB(255, 240, 240, 240),
-                          borderRadius: BorderRadius.circular(5),
-                          // Adjust the radius as needed
+                      child: Container(
+                    height: MediaQuery.of(context).size.height * 0.045,
+                    width: MediaQuery.of(context).size.width * 0.75,
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 240, 240, 240),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          flex: 85,
+                          child: Row(),
                         ),
-                        child: Center(
-                          child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 2.0),
-                                    child: Container(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.035,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.06,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(5),
-                                        // Adjust the radius as needed
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          Text("1"),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 2.0),
-                                    child: Container(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.035,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.06,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(5),
-                                        // Adjust the radius as needed
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 2.0),
-                                    child: Container(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.035,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.06,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(5),
-                                        // Adjust the radius as needed
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 2.0),
-                                    child: Container(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.035,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.06,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(5),
-                                        // Adjust the radius as needed
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 2.0),
-                                    child: Container(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.035,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.06,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(5),
-                                        // Adjust the radius as needed
-                                      ),
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 2.0),
-                                    child: Container(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.035,
-                                      width: MediaQuery.of(context).size.width *
-                                          0.06,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(5),
-                                        // Adjust the radius as needed
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              )),
-                        ),
-                      ),
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.01,
-                      ),
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.045,
-                        width: MediaQuery.of(context).size.width * 0.37,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: Colors.grey, // Border color
-                            width: 1.5, // Border width
-                          ), // Adjust the radius as needed
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            DropdownButton(
-                              value: _priorTaskValue,
-                              items: priorTasks.map((String category) {
-                                return DropdownMenuItem(
-                                    value: category, child: Text(category));
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  _priorTaskValue = newValue!;
-                                });
-                              },
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.black,
-                              ),
-                              icon: const Icon(Icons.keyboard_arrow_down),
-                              borderRadius: BorderRadius.circular(10),
-                              underline: Container(),
+                        Expanded(
+                          flex: 15,
+                          child: IconButton(
+                            icon: Icon(
+                              CupertinoIcons.add_circled_solid,
+                              size: 20,
+                              color: priorTasks.isNotEmpty
+                                  ? Color.fromARGB(255, 44, 44, 44)
+                                  : Color.fromARGB(255, 173, 173, 173),
                             ),
-                          ],
+                            onPressed: () {
+                              if (priorTasks.isNotEmpty) {
+                                setState(() {
+                                  _viewPriorTasks = !_viewPriorTasks;
+                                });
+                              }
+                            },
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   )),
                 ],
               ),
@@ -661,97 +590,102 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.01,
             ),
-            Container(
-              child: Column(
-                // crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 50),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            Stack(
+              children: [
+                if (_viewPriorTasks)
+                  Center(
+                    child: Container(
+                      height: MediaQuery.of(context).size.height * 0.115,
+                      width: MediaQuery.of(context).size.width * 0.75,
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 240, 240, 240),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: ListView.builder(
+                        itemCount: priorTasks.length,
+                        itemBuilder: (context, index) {
+                          return CheckboxListTile(
+                            title: Text(priorTasks[index].name),
+                            value: false,
+                            onChanged: (newValue) {
+                              // setState(() {
+                              //   _checkBoxValues[index] = newValue!;
+                              // });
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  )
+                else
+                  Container(
+                    // color: Color.fromARGB(255, 240, 240, 240),
+                    child: Column(
+                      // crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "ADDRESS",
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 50),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text(
+                                "ADDRESS",
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Spacer(),
+                              Text("LOCATION"),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.01,
+                              ),
+                              AdvancedSwitch(
+                                controller: _hasLocationController,
+                                initialValue: _hasLocationController.value,
+                                activeColor: Color.fromARGB(255, 174, 228, 158),
+                                inactiveColor:
+                                    Color.fromARGB(255, 235, 124, 109),
+                                activeChild: Container(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.05,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.05,
+                                  child: Image(
+                                    image: AssetImage(
+                                        'assets/images/home_icon.png'),
+                                  ),
+                                ),
+                                inactiveChild: Container(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.055,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.055,
+                                  child: Image(
+                                    image: AssetImage(
+                                        'assets/images/no_home_icon.png'),
+                                  ),
+                                ),
+                                borderRadius:
+                                    BorderRadius.all(const Radius.circular(15)),
+                                width: 55.0,
+                                height: 25.0,
+                                // enabled: true,
+                                disabledOpacity: 0.5,
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    _hasLocationController.value = newValue;
+                                  });
+                                },
+                              ),
+                            ],
                           ),
                         ),
-                        Spacer(),
-                        Text("LOCATION"),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.01,
-                        ),
-                        AdvancedSwitch(
-                          controller: _hasLocationController,
-                          initialValue: _hasLocationController.value,
-                          activeColor: Color.fromARGB(255, 174, 228, 158),
-                          inactiveColor: Color.fromARGB(255, 235, 124, 109),
-                          activeChild: Container(
-                            height: MediaQuery.of(context).size.height * 0.05,
-                            width: MediaQuery.of(context).size.width * 0.05,
-                            child: Image(
-                              image: AssetImage('assets/images/home_icon.png'),
-                            ),
-                          ),
-                          inactiveChild: Container(
-                            height: MediaQuery.of(context).size.height * 0.055,
-                            width: MediaQuery.of(context).size.width * 0.055,
-                            child: Image(
-                              image:
-                                  AssetImage('assets/images/no_home_icon.png'),
-                            ),
-                          ),
-                          borderRadius:
-                              BorderRadius.all(const Radius.circular(15)),
-                          width: 55.0,
-                          height: 25.0,
-                          // enabled: true,
-                          disabledOpacity: 0.5,
-                          onChanged: (newValue) {
-                            setState(() {
-                              _hasLocationController.value = newValue;
-                            });
-                          },
-                        ),
+                        LocationSearchBar(),
                       ],
                     ),
                   ),
-                  LocationSearchBar(),
-                  // Center(
-                  //     child: Column(
-                  //   children: [
-                  //     Container(
-                  //       height: MediaQuery.of(context).size.height * 0.045,
-                  //       width: MediaQuery.of(context).size.width * 0.75,
-                  //       decoration: BoxDecoration(
-                  //         color: Color.fromARGB(255, 240, 240, 240),
-                  //         borderRadius: BorderRadius.circular(
-                  //             5), // Adjust the radius as needed
-                  //       ),
-                  //       child: Transform.translate(
-                  //         offset: Offset(
-                  //             0, -2), // Adjust the vertical offset as needed
-                  //         child: TextField(
-                  //           controller: _addressLine1FieldController,
-                  //           readOnly: !_hasLocationController.value,
-                  //           decoration: InputDecoration(
-                  //             hintText: "enter address",
-                  //             hintStyle: TextStyle(
-                  //               fontSize: 14,
-                  //               color: const Color.fromARGB(255, 196, 196, 196),
-                  //               fontWeight: FontWeight.w300,
-                  //             ),
-                  //             border: InputBorder.none,
-                  //             contentPadding: EdgeInsets.all(10),
-                  //           ),
-                  //         ),
-                  //       ),
-                  //     ),
-                  //   ],
-                  // )),
-                ],
-              ),
+              ],
             ),
             Stack(
               children: [
@@ -878,9 +812,11 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
       );
 
   Widget LocationSearchBar() => Material(
-          child: Container(
+      color: Colors.transparent,
+      child: Container(
         height: MediaQuery.of(context).size.height * 0.08,
         width: MediaQuery.of(context).size.width * 0.9,
+        // color: Color.fromARGB(0, 199, 88, 88),
         child: Center(
             child: Container(
           height: MediaQuery.of(context).size.height * 0.05,
@@ -955,6 +891,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                       setState(() {
                         places.clear(); // Clear the places list
                       });
+                      print(places.length);
                     },
                     title: Text(places[index]['description']),
                   ),
@@ -965,16 +902,3 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
     }
   }
 }
-
-// class LocationSearch extends StatefulWidget {
-//   // const LocationSearch({super.key});
-
-//   @override
-//   State<LocationSearch> createState() => _LocationSearchState();
-// }
-
-// class _LocationSearchState extends State<LocationSearch> {
-
-  
-
-

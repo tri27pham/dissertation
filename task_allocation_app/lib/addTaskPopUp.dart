@@ -15,9 +15,9 @@ import 'package:uuid/data.dart';
 import 'package:uuid/uuid.dart';
 
 class PriorTask {
-  final String name;
-  final bool selected;
-  PriorTask(this.name, this.selected);
+  final Task task;
+  bool selected;
+  PriorTask(this.task, this.selected);
 }
 
 class AddTaskPopUp extends StatefulWidget {
@@ -108,18 +108,25 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
   }
 
   Task createNewTask() {
+    List<String> priorTasksIDs = [];
+    for (var priorTask in priorTasks) {
+      if (priorTask.selected) {
+        priorTasksIDs.add(priorTask.task.taskID.toString());
+      }
+    }
     Task newTask = Task(
         getNewTaskID(),
         _nameFieldController.text,
         _selectedHours,
         _selectedMinutes,
         _priority,
-        [],
+        priorTasksIDs,
         _locationController.text,
         longitude,
         latitude,
         _categoryValue,
         categories[_categoryValue]);
+    newTask.printValues();
     return newTask;
   }
 
@@ -187,7 +194,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
       List<PriorTask> tasks = [];
       for (var task in widget.tasks) {
         print("test");
-        tasks.add(PriorTask(task.name, false));
+        tasks.add(PriorTask(task, false));
       }
       priorTasks = tasks;
       print("TASKS LENGTH:" + tasks.length.toString());
@@ -595,27 +602,32 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                 if (_viewPriorTasks)
                   Center(
                     child: Container(
-                      height: MediaQuery.of(context).size.height * 0.115,
-                      width: MediaQuery.of(context).size.width * 0.75,
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 240, 240, 240),
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: ListView.builder(
-                        itemCount: priorTasks.length,
-                        itemBuilder: (context, index) {
-                          return CheckboxListTile(
-                            title: Text(priorTasks[index].name),
-                            value: false,
-                            onChanged: (newValue) {
-                              // setState(() {
-                              //   _checkBoxValues[index] = newValue!;
-                              // });
+                        height: MediaQuery.of(context).size.height * 0.115,
+                        width: MediaQuery.of(context).size.width * 0.75,
+                        decoration: BoxDecoration(
+                          color: Color.fromARGB(255, 240, 240, 240),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Scrollbar(
+                          child: ListView.builder(
+                            itemCount: priorTasks.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.06,
+                                child: CheckboxListTile(
+                                  title: Text(priorTasks[index].task.name),
+                                  value: priorTasks[index].selected,
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      priorTasks[index].selected = newValue!;
+                                    });
+                                  },
+                                ),
+                              );
                             },
-                          );
-                        },
-                      ),
-                    ),
+                          ),
+                        )),
                   )
                 else
                   Container(

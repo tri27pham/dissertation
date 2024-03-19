@@ -4,7 +4,7 @@ class Task {
   final int hours;
   final int minutes;
   final int priority;
-  final List<int> priorTasks;
+  final List<String> priorTasks;
   final String locationName;
   final String locationLongitude;
   final String locationLatitude;
@@ -25,16 +25,13 @@ class Task {
       this.categoryName);
 
   void printValues() {
-    print(taskID);
-    print(name);
-    print(hours);
-    print(minutes);
-    print(priority);
-    print(priorTasks);
-    print(locationName);
-    print(locationLongitude);
-    print(locationLatitude);
-    print(category);
+    print("ID: $taskID");
+    print("Name: $name");
+    print("Duration: $hours:${getMinutes()}}");
+    print("Priority: $priority");
+    print("Prior tasks: $priorTasks");
+    print("Location: ($locationLongitude,$locationLatitude)");
+    print("Category: $category");
   }
 
   String getMinutes() {

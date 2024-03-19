@@ -23,7 +23,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
       },
     ).then((newTask) {
       if (newTask != null) {
-        newTask.printValues();
+        // newTask.printValues();
         setState(() {
           tasks.add(newTask); // Add the new task to the list
         });
@@ -114,17 +114,22 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
                         width: 2, // Border width
                       ),
                     ),
-                    child: ListView.builder(
-                        itemCount: tasks.length,
-                        itemBuilder: (content, index) {
-                          return TaskWidget(task: tasks[index]);
-                        })
-                    // child: ListView(
-                    //   children: [
-                    //     TaskWidget(),
-                    //   ],
-                    // ),
-                    ),
+                    child: Scrollbar(
+                      child: ListView.builder(
+                          itemCount: tasks.length,
+                          itemBuilder: (content, index) {
+                            return Container(
+                              padding: EdgeInsets.symmetric(vertical: 3),
+                              child: TaskWidget(task: tasks[index]),
+                            );
+                          }),
+
+                      // child: ListView(
+                      //   children: [
+                      //     TaskWidget(),
+                      //   ],
+                      // ),
+                    )),
                 Container(
                   height: MediaQuery.of(context).size.height * 0.1,
                   width: MediaQuery.of(context).size.width * 0.85,

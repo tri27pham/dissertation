@@ -15,6 +15,22 @@ class _TaskWidget extends State<TaskWidget> {
 
   List<String> priorities = ["LOW", "MEDIUM", "HIGH"];
 
+  List<Color> categoriesColors = [
+    Colors.amber,
+    Color.fromARGB(255, 141, 219, 180),
+    Color.fromARGB(255, 134, 140, 233),
+    Color.fromARGB(255, 209, 144, 158),
+    Color.fromARGB(255, 89, 149, 218),
+    Color.fromARGB(255, 206, 150, 194),
+    Color.fromARGB(255, 241, 132, 132),
+  ];
+
+  var priorityColors = [
+    const Color.fromARGB(255, 174, 228, 158),
+    Colors.amber,
+    const Color.fromARGB(255, 235, 124, 109)
+  ];
+
   String trim(String input) {
     if (input.length <= 50) {
       return input;
@@ -60,6 +76,7 @@ class _TaskWidget extends State<TaskWidget> {
                                     3.0), // Adjust the X and Y offsets to move the text horizontally and vertically
                                 child: Text(
                                   widget.task.name,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w500),
@@ -70,6 +87,7 @@ class _TaskWidget extends State<TaskWidget> {
                                     0), // Adjust the X and Y offsets to move the text horizontally and vertically
                                 child: Text(
                                   widget.task.locationName,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w500),
@@ -80,11 +98,12 @@ class _TaskWidget extends State<TaskWidget> {
                                     -2), // Adjust the X and Y offsets to move the text horizontally and vertically
                                 child: Text(
                                   widget.task.categoryName,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w500,
-                                      color:
-                                          Color.fromARGB(255, 146, 211, 162)),
+                                      color: categoriesColors[
+                                          widget.task.category]),
                                 ),
                               ),
                             ],
@@ -114,7 +133,7 @@ class _TaskWidget extends State<TaskWidget> {
                               priorities[widget.task.priority],
                               style: TextStyle(
                                   fontSize: 15,
-                                  color: Color.fromARGB(255, 212, 106, 106),
+                                  color: priorityColors[widget.task.priority],
                                   fontWeight: FontWeight.w400),
                             ),
                           ),

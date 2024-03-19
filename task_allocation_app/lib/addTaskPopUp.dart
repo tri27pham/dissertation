@@ -30,37 +30,11 @@ class AddTaskPopUp extends StatefulWidget {
 }
 
 class _AddTaskPopUpState extends State<AddTaskPopUp> {
-  List<String> _selectedItems = [];
-  List<String> _options = [
-    'Option 1',
-    'Option 2',
-    'Option 3',
-    'Option 4',
-    'Option 5',
-    'Option 6',
-    'Option 7',
-    'Option 8',
-    'Option 9',
-    'Option 10',
-  ];
-
   final TextEditingController _nameFieldController =
       TextEditingController(text: '');
 
   int _selectedHours = 0;
   int _selectedMinutes = 0;
-
-  final TextEditingController _addressLine1FieldController =
-      TextEditingController(text: '');
-
-  final TextEditingController _cityFieldController =
-      TextEditingController(text: '');
-
-  final TextEditingController _areaNameFieldController =
-      TextEditingController(text: '');
-
-  final TextEditingController _areaCodeFieldController =
-      TextEditingController(text: '');
 
   final _hasLocationController = ValueNotifier<bool>(true);
 
@@ -83,16 +57,6 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
     'HOBBIES',
     'MISCELLANEOUS',
   ];
-
-  // String _priorTaskValue = '1';
-  // var priorTasks = [
-  //   '1',
-  //   '2',
-  //   '3',
-  //   '4',
-  //   '5',
-  //   '6',
-  // ];
 
   bool hasLocation = true;
 
@@ -162,15 +126,20 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
 
   Task createNewTask() {
     List<String> priorTasksIDs = [];
-    for (var priorTask in priorTasks) {
+    for (var priorTask in selectedPriorTasks) {
       if (priorTask.selected) {
         priorTasksIDs.add(priorTask.task.taskID.toString());
       }
     }
+    String locationName = "";
     if (!_hasLocationController.value) {
       longitude = "0";
       latitude = "0";
+      locationName = "NO LOCATION";
+    } else {
+      locationName = _locationController.text;
     }
+
     Task newTask = Task(
         getNewTaskID(),
         _nameFieldController.text,
@@ -178,7 +147,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
         _selectedMinutes,
         _priority,
         priorTasksIDs,
-        _locationController.text,
+        locationName,
         longitude,
         latitude,
         _categoryValue,
@@ -235,29 +204,32 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
     makeSuggestion(_locationController.text);
   }
 
+  void updateSelectedPriorTasks() {
+    selectedPriorTasks.clear();
+    for (var priorTask in priorTasks) {
+      if (priorTask.selected) {
+        selectedPriorTasks.add(priorTask);
+      }
+    }
+  }
+
   late List<PriorTask> priorTasks;
+  late List<PriorTask> selectedPriorTasks;
 
   @override
   void initState() {
-    print("INIT");
     super.initState();
 
-    print(widget.tasks);
-
-    // print("tasks: " + widget.tasks.last.name.toString());
-
-// PROBLEM SOMEWHERE HERE
     if (widget.tasks.isNotEmpty) {
       List<PriorTask> tasks = [];
       for (var task in widget.tasks) {
-        print("test");
         tasks.add(PriorTask(task, false));
       }
       priorTasks = tasks;
-      print("TASKS LENGTH:" + tasks.length.toString());
     } else {
       priorTasks = [];
     }
+    selectedPriorTasks = [];
 
     _locationController.addListener(() {
       onModify();
@@ -624,7 +596,47 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                       children: [
                         Expanded(
                           flex: 85,
-                          child: Row(),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                  child: ListView.builder(
+                                      scrollDirection: Axis.horizontal,
+                                      itemCount: selectedPriorTasks.length,
+                                      itemBuilder: (context, index) {
+                                        return Padding(
+                                            padding:
+                                                EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 5),
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.03,
+                                                  decoration: BoxDecoration(
+                                                    color: Color.fromARGB(
+                                                        255, 255, 255, 255),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                  ),
+                                                  child: Text(
+                                                    selectedPriorTasks[index]
+                                                        .task
+                                                        .name,
+                                                  ),
+                                                ),
+                                              ],
+                                            ));
+                                      }))
+                            ],
+                          ),
                         ),
                         Expanded(
                           flex: 15,
@@ -678,6 +690,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                                   onChanged: (newValue) {
                                     setState(() {
                                       priorTasks[index].selected = newValue!;
+                                      updateSelectedPriorTasks();
                                     });
                                   },
                                 ),

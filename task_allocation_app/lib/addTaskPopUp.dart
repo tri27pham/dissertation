@@ -905,49 +905,51 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
         // color: Color.fromARGB(0, 199, 88, 88),
         child: Center(
             child: Container(
-          height: MediaQuery.of(context).size.height * 0.05,
-          width: MediaQuery.of(context).size.width * 0.75,
-          decoration: BoxDecoration(
-            color: Color.fromARGB(255, 240, 240, 240),
-            borderRadius:
-                BorderRadius.circular(5), // Adjust the radius as needed
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                flex: 85,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10,
-                  ),
-                  child: Transform.translate(
-                    offset: Offset(0, 4),
-                    child: TextFormField(
-                      controller: _locationController,
-                      enabled: _hasLocationController.value,
-                      decoration: InputDecoration(
-                        hintText: "enter location",
-                        hintStyle: TextStyle(
-                            color: Color.fromARGB(255, 207, 207, 207),
-                            fontWeight: FontWeight.w300),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
+                height: MediaQuery.of(context).size.height * 0.05,
+                width: MediaQuery.of(context).size.width * 0.75,
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 240, 240, 240),
+                  borderRadius:
+                      BorderRadius.circular(5), // Adjust the radius as needed
                 ),
-              ),
-              Expanded(
-                flex: 15,
-                child: Icon(
-                  CupertinoIcons.location_fill,
-                  size: 20,
-                ),
-              ),
-            ],
-          ),
-        )),
+                child: _hasLocationController.value
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            flex: 85,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 10,
+                              ),
+                              child: Transform.translate(
+                                offset: Offset(0, 4),
+                                child: TextFormField(
+                                  controller: _locationController,
+                                  enabled: _hasLocationController.value,
+                                  decoration: InputDecoration(
+                                    hintText: "enter location",
+                                    hintStyle: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 207, 207, 207),
+                                        fontWeight: FontWeight.w300),
+                                    border: InputBorder.none,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 15,
+                            child: Icon(
+                              CupertinoIcons.location_fill,
+                              size: 20,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Container())),
       ));
 
   Widget LocationSearchResults() {

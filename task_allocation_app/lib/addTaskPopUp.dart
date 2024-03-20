@@ -912,44 +912,44 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                   borderRadius:
                       BorderRadius.circular(5), // Adjust the radius as needed
                 ),
-                child: _hasLocationController.value
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            flex: 85,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 10,
-                              ),
-                              child: Transform.translate(
-                                offset: Offset(0, 4),
-                                child: TextFormField(
-                                  controller: _locationController,
-                                  enabled: _hasLocationController.value,
-                                  decoration: InputDecoration(
-                                    hintText: "enter location",
-                                    hintStyle: TextStyle(
-                                        color:
-                                            Color.fromARGB(255, 207, 207, 207),
-                                        fontWeight: FontWeight.w300),
-                                    border: InputBorder.none,
-                                  ),
-                                ),
-                              ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 85,
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                        ),
+                        child: Transform.translate(
+                          offset: Offset(0, 4),
+                          child: TextFormField(
+                            controller: _locationController,
+                            enabled: _hasLocationController.value,
+                            decoration: InputDecoration(
+                              hintText: _hasLocationController.value
+                                  ? "enter location"
+                                  : "no location",
+                              hintStyle: TextStyle(
+                                  color: Color.fromARGB(255, 207, 207, 207),
+                                  fontWeight: FontWeight.w300),
+                              border: InputBorder.none,
                             ),
                           ),
-                          Expanded(
-                            flex: 15,
-                            child: Icon(
-                              CupertinoIcons.location_fill,
-                              size: 20,
-                            ),
-                          ),
-                        ],
-                      )
-                    : Container())),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                        flex: 15,
+                        child: _hasLocationController.value
+                            ? Icon(
+                                CupertinoIcons.location_fill,
+                                size: 20,
+                              )
+                            : Container()),
+                  ],
+                ))),
       ));
 
   Widget LocationSearchResults() {

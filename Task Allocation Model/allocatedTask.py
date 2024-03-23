@@ -2,7 +2,7 @@ from prioritiesEnum import Priority
 
 class AllocatedTask:
     
-    def __init__(self,taskID,name,start_datetime,end_datetime,priority,prior_tasks,location,category):
+    def __init__(self,taskID,name,start_datetime,end_datetime,priority,prior_tasks,location_name,location_coords,category):
         # identifier unique to task - type: Int
         self.taskID = taskID 
         # task name
@@ -16,7 +16,8 @@ class AllocatedTask:
         # tasks that must be completed first - type: set of Task
         self.prior_tasks = prior_tasks 
         # <lat,long> of location of task - default = None
-        self.location = location        
+        self.location_name = location_name
+        self.location_coords = location_coords       
         # category of task - type: String - default = None
         self.category = category 
 

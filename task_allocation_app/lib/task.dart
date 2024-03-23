@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Task {
   final int taskID;
   final String name;
@@ -9,7 +11,6 @@ class Task {
   final String locationLongitude;
   final String locationLatitude;
   final int category;
-  final String categoryName;
 
   Task(
       this.taskID,
@@ -21,8 +22,22 @@ class Task {
       this.locationName,
       this.locationLongitude,
       this.locationLatitude,
-      this.category,
-      this.categoryName);
+      this.category);
+
+  Map<String, dynamic> toJson() {
+    return {
+      'taskID': taskID,
+      'name': name,
+      'hours': hours,
+      'minutes': minutes,
+      'priority': priority,
+      'priorTasks': priorTasks,
+      'locationName': locationName,
+      'locationLongitude': locationLongitude,
+      'locationLatitude': locationLatitude,
+      'category': category,
+    };
+  }
 
   void printValues() {
     print("ID: $taskID");
@@ -32,7 +47,6 @@ class Task {
     print("Prior tasks: $priorTasks");
     print("Location name: $locationName");
     print("Location: ($locationLongitude,$locationLatitude)");
-    print("Category name: $categoryName");
     print("Category: $category");
   }
 

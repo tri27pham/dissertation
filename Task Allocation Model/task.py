@@ -7,19 +7,20 @@ from taskCategoryEnum import TaskCategory
 
 class Task:
 
-    def __init__(self,taskID,name,duration,priority,prior_tasks,location,category):
+    def __init__(self,taskID,name,duration,priority,prior_tasks,location_name,location_coords,category):
         # identifier unique to task - type: Int
         self.taskID = taskID 
         # task name
         self.name = name
-        # duration in hours - type: String 
+        # duration in hours - type: timedelta 
         self.duration = duration 
         # priority level - type: Enum [ LOW, MEDIUM, HIGH ]
         self.priority = priority
         # tasks that must be completed first - type: set of Task
         self.prior_tasks = prior_tasks 
         # <lat,long> of location of task - default = None
-        self.location = location     
+        self.location_name = location_name
+        self.location_coords = location_coords     
         # category of task   
         match category:
             case 0:
@@ -48,9 +49,12 @@ class Task:
     
     def get_prior_tasks(self):
         return self.prior_tasks
+
+    def get_location_name(self):
+        return self.location_name
     
-    def get_location(self):
-        return self.location
+    def get_location_coords(self):
+        return self.location_coords
     
     def get_name(self):
         return self.name

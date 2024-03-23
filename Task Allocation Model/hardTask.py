@@ -1,7 +1,7 @@
 
 class HardTask:
     
-    def __init__(self,taskID,name,start_date_time,end_date_time,location=None):
+    def __init__(self,taskID,name,start_date_time,end_date_time,location_name="NO LOCATION",location_coords=None):
         # identifier unique to task - type: Int
         self.taskID = taskID 
         # task name
@@ -11,7 +11,8 @@ class HardTask:
         # time task ends
         self.end_date_time = end_date_time
         # <lat,long> of location of task - default = None
-        self.location = location        
+        self.location_name = location_name
+        self.location_coords = location_coords        
 
     def getID(self):
         return self.taskID
@@ -34,6 +35,9 @@ class HardTask:
     def get_end_datetime(self):
         return self.end_date_time
 
-    def get_location(self):
-        return self.location
+    def get_location_name(self):
+        return self.location_name
+    
+    def get_location_coords(self):
+        return self.location_coords
     

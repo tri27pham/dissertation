@@ -123,7 +123,7 @@ class TaskAllocator:
 
                 new_allocated_task = AllocatedTask(current_task.getID(),current_task.get_name(),task_start_time,
                                         task_end_time,current_task.get_priority(),current_task.get_prior_tasks(),
-                                        current_task.get_location(),current_task.get_category())
+                                        current_task.get_location_name(),current_task.get_location_coords(),current_task.get_category())
 
                 self.task_dict[new_allocated_task.getID()] = new_allocated_task
                 
@@ -191,14 +191,14 @@ class TaskAllocator:
         # create location waypoint for each location and add into locations array
         for task in tasks:
 
-            if task.get_location() is not None:
+            if task.get_location_coords() is not None:
 
                 location = {
                     "waypoint": {
                         "location": {
                             "latLng": {
-                                "latitude": task.get_location()[0],
-                                "longitude": task.get_location()[1]
+                                "latitude": task.get_location_coords()[0],
+                                "longitude": task.get_location_coords()[1]
                             }
                         }
                     }

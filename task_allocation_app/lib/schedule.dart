@@ -12,8 +12,7 @@ class ScheduleTasks extends StatefulWidget {
 }
 
 class _ScheduleTasksState extends State<ScheduleTasks> {
-  Task task1 = Task(
-      1, "Dissertation", 2, 0, 2, [], "NO LOCATION", "0", "0", 0, "UNIVERSITY");
+  Task task1 = Task(1, "Dissertation", 2, 0, 2, [], "NO LOCATION", "0", "0", 0);
   Task task2 = Task(
       2,
       "gym - push day",
@@ -24,8 +23,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
       "PureGym Waterloo, Brad Street, London, UK",
       "-0.10930369999999999",
       "51.5041594",
-      2,
-      "HEALTH");
+      2);
   Task task3 = Task(
       3,
       "gym pull day",
@@ -36,24 +34,12 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
       "PureGym Waterloo, Brad Street, London, UK",
       "-0.10930369999999999",
       "51.5041594",
-      2,
-      "HEALTH");
-  Task task4 = Task(
-      4,
-      "clean room",
-      1,
-      0,
-      0,
-      [],
-      "Colwyn House, Hercules Road, London, UK",
-      "-0.1130417",
-      "51.4968626",
-      6,
-      "MISCELLANEOUS");
+      2);
+  Task task4 = Task(4, "clean room", 1, 0, 0, [],
+      "Colwyn House, Hercules Road, London, UK", "-0.1130417", "51.4968626", 6);
   Task task5 =
-      Task(5, "sign contract", 1, 0, 1, [], "NO LOCATION", "0", "0", 1, "WORK");
-  Task task6 =
-      Task(6, "plan party", 1, 0, 1, [], "NO LOCATION", "0", "0", 2, "SOCIAL");
+      Task(5, "sign contract", 1, 0, 1, [], "NO LOCATION", "0", "0", 1);
+  Task task6 = Task(6, "plan party", 1, 0, 1, [], "NO LOCATION", "0", "0", 2);
   Task task7 = Task(
       7,
       "NSE coursework",
@@ -64,8 +50,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
       "Bush House, Aldwych, London, UK",
       "-0.11735169999999999",
       "51.5130562",
-      0,
-      "UNIVERSITY");
+      0);
   Task task8 = Task(
       8,
       "piano practice",
@@ -76,15 +61,18 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
       "Colwyn House, Hercules Road, London, UK",
       "-0.1130417,51",
       "51.4968626",
-      5,
-      "HOBBIES");
+      5);
 
   List<Task> tasks = [];
 
   void createSchedule() {
-    for (var task in tasks) {
-      task.printValues();
-    }
+    List<Map<String, dynamic>> taskJsonList =
+        tasks.map((task) => task.toJson()).toList();
+
+    // for (var task in tasks) {
+    //   task.printValues();
+    // }
+    print(taskJsonList);
   }
 
   void displayAddTaskPopUp(BuildContext context) {

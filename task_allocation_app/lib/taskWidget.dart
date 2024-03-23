@@ -15,6 +15,16 @@ class _TaskWidget extends State<TaskWidget> {
 
   List<String> priorities = ["LOW", "MEDIUM", "HIGH"];
 
+  var categories = [
+    'UNIVERSITY',
+    'WORK',
+    'HEALTH',
+    'SOCIAL',
+    'FAMILY',
+    'HOBBIES',
+    'MISCELLANEOUS',
+  ];
+
   List<Color> categoriesColors = [
     Colors.amber,
     Color.fromARGB(255, 141, 219, 180),
@@ -97,7 +107,7 @@ class _TaskWidget extends State<TaskWidget> {
                                 offset: Offset(0.0,
                                     -2), // Adjust the X and Y offsets to move the text horizontally and vertically
                                 child: Text(
-                                  widget.task.categoryName,
+                                  categories[widget.task.category],
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                       fontSize: 11,

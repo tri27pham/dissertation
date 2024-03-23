@@ -4,7 +4,7 @@ class Task {
   final int hours;
   final int minutes;
   final int priority;
-  final List<String> priorTasks;
+  final List<int> priorTasks;
   final String locationName;
   final String locationLongitude;
   final String locationLatitude;
@@ -27,10 +27,12 @@ class Task {
   void printValues() {
     print("ID: $taskID");
     print("Name: $name");
-    print("Duration: $hours:${getMinutes()}}");
+    print("Hours: $hours, Minutes: $minutes}");
     print("Priority: $priority");
     print("Prior tasks: $priorTasks");
+    print("Location name: $locationName");
     print("Location: ($locationLongitude,$locationLatitude)");
+    print("Category name: $categoryName");
     print("Category: $category");
   }
 

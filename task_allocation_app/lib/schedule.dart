@@ -12,6 +12,73 @@ class ScheduleTasks extends StatefulWidget {
 }
 
 class _ScheduleTasksState extends State<ScheduleTasks> {
+  Task task1 = Task(
+      1, "Dissertation", 2, 0, 2, [], "NO LOCATION", "0", "0", 0, "UNIVERSITY");
+  Task task2 = Task(
+      2,
+      "gym - push day",
+      1,
+      30,
+      1,
+      [],
+      "PureGym Waterloo, Brad Street, London, UK",
+      "-0.10930369999999999",
+      "51.5041594",
+      2,
+      "HEALTH");
+  Task task3 = Task(
+      3,
+      "gym pull day",
+      1,
+      30,
+      2,
+      [2],
+      "PureGym Waterloo, Brad Street, London, UK",
+      "-0.10930369999999999",
+      "51.5041594",
+      2,
+      "HEALTH");
+  Task task4 = Task(
+      4,
+      "clean room",
+      1,
+      0,
+      0,
+      [],
+      "Colwyn House, Hercules Road, London, UK",
+      "-0.1130417",
+      "51.4968626",
+      6,
+      "MISCELLANEOUS");
+  Task task5 =
+      Task(5, "sign contract", 1, 0, 1, [], "NO LOCATION", "0", "0", 1, "WORK");
+  Task task6 =
+      Task(6, "plan party", 1, 0, 1, [], "NO LOCATION", "0", "0", 2, "SOCIAL");
+  Task task7 = Task(
+      7,
+      "NSE coursework",
+      2,
+      0,
+      2,
+      [],
+      "Bush House, Aldwych, London, UK",
+      "-0.11735169999999999",
+      "51.5130562",
+      0,
+      "UNIVERSITY");
+  Task task8 = Task(
+      8,
+      "piano practice",
+      1,
+      0,
+      0,
+      [],
+      "Colwyn House, Hercules Road, London, UK",
+      "-0.1130417,51",
+      "51.4968626",
+      5,
+      "HOBBIES");
+
   List<Task> tasks = [];
 
   void createSchedule() {
@@ -34,6 +101,19 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
         });
       }
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    tasks.add(task1);
+    tasks.add(task2);
+    tasks.add(task3);
+    tasks.add(task4);
+    tasks.add(task5);
+    tasks.add(task6);
+    tasks.add(task7);
+    tasks.add(task8);
   }
 
   @override

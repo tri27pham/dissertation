@@ -125,10 +125,10 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
   }
 
   Task createNewTask() {
-    List<String> priorTasksIDs = [];
+    List<int> priorTasksIDs = [];
     for (var priorTask in selectedPriorTasks) {
       if (priorTask.selected) {
-        priorTasksIDs.add(priorTask.task.taskID.toString());
+        priorTasksIDs.add(priorTask.task.taskID);
       }
     }
     String locationName = "";

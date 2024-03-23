@@ -1,9 +1,42 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'navbar.dart';
+import 'editNamePopUp.dart';
+import 'editTimesPopUp.dart';
+import 'editPreferencesPopUp.dart';
 
 class Settings extends StatelessWidget {
   const Settings({super.key});
+
+  void displayEditNamePopUp(BuildContext context) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext bc) {
+        return EditName();
+      },
+    );
+  }
+
+  void displayEditTimesPopUp(BuildContext context) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext bc) {
+        return EditTimes();
+      },
+    );
+  }
+
+  void displayEditPreferencesPopUp(BuildContext context) {
+    showModalBottomSheet(
+      isScrollControlled: true,
+      context: context,
+      builder: (BuildContext bc) {
+        return EditPreferences();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +92,9 @@ class Settings extends StatelessWidget {
                             height: MediaQuery.of(context).size.height * 0.06,
                             width: MediaQuery.of(context).size.width * 0.9,
                             child: TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                displayEditNamePopUp(context);
+                              },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment
                                     .spaceBetween, // Space out the row elements
@@ -110,7 +145,9 @@ class Settings extends StatelessWidget {
                             height: MediaQuery.of(context).size.height * 0.06,
                             width: MediaQuery.of(context).size.width * 0.9,
                             child: TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                displayEditTimesPopUp(context);
+                              },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment
                                     .spaceBetween, // Space out the row elements
@@ -161,7 +198,9 @@ class Settings extends StatelessWidget {
                             height: MediaQuery.of(context).size.height * 0.06,
                             width: MediaQuery.of(context).size.width * 0.9,
                             child: TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                displayEditPreferencesPopUp(context);
+                              },
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment
                                     .spaceBetween, // Space out the row elements
@@ -177,7 +216,7 @@ class Settings extends StatelessWidget {
                                   ),
                                   Expanded(
                                     flex: 7,
-                                    child: Text('Name',
+                                    child: Text('Preferences',
                                         style: TextStyle(
                                           color:
                                               Color.fromARGB(255, 80, 78, 78),

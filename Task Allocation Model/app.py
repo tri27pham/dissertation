@@ -80,7 +80,7 @@ def index():
     data = ga.evolve()
 
     return jsonify(data)
+    # return 
 
 if __name__ == '__main__':
     app.run()
-    index()

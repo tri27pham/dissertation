@@ -12,7 +12,7 @@ import copy
 
 class GeneticAlgorithm:
 
-    def __init__(self,tasks,population_size,task_allocator):
+    def __init__(self,tasks,hard_tasks,user_requirements,user_preferences):
 
         self.generation_size = 10
 
@@ -20,10 +20,12 @@ class GeneticAlgorithm:
         self.task_dict = {}
         for task in tasks:
             self.task_dict[task.getID()] = task
-        self.population_size = population_size
+        self.population_size = len(tasks)
 
-        self.user_preferences = UserPreferences()
-        self.task_allocator = task_allocator
+        self.user_preferences = user_preferences
+        self.task_allocator = TaskAllocator(user_requirements,tasks)
+        self.task_allocator.allocate_hard_tasks(hard_tasks)
+        self.task_allocator.get_travel_times(tasks+hard_tasks)
 
     # initialise
     def create_first_generation(self):
@@ -418,16 +420,9 @@ nine_am = time(hour=9, minute=0, second=0)
 five_pm = time(hour=18, minute=0, second=0)
 
 user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
-
-all_tasks = hard_tasks + tasks_to_be_allocated
-
-task_allocator = TaskAllocator(user_requirements,all_tasks)
-task_allocator.allocate_hard_tasks(hard_tasks)
-task_allocator.get_travel_times(all_tasks)
-
 user_preferences = UserPreferences()
 
-ga = GeneticAlgorithm(tasks_to_be_allocated,10,task_allocator)
+ga = GeneticAlgorithm(tasks_to_be_allocated,hard_tasks,user_requirements,user_preferences)
 ga.create_first_generation()
 ga.evolve()
 

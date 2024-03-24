@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class EditTimes extends StatefulWidget {
   const EditTimes({super.key});
@@ -57,6 +58,29 @@ class _EditTimesState extends State<EditTimes> {
   Widget build(BuildContext context) {
     String formatTime(DateTime dateTime) {
       return DateFormat('HH:mm').format(dateTime);
+    }
+
+    void setTimes() {
+      Map<String, String> times = {
+        'mondayStart': mondayStart.toIso8601String(),
+        'mondayEnd': mondayEnd.toIso8601String(),
+        'tuesdayStart': tuesdayStart.toIso8601String(),
+        'tuesdayEnd': tuesdayEnd.toIso8601String(),
+        'wednesdayStart': wednesdayStart.toIso8601String(),
+        'wednesdayEnd': wednesdayEnd.toIso8601String(),
+        'thursdayStart': thursdayStart.toIso8601String(),
+        'thursdayEnd': thursdayEnd.toIso8601String(),
+        'fridayStart': fridayStart.toIso8601String(),
+        'fridayEnd': fridayEnd.toIso8601String(),
+        'saturdayStart': saturdayStart.toIso8601String(),
+        'saturdayEnd': saturdayEnd.toIso8601String(),
+        'sundayStart': sundayStart.toIso8601String(),
+        'sundayEnd': sundayEnd.toIso8601String(),
+      };
+
+      String jsonTimes = jsonEncode(times);
+
+      print(jsonTimes);
     }
 
     return GestureDetector(
@@ -1438,7 +1462,9 @@ class _EditTimesState extends State<EditTimes> {
                 height: MediaQuery.of(context).size.height * 0.05,
                 width: MediaQuery.of(context).size.width * 0.5,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    setTimes();
+                  },
                   style: ButtonStyle(
                     shape: MaterialStateProperty.all<OutlinedBorder>(
                       RoundedRectangleBorder(

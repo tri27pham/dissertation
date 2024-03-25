@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'navbar.dart';
-// import 'package:table_calendar/table_calendar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,6 +11,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String name = "";
+
+  Future<void> _loadName() async {
+    final prefs = await SharedPreferences.getInstance();
+    final nameStr = prefs.getString('name') ?? '';
+    setState(() {
+      name = nameStr;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadName();
+  }
+
   @override
   Widget build(BuildContext context) {
     // Get the current date
@@ -96,7 +112,7 @@ class _HomePageState extends State<HomePage> {
             padding: EdgeInsets.symmetric(
                 horizontal: MediaQuery.of(context).size.width * 0.05),
             child: Text(
-              'Hello Tri',
+              'Hello $name',
               style: TextStyle(
                 fontSize: 55, // Change the font size here
                 color: Color.fromARGB(

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditPreferences extends StatefulWidget {
   const EditPreferences({super.key});
@@ -75,6 +76,64 @@ class _EditPreferencesState extends State<EditPreferences> {
 
     // Print the JSON string
     print(jsonPreferences);
+  }
+
+  Future<void> _savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setInt('universityDay', _universityDay);
+    await prefs.setInt('universityWeek', _universityWeek);
+
+    await prefs.setInt('workDay', _workDay);
+    await prefs.setInt('workWeek', _workWeek);
+
+    await prefs.setInt('healthDay', _healthDay);
+    await prefs.setInt('healthWeek', _healthWeek);
+
+    await prefs.setInt('socialDay', _socialDay);
+    await prefs.setInt('socialWeek', _socialWeek);
+
+    await prefs.setInt('familyDay', _familyDay);
+    await prefs.setInt('familyWeek', _familyWeek);
+
+    await prefs.setInt('hobbiesDay', _hobbiesDay);
+    await prefs.setInt('hobbiesWeek', _hobbiesWeek);
+
+    await prefs.setInt('miscellaneousDay', _miscellaneousDay);
+    await prefs.setInt('miscellaneousWeek', _miscellaneousWeek);
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      _universityDay = prefs.getInt('universityDay') ?? 0;
+      _universityWeek = prefs.getInt('universityWeek') ?? 0;
+
+      _workDay = prefs.getInt('workDay') ?? 0;
+      _workWeek = prefs.getInt('workWeek') ?? 0;
+
+      _healthDay = prefs.getInt('healthDay') ?? 0;
+      _healthWeek = prefs.getInt('healthWeek') ?? 0;
+
+      _socialDay = prefs.getInt('socialDay') ?? 0;
+      _socialWeek = prefs.getInt('socialWeek') ?? 0;
+
+      _familyDay = prefs.getInt('familyDay') ?? 0;
+      _familyWeek = prefs.getInt('familyWeek') ?? 0;
+
+      _hobbiesDay = prefs.getInt('hobbiesDay') ?? 0;
+      _hobbiesWeek = prefs.getInt('hobbiesWeek') ?? 0;
+
+      _miscellaneousDay = prefs.getInt('miscellaneousDay') ?? 0;
+      _miscellaneousWeek = prefs.getInt('miscellaneousWeek') ?? 0;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
   }
 
   @override
@@ -666,6 +725,8 @@ class _EditPreferencesState extends State<EditPreferences> {
                 child: ElevatedButton(
                   onPressed: () {
                     setPreferences();
+                    _savePreferences();
+                    Navigator.pop(context);
                   },
                   style: ButtonStyle(
                     shape: MaterialStateProperty.all<OutlinedBorder>(

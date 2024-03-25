@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditName extends StatefulWidget {
   const EditName({super.key});
@@ -11,6 +12,23 @@ class EditName extends StatefulWidget {
 class _EditNameState extends State<EditName> {
   final TextEditingController _nameFieldController =
       TextEditingController(text: '');
+
+  Future<void> _saveName() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('name', _nameFieldController.text);
+  }
+
+  Future<void> _loadName() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString('name') ?? '';
+    _nameFieldController.text = name;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadName();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +91,10 @@ class _EditNameState extends State<EditName> {
                 height: MediaQuery.of(context).size.height * 0.05,
                 width: MediaQuery.of(context).size.width * 0.5,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _saveName();
+                    Navigator.of(context).pop();
+                  },
                   style: ButtonStyle(
                     shape: MaterialStateProperty.all<OutlinedBorder>(
                       RoundedRectangleBorder(

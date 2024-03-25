@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EditTimes extends StatefulWidget {
   const EditTimes({super.key});
@@ -53,6 +54,135 @@ class _EditTimesState extends State<EditTimes> {
   var fridayColor = Color.fromARGB(255, 255, 207, 207);
   var saturdayColor = Color.fromARGB(255, 176, 224, 186);
   var sundayColor = Color.fromARGB(255, 240, 236, 183);
+
+  Future<void> _saveTimes() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('mondayStart', mondayStart.toIso8601String());
+    await prefs.setString('mondayEnd', mondayEnd.toIso8601String());
+
+    await prefs.setString('tuesdayStart', tuesdayStart.toIso8601String());
+    await prefs.setString('tuesdayEnd', tuesdayEnd.toIso8601String());
+
+    await prefs.setString('wednesdayStart', wednesdayStart.toIso8601String());
+    await prefs.setString('wednesdayEnd', wednesdayEnd.toIso8601String());
+
+    await prefs.setString('thursdayStart', thursdayStart.toIso8601String());
+    await prefs.setString('thursdayEnd', thursdayEnd.toIso8601String());
+
+    await prefs.setString('fridayStart', fridayStart.toIso8601String());
+    await prefs.setString('fridayEnd', fridayEnd.toIso8601String());
+
+    await prefs.setString('saturdayStart', saturdayStart.toIso8601String());
+    await prefs.setString('saturdayEnd', saturdayEnd.toIso8601String());
+
+    await prefs.setString('sundayStart', sundayStart.toIso8601String());
+    await prefs.setString('sundayEnd', sundayEnd.toIso8601String());
+  }
+
+  Future<void> _loadTimes() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // Fetching Monday's values
+    String? mondayStartStr = prefs.getString('mondayStart');
+    String? mondayEndStr = prefs.getString('mondayEnd');
+
+    // Fetching Tuesday's values
+    String? tuesdayStartStr = prefs.getString('tuesdayStart');
+    String? tuesdayEndStr = prefs.getString('tuesdayEnd');
+
+    // Fetching Wednesday's values
+    String? wednesdayStartStr = prefs.getString('wednesdayStart');
+    String? wednesdayEndStr = prefs.getString('wednesdayEnd');
+
+    // Fetching Thursday's values
+    String? thursdayStartStr = prefs.getString('thursdayStart');
+    String? thursdayEndStr = prefs.getString('thursdayEnd');
+
+    // Fetching Friday's values
+    String? fridayStartStr = prefs.getString('fridayStart');
+    String? fridayEndStr = prefs.getString('fridayEnd');
+
+    // Fetching Saturday's values
+    String? saturdayStartStr = prefs.getString('saturdayStart');
+    String? saturdayEndStr = prefs.getString('saturdayEnd');
+
+    // Fetching Sunday's values
+    String? sundayStartStr = prefs.getString('sundayStart');
+    String? sundayEndStr = prefs.getString('sundayEnd');
+
+    setState(() {
+      // Setting values to variables or defaulting to midnight and 23:45
+      mondayStart = mondayStartStr != null
+          ? DateTime.parse(mondayStartStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 0, 0, 0);
+      mondayEnd = mondayEndStr != null
+          ? DateTime.parse(mondayEndStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 23, 45, 0);
+
+      tuesdayStart = tuesdayStartStr != null
+          ? DateTime.parse(tuesdayStartStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 0, 0, 0);
+      tuesdayEnd = tuesdayEndStr != null
+          ? DateTime.parse(tuesdayEndStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 23, 45, 0);
+
+      wednesdayStart = wednesdayStartStr != null
+          ? DateTime.parse(wednesdayStartStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 0, 0, 0);
+      wednesdayEnd = wednesdayEndStr != null
+          ? DateTime.parse(wednesdayEndStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 23, 45, 0);
+
+      thursdayStart = thursdayStartStr != null
+          ? DateTime.parse(thursdayStartStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 0, 0, 0);
+      thursdayEnd = thursdayEndStr != null
+          ? DateTime.parse(thursdayEndStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 23, 45, 0);
+
+      fridayStart = fridayStartStr != null
+          ? DateTime.parse(fridayStartStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 0, 0, 0);
+      fridayEnd = fridayEndStr != null
+          ? DateTime.parse(fridayEndStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 23, 45, 0);
+
+      saturdayStart = saturdayStartStr != null
+          ? DateTime.parse(saturdayStartStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 0, 0, 0);
+      saturdayEnd = saturdayEndStr != null
+          ? DateTime.parse(saturdayEndStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 23, 45, 0);
+
+      sundayStart = sundayStartStr != null
+          ? DateTime.parse(sundayStartStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 0, 0, 0);
+      sundayEnd = sundayEndStr != null
+          ? DateTime.parse(sundayEndStr)
+          : DateTime(DateTime.now().year, DateTime.now().month,
+              DateTime.now().day, 23, 45, 0);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTimes();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1464,6 +1594,8 @@ class _EditTimesState extends State<EditTimes> {
                 child: ElevatedButton(
                   onPressed: () {
                     setTimes();
+                    _saveTimes();
+                    Navigator.of(context).pop();
                   },
                   style: ButtonStyle(
                     shape: MaterialStateProperty.all<OutlinedBorder>(

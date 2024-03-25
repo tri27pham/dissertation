@@ -347,7 +347,7 @@ class GeneticAlgorithm:
         for i in range(len(child)-1):
             new_child = copy.copy(child)
             probability = random.random()
-            if probability <= 0.1:
+            if probability <= 0.2:
                 current_node = child[i]
                 swap_index = random.randint(0,len(child)-1)
                 swap_node = child[swap_index]

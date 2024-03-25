@@ -108,7 +108,10 @@ class TaskAllocator:
             # there is a task allocated at this time slot, so travel time to be calculated
             else:
                 previous_task = schedule[date][current_time]
-                travel_time = self.travel_times_matrix[previous_task][current_task.getID()]
+                if previous_task in self.travel_times_matrix:
+                    travel_time = self.travel_times_matrix[previous_task][current_task.getID()]
+                else:
+                    travel_time = timedelta()
 
             needed_time = travel_time + current_task.get_duration()
 

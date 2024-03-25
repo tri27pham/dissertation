@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'dataModel.dart';
 
 class EditTimes extends StatefulWidget {
   const EditTimes({super.key});
@@ -186,6 +188,8 @@ class _EditTimesState extends State<EditTimes> {
 
   @override
   Widget build(BuildContext context) {
+    var dataModel = Provider.of<DataModel>(context);
+
     String formatTime(DateTime dateTime) {
       return DateFormat('HH:mm').format(dateTime);
     }
@@ -209,6 +213,8 @@ class _EditTimesState extends State<EditTimes> {
       };
 
       String jsonTimes = jsonEncode(times);
+
+      dataModel.updateTimes(jsonTimes);
 
       print(jsonTimes);
     }

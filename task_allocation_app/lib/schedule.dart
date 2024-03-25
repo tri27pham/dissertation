@@ -3,6 +3,12 @@ import 'navbar.dart';
 import 'addTaskPopUp.dart';
 import 'task.dart';
 import 'taskWidget.dart';
+import 'dart:convert';
+
+import 'package:provider/provider.dart';
+import 'dataModel.dart';
+
+import 'dart:developer';
 
 class ScheduleTasks extends StatefulWidget {
   ScheduleTasks({super.key});
@@ -65,14 +71,11 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
 
   List<Task> tasks = [];
 
-  void createSchedule() {
+  List<Map<String, dynamic>> getTaskAsJson() {
     List<Map<String, dynamic>> taskJsonList =
         tasks.map((task) => task.toJson()).toList();
 
-    // for (var task in tasks) {
-    //   task.printValues();
-    // }
-    print(taskJsonList);
+    return taskJsonList;
   }
 
   void displayAddTaskPopUp(BuildContext context) {
@@ -106,6 +109,18 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
 
   @override
   Widget build(BuildContext context) {
+    var dataModel = Provider.of<DataModel>(context);
+
+    void sendDataToAPI() {
+      Map<String, dynamic> requestData = {
+        "Tasks": getTaskAsJson(),
+        "times": dataModel.times,
+        "preferences": dataModel.preferences
+      };
+      String jsonRequestData = jsonEncode(requestData);
+      log(jsonRequestData);
+    }
+
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: MediaQuery.of(context).size.height * 0.08,
@@ -207,7 +222,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
                   width: MediaQuery.of(context).size.width * 0.85,
                   child: ElevatedButton(
                     onPressed: () {
-                      createSchedule();
+                      sendDataToAPI();
                     },
                     style: ButtonStyle(
                       shape: MaterialStateProperty.all<OutlinedBorder>(

@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'dataModel.dart';
 
 class EditPreferences extends StatefulWidget {
   const EditPreferences({super.key});
@@ -38,45 +40,6 @@ class _EditPreferencesState extends State<EditPreferences> {
   int _miscellaneousDay = 0;
   int _miscellaneousWeek = 0;
   var miscellaneousColor = Color.fromARGB(255, 255, 251, 200);
-
-  void setPreferences() {
-    Map<String, dynamic> preferences = {
-      'university': {
-        'day': _universityDay,
-        'week': _universityWeek,
-      },
-      'work': {
-        'day': _workDay,
-        'week': _workWeek,
-      },
-      'health': {
-        'day': _healthDay,
-        'week': _healthWeek,
-      },
-      'social': {
-        'day': _socialDay,
-        'week': _socialWeek,
-      },
-      'family': {
-        'day': _familyDay,
-        'week': _familyWeek,
-      },
-      'hobbies': {
-        'day': _hobbiesDay,
-        'week': _hobbiesWeek,
-      },
-      'miscellaneous': {
-        'day': _miscellaneousDay,
-        'week': _miscellaneousWeek,
-      },
-    };
-
-    // Convert the structured map to a JSON string
-    String jsonPreferences = jsonEncode(preferences);
-
-    // Print the JSON string
-    print(jsonPreferences);
-  }
 
   Future<void> _savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
@@ -138,6 +101,49 @@ class _EditPreferencesState extends State<EditPreferences> {
 
   @override
   Widget build(BuildContext context) {
+    var dataModel = Provider.of<DataModel>(context);
+
+    void setPreferences() {
+      Map<String, dynamic> preferences = {
+        'university': {
+          'day': _universityDay,
+          'week': _universityWeek,
+        },
+        'work': {
+          'day': _workDay,
+          'week': _workWeek,
+        },
+        'health': {
+          'day': _healthDay,
+          'week': _healthWeek,
+        },
+        'social': {
+          'day': _socialDay,
+          'week': _socialWeek,
+        },
+        'family': {
+          'day': _familyDay,
+          'week': _familyWeek,
+        },
+        'hobbies': {
+          'day': _hobbiesDay,
+          'week': _hobbiesWeek,
+        },
+        'miscellaneous': {
+          'day': _miscellaneousDay,
+          'week': _miscellaneousWeek,
+        },
+      };
+
+      // Convert the structured map to a JSON string
+      String jsonPreferences = jsonEncode(preferences);
+
+      dataModel.updatePreferences(jsonPreferences);
+
+      // Print the JSON string
+      print(jsonPreferences);
+    }
+
     return GestureDetector(
       child: Container(
         height: MediaQuery.of(context).size.height * 0.88,

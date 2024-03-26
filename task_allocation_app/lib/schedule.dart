@@ -5,6 +5,8 @@ import 'task.dart';
 import 'taskWidget.dart';
 import 'dart:convert';
 
+import 'package:http/http.dart' as http;
+
 import 'package:provider/provider.dart';
 import 'dataModel.dart';
 
@@ -111,14 +113,34 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
   Widget build(BuildContext context) {
     var dataModel = Provider.of<DataModel>(context);
 
-    void sendDataToAPI() {
+    var url = Uri.parse('http://10.0.2.2:5000/data_endpoint');
+
+    Future<void> sendDataToAPI() async {
       Map<String, dynamic> requestData = {
-        "Tasks": getTaskAsJson(),
+        "tasks": getTaskAsJson(),
         "times": dataModel.times,
         "preferences": dataModel.preferences
       };
       String jsonRequestData = jsonEncode(requestData);
       log(jsonRequestData);
+      try {
+        var response = await http.post(
+          url,
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonRequestData,
+        );
+
+        if (response.statusCode == 200) {
+          print('Data sent successfully!');
+        } else {
+          print('Error: ${response.statusCode}');
+          print(response.body);
+        }
+      } catch (e) {
+        print('Error: $e');
+      }
     }
 
     return Scaffold(

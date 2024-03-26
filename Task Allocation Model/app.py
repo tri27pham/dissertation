@@ -10,6 +10,13 @@ from userPreferences import UserPreferences
 
 app = Flask(__name__)
 
+@app.route('/data_endpoint', methods=['POST'])
+def receive_data():
+    data = request.json  # Assuming data is sent as JSON
+    print('Received data:', data)
+    # Process the data as needed
+    return jsonify({'message': 'Data received successfully'})
+
 @app.route('/')
 def index():
     

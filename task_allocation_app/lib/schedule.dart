@@ -10,6 +10,8 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'dataModel.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'dart:developer';
 
 class ScheduleTasks extends StatefulWidget {
@@ -67,7 +69,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
       0,
       [],
       "Colwyn House, Hercules Road, London, UK",
-      "-0.1130417,51",
+      "-0.113041751",
       "51.4968626",
       5);
 

@@ -15,7 +15,7 @@ app = Flask(__name__)
 @app.route('/data_endpoint', methods=['POST'])
 def receive_data():
     data = request.json  
-    # print('Received data:', data)
+    print('Received data:', data)
     process_data(data)
     return jsonify({'message': 'Data received successfully'})
 
@@ -46,12 +46,42 @@ def process_data(data):
 
         processed_tasks.append(new_task)
 
-    print(processed_tasks)
+    times_data = json.loads(times)
 
-    # print(f"TASKS: {tasks}")
-    # print(f"TIMES: {times}")
-    # print(f"PRFERENCES: {preferences}")
+    mondayStart = parse_time_string(times_data["mondayStart"])
+    mondayEnd = parse_time_string(times_data["mondayEnd"])
+    tuesdayStart = parse_time_string(times_data["tuesdayStart"])
+    tuesdayEnd = parse_time_string(times_data["tuesdayEnd"])
+    wednesdayStart = parse_time_string(times_data["wednesdayStart"])
+    wednesdayEnd = parse_time_string(times_data["wednesdayEnd"])
+    thursdayStart = parse_time_string(times_data["thursdayStart"])
+    thursdayEnd = parse_time_string(times_data["thursdayEnd"])
+    fridayStart = parse_time_string(times_data["fridayStart"])
+    fridayEnd = parse_time_string(times_data["fridayEnd"])
+    saturdayStart = parse_time_string(times_data["saturdayStart"])
+    saturdayEnd = parse_time_string(times_data["saturdayEnd"])
+    sundayStart = parse_time_string(times_data["sundayStart"])
+    sundayEnd = parse_time_string(times_data["sundayEnd"])
 
+    
+
+
+
+def parse_time_string(time_str):
+    """
+    Parse a time string in the format "YYYY-MM-DDTHH:MM:SS.MMM" and return a timedelta object.
+    """
+    # Extract time part from the datetime string
+    time_part = time_str.split("T")[1]
+    
+    # Convert time string to datetime object with arbitrary date
+    time_dt = datetime.strptime(time_part, "%H:%M:%S.%f")
+    
+    # Calculate timedelta for the time part
+    timedelta_from_midnight = timedelta(hours=time_dt.hour, minutes=time_dt.minute, seconds=time_dt.second,
+                                        microseconds=time_dt.microsecond)
+    
+    return timedelta_from_midnight
 
 # @app.route('/')
 # def index():

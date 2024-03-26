@@ -234,9 +234,9 @@ class GeneticAlgorithm:
 
         print("===================================")
         print(f"OPTIMAL ORDER: {optimal[0]}, POINTS: {optimal[1]}")
+        print("===================================")
 
         return optimal[0]
-        print("===================================")
 
     # create new generations
     def create_child(self,mother,father):

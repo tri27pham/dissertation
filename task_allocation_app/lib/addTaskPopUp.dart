@@ -151,7 +151,6 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
         longitude,
         latitude,
         _categoryValue);
-    newTask.printValues();
     return newTask;
   }
 

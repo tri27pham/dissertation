@@ -88,7 +88,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
         "preferences": dataModel.preferences
       };
       String jsonRequestData = jsonEncode(requestData);
-      log(jsonRequestData);
+      // log(jsonRequestData);
       try {
         var response = await http.post(
           url,
@@ -99,12 +99,20 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
         );
 
         if (response.statusCode == 200) {
+          // If the server returns a 200 OK response
+          var responseData =
+              jsonDecode(response.body); // Convert response body to JSON
+          // Process responseData as needed
+          print(responseData);
+          print(responseData.runtimeType);
           print('Data sent successfully!');
         } else {
+          // If the server returns an error response
           print('Error: ${response.statusCode}');
-          print(response.body);
+          print(response.body); // Print error message received from the server
         }
       } catch (e) {
+        // If an error occurs during the HTTP request
         print('Error: $e');
       }
     }

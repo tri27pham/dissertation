@@ -23,9 +23,9 @@ class ScheduleTasks extends StatefulWidget {
 
 class _ScheduleTasksState extends State<ScheduleTasks> {
   Task task1 = Task(1, "Dissertation", 2, 0, 2, [], "NO LOCATION", "0", "0", 0);
-  Task task2 = Task(2, "gym - push day", 1, 30, 1, [],
+  Task task2 = Task(2, "gym - push day", 1, 30, 1, ["1"],
       "PureGym Waterloo, Brad Street, London, UK", "-0.109303", "51.504159", 2);
-  Task task3 = Task(3, "gym pull day", 1, 30, 2, [],
+  Task task3 = Task(3, "gym pull day", 1, 30, 2, ["2"],
       "PureGym Waterloo, Brad Street, London, UK", "-0.109303", "51.504159", 2);
   Task task4 = Task(4, "clean room", 1, 0, 0, [],
       "Colwyn House, Hercules Road, London, UK", "-0.113041", "51.496862", 6);

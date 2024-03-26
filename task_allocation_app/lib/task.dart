@@ -6,7 +6,7 @@ class Task {
   final int hours;
   final int minutes;
   final int priority;
-  final List<int> priorTasks;
+  final List<String> priorTasks;
   final String locationName;
   final String locationLongitude;
   final String locationLatitude;

@@ -7,6 +7,8 @@ from hardTask import HardTask
 from task import Task
 from userRequirements import UserRequirements
 from userPreferences import UserPreferences
+from allocatedTask import AllocatedTask
+
 
 import json
 
@@ -16,7 +18,7 @@ app = Flask(__name__)
 def receive_data():
     data = request.json  
     processed_data = process_data(data)
-    print(jsonify(processed_data))
+    # print(jsonify(processed_data))
     return jsonify(processed_data)
 
 def process_data(data):
@@ -33,7 +35,38 @@ def process_data(data):
     ga.create_first_generation()
     data = ga.evolve()
 
-    return data
+    # for task in data:
+    #     print(f"ID: {task.getID()}")
+    #     print(f"NAME: {task.get_name()}")
+    #     print(f"START: {task.get_start_datetime()}")
+    #     print(f"FINISH: {task.get_end_datetime()}")
+    #     print(f"PRIORITY: {task.get_priority()}")
+    #     print(f"PRIOR TASKS: {task.get_prior_tasks()}")
+    #     print(f"LOCATION NAME: {task.get_location_name()}")
+    #     print(f"LOCATION COORDS: {task.get_location_coords()}")
+    #     print(f"CATEGORY: {task.get_category()}")
+
+    allocated_tasks_data = []
+    for task in data:
+        task_data = {
+            "taskID": task.getID(),
+            "name": task.get_name(),
+            "start_datetime": task.get_start_datetime().isoformat(),
+            "end_datetime": task.get_end_datetime().isoformat(),
+            "priority": task.get_priority(),
+            "prior_tasks": task.get_prior_tasks(),
+            "location_name": task.get_location_name(),
+            "location_coords": task.get_location_coords(),
+            "category": task.get_category_val()
+        }
+        allocated_tasks_data.append(task_data)
+
+    # Convert the dictionary to JSON format
+    response_data = json.dumps(allocated_tasks_data)
+
+    # Return the JSON response with appropriate HTTP status code
+    return response_data
+
 
 def process_tasks(tasks):
     processed_tasks = []

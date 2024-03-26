@@ -116,6 +116,11 @@ class TaskAllocator:
             needed_time = travel_time + current_task.get_duration()
 
             available_time_slot = self.get_available_time_slot(schedule,date,weekday,self.increment_time(current_time))
+            
+            # print(f"CURRENT: {current_time}")
+            # print(f"TRAVEL: {travel_time}")
+            # print(f"DURATION:  {current_task.get_duration()}")
+            # print(f"AVAILABLE: {available_time_slot}")
 
             if travel_time + current_task.get_duration() <= available_time_slot:
                 # current time and travel time to get start time of task
@@ -295,11 +300,17 @@ class TaskAllocator:
 
     def get_allocated_tasks(self,schedule):
         
-        all_tasks = set()
+        # all_tasks = set()
+        # for daily_schedule in schedule.values():
+        #     for time_slot in daily_schedule.values():
+        #         if time_slot is not None:
+        #             all_tasks.add(time_slot)
+
+        all_tasks = []
         for daily_schedule in schedule.values():
             for time_slot in daily_schedule.values():
-                if time_slot is not None:
-                    all_tasks.add(time_slot)
+                if time_slot is not None and time_slot not in all_tasks:
+                    all_tasks.append(time_slot)
 
         # allocated_tasks_refs = [task for task in all_tasks if task.startswith('s')]
         allocated_tasks_refs = [task for task in all_tasks if task != "travel"]

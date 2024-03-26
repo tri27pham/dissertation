@@ -103,8 +103,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
           var responseData =
               jsonDecode(response.body); // Convert response body to JSON
           // Process responseData as needed
-          print(responseData);
-          print(responseData.runtimeType);
+          log(responseData);
           print('Data sent successfully!');
         } else {
           // If the server returns an error response

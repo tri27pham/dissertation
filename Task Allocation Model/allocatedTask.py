@@ -1,4 +1,5 @@
 from prioritiesEnum import Priority
+from taskCategoryEnum import TaskCategory
 
 class AllocatedTask:
     
@@ -45,8 +46,14 @@ class AllocatedTask:
     def get_prior_tasks(self):
         return self.prior_tasks
     
-    def get_location(self):
-        return self.location
+    def get_location_name(self):
+        return self.location_name
+    
+    def get_location_coords(self):
+        return self.location_coords
     
     def get_category(self):
         return self.category
+    
+    def get_category_val(self):
+        return self.category.value

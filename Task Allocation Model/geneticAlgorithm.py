@@ -11,6 +11,8 @@ import random
 from datetime import datetime, timedelta, time
 import copy
 
+from allocatedTask import AllocatedTask
+
 class GeneticAlgorithm:
 
     def __init__(self,tasks,user_requirements,user_preferences):
@@ -183,8 +185,9 @@ class GeneticAlgorithm:
 
     def evolve(self):
 
+        outcomes = {}
 
-        optimal = ((),0)
+        optimal = ((),(),0)
         same = 0
 
         parents = self.select_best_from_initial()
@@ -207,8 +210,7 @@ class GeneticAlgorithm:
                     # print("valid kid")
                     allocated_tasks = self.task_allocator.knapsack_allocator(tasks)
                     points = self.user_preferences.get_preferences_satisfied(allocated_tasks)
-                    new_generation.add(tuple((new_child,points)))
-        
+                    new_generation.add((tuple(allocated_tasks),new_child,points))
 
             sorted_orders = sorted(new_generation, key=lambda x: x[1], reverse=True)
             # get best performing children / new parents
@@ -216,25 +218,43 @@ class GeneticAlgorithm:
             mother_score = best[0]
             father_score = best[1]
 
-            mother = mother_score[0]
-            father = father_score[0]
+            # get the order of tasks - by TaskID
+            mother = mother_score[1]
 
             print("===================================")
-            print(f"GENERATION {generation}: {mother_score[0]}, POINTS: {mother_score[1]}")
+            print(f"GENERATION {generation}: {mother_score[1]}, POINTS: {mother_score[2]}")
             print("===================================")
             generation += 1
 
             # print(f"{previous_optimal}, {optimal[1]}")
-            if mother_score[1] > optimal[1]:
+            if mother_score[2] > optimal[2]:
                 same = 0
             else:
                 same += 1
 
-            optimal = max((optimal, mother_score, father_score), key=lambda x: x[1])
+            optimal = max((optimal, mother_score), key=lambda x: x[2])
 
         print("===================================")
-        print(f"OPTIMAL ORDER: {optimal[0]}, POINTS: {optimal[1]}")
+        print(f"OPTIMAL ORDER: {optimal[0]}, POINTS: {optimal[2]}")
         print("===================================")
+
+        # for task in optimal[0]:
+        #     print(f"ID: {task.getID()}")
+        #     print(f"NAME: {task.get_name()}")
+        #     print(f"START: {task.get_start_datetime()}")
+        #     print(f"FINISH: {task.get_end_datetime()}")
+        #     print(f"PRIORITY: {task.get_priority()}")
+        #     print(f"PRIOR TASKS: {task.get_prior_tasks()}")
+        #     print(f"LOCATION NAME: {task.get_location_name()}")
+        #     print(f"LOCATION COORDS: {task.get_location_coords()}")
+        #     print(f"CATEGORY: {task.get_category()}")
+
+        # best_order = max(outcomes, key=lambda k: outcomes[k])
+        # best_points = outcomes[best_order]
+
+        # print("===================================")
+        # print(f"OPTIMAL ORDER: {best_order}, POINTS: {best_points}")
+        # print("===================================")
 
         return optimal[0]
 
@@ -621,7 +641,7 @@ class GeneticAlgorithm:
 
 
 # nine_am = time(hour=9, minute=0, second=0)
-# five_pm = time(hour=18, minute=0, second=0)
+# five_pm = time(hour=17, minute=0, second=0)
 
 # user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
 # user_preferences = UserPreferences(False, True, True, False, False, True, False, True, True, False, True, False, True, False, True, True, False, False, True, True, False, True, False, False, False, True, True, False)

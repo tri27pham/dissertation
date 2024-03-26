@@ -13,7 +13,7 @@ import copy
 
 class GeneticAlgorithm:
 
-    def __init__(self,tasks,hard_tasks,user_requirements,user_preferences):
+    def __init__(self,tasks,user_requirements,user_preferences):
 
         self.generation_size = 10
 
@@ -25,8 +25,8 @@ class GeneticAlgorithm:
 
         self.user_preferences = user_preferences
         self.task_allocator = TaskAllocator(user_requirements,tasks)
-        self.task_allocator.allocate_hard_tasks(hard_tasks)
-        self.task_allocator.get_travel_times(tasks+hard_tasks)
+        # self.task_allocator.allocate_hard_tasks(hard_tasks)
+        self.task_allocator.get_travel_times(tasks)
 
     # initialise
     def create_first_generation(self):

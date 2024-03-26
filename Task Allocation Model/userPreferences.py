@@ -5,46 +5,54 @@ class UserPreferences:
 
     # def __init__(university_morning,university_evening,university_start_of_week,etc.):
 
-    def __init__(self):
+    def __init__(self,
+        university_morning, university_evening, university_start_of_week, university_end_of_week, 
+        work_morning, work_evening, work_start_of_week, work_end_of_week, 
+        health_morning, health_evening, health_start_of_week, health_end_of_week, 
+        social_morning, social_evening, social_start_of_week, social_end_of_week, 
+        family_morning, family_evening, family_start_of_week, family_end_of_week, 
+        hobbies_morning, hobbies_evening, hobbies_start_of_week, hobbies_end_of_week, 
+        miscellaneous_morning, miscellaneous_evening, miscellaneous_start_of_week, miscellaneous_end_of_week
+    ):
 
         # self.midday = datetime.time(12, 0)
         self.midday = datetime.combine(datetime.today(), datetime.min.time()).replace(hour=12, minute=0, second=0).time()
         self.midweek = 3
 
-        self.university_morning = False
-        self.university_evening = True
-        self.university_start_of_week = True
-        self.university_end_of_week = False
+        self.university_morning = university_morning
+        self.university_evening = university_evening
+        self.university_start_of_week = university_start_of_week
+        self.university_end_of_week = university_end_of_week
 
-        self.work_morning = False
-        self.work_evening = True
-        self.work_start_of_week = True
-        self.work_end_of_week = False
+        self.work_morning = work_morning
+        self.work_evening = work_evening
+        self.work_start_of_week = work_start_of_week
+        self.work_end_of_week = work_end_of_week
 
-        self.health_morning = True
-        self.health_evening = False
-        self.health_start_of_week = False
-        self.health_end_of_week = True
+        self.health_morning = health_morning
+        self.health_evening = health_evening
+        self.health_start_of_week = health_start_of_week
+        self.health_end_of_week = health_end_of_week
         
-        self.social_morning = True
-        self.social_evening = False
-        self.social_start_of_week = True
-        self.social_end_of_week = False
+        self.social_morning = social_morning
+        self.social_evening = social_evening
+        self.social_start_of_week = social_start_of_week
+        self.social_end_of_week = social_end_of_week
 
-        self.family_morning = True
-        self.family_evening = False
-        self.family_start_of_week = True
-        self.family_end_of_week = False
+        self.family_morning = family_morning
+        self.family_evening = family_evening
+        self.family_start_of_week = family_start_of_week
+        self.family_end_of_week = family_end_of_week
 
-        self.hobbies_morning = False
-        self.hobbies_evening= True
-        self.hobbies_start_of_week = False
-        self.hobbies_end_of_week = True      
+        self.hobbies_morning = hobbies_morning
+        self.hobbies_evening= hobbies_evening
+        self.hobbies_start_of_week = hobbies_start_of_week
+        self.hobbies_end_of_week = hobbies_end_of_week      
 
-        self.miscellaneous_morning = True
-        self.miscellaneous_evening= False
-        self.miscellaneous_start_of_week = False
-        self.miscellaneous_end_of_week = True      
+        self.miscellaneous_morning = miscellaneous_morning
+        self.miscellaneous_evening= miscellaneous_evening
+        self.miscellaneous_start_of_week = miscellaneous_start_of_week
+        self.miscellaneous_end_of_week = miscellaneous_end_of_week
 
     def get_preferences_satisfied(self,tasks):
 

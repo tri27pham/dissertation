@@ -23,55 +23,19 @@ class ScheduleTasks extends StatefulWidget {
 
 class _ScheduleTasksState extends State<ScheduleTasks> {
   Task task1 = Task(1, "Dissertation", 2, 0, 2, [], "NO LOCATION", "0", "0", 0);
-  Task task2 = Task(
-      2,
-      "gym - push day",
-      1,
-      30,
-      1,
-      [],
-      "PureGym Waterloo, Brad Street, London, UK",
-      "-0.10930369999999999",
-      "51.5041594",
-      2);
-  Task task3 = Task(
-      3,
-      "gym pull day",
-      1,
-      30,
-      2,
-      [2],
-      "PureGym Waterloo, Brad Street, London, UK",
-      "-0.10930369999999999",
-      "51.5041594",
-      2);
+  Task task2 = Task(2, "gym - push day", 1, 30, 1, [],
+      "PureGym Waterloo, Brad Street, London, UK", "-0.109303", "51.504159", 2);
+  Task task3 = Task(3, "gym pull day", 1, 30, 2, [],
+      "PureGym Waterloo, Brad Street, London, UK", "-0.109303", "51.504159", 2);
   Task task4 = Task(4, "clean room", 1, 0, 0, [],
-      "Colwyn House, Hercules Road, London, UK", "-0.1130417", "51.4968626", 6);
+      "Colwyn House, Hercules Road, London, UK", "-0.113041", "51.496862", 6);
   Task task5 =
       Task(5, "sign contract", 1, 0, 1, [], "NO LOCATION", "0", "0", 1);
   Task task6 = Task(6, "plan party", 1, 0, 1, [], "NO LOCATION", "0", "0", 2);
-  Task task7 = Task(
-      7,
-      "NSE coursework",
-      2,
-      0,
-      2,
-      [],
-      "Bush House, Aldwych, London, UK",
-      "-0.11735169999999999",
-      "51.5130562",
-      0);
-  Task task8 = Task(
-      8,
-      "piano practice",
-      1,
-      0,
-      0,
-      [],
-      "Colwyn House, Hercules Road, London, UK",
-      "-0.113041751",
-      "51.4968626",
-      5);
+  Task task7 = Task(7, "NSE coursework", 2, 0, 2, [],
+      "Bush House, Aldwych, London, UK", "-0.117351", "51.513056", 0);
+  Task task8 = Task(8, "piano practice", 1, 0, 0, [],
+      "Colwyn House, Hercules Road, London, UK", "-0.113041", "51.496862", 5);
 
   List<Task> tasks = [];
 

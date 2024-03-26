@@ -15,11 +15,14 @@ app = Flask(__name__)
 @app.route('/data_endpoint', methods=['POST'])
 def receive_data():
     data = request.json  
-    print('Received data:', data)
+    # print('Received data:', data)
     process_data(data)
     return jsonify({'message': 'Data received successfully'})
 
 def process_data(data):
+
+    test = (51.503162, -0.086852)
+    print(type(test))
 
     tasks = data.get('tasks', [])
     times = data.get('times', {})
@@ -28,10 +31,11 @@ def process_data(data):
     processed_tasks = []
 
     for task in tasks:
-        print(task)
+        # print(task)
 
         duration = timedelta(hours=task["hours"],minutes=task["minutes"])
         location_coords = (float(task["locationLongitude"]),float(task["locationLatitude"]))
+        # print(type(location_coords))
 
         new_task = Task(
             task["taskID"],
@@ -45,115 +49,195 @@ def process_data(data):
         )
 
         processed_tasks.append(new_task)
+    
+    
 
     times_data = json.loads(times)
 
-    mondayStart = parse_time_string(times_data["mondayStart"])
-    mondayEnd = parse_time_string(times_data["mondayEnd"])
-    tuesdayStart = parse_time_string(times_data["tuesdayStart"])
-    tuesdayEnd = parse_time_string(times_data["tuesdayEnd"])
-    wednesdayStart = parse_time_string(times_data["wednesdayStart"])
-    wednesdayEnd = parse_time_string(times_data["wednesdayEnd"])
-    thursdayStart = parse_time_string(times_data["thursdayStart"])
-    thursdayEnd = parse_time_string(times_data["thursdayEnd"])
-    fridayStart = parse_time_string(times_data["fridayStart"])
-    fridayEnd = parse_time_string(times_data["fridayEnd"])
-    saturdayStart = parse_time_string(times_data["saturdayStart"])
-    saturdayEnd = parse_time_string(times_data["saturdayEnd"])
-    sundayStart = parse_time_string(times_data["sundayStart"])
-    sundayEnd = parse_time_string(times_data["sundayEnd"])
+    monday_start = parse_time_string(times_data["mondayStart"])
+    monday_end = parse_time_string(times_data["mondayEnd"])
+    tuesday_start = parse_time_string(times_data["tuesdayStart"])
+    tuesday_end = parse_time_string(times_data["tuesdayEnd"])
+    wednesday_start = parse_time_string(times_data["wednesdayStart"])
+    wednesday_end = parse_time_string(times_data["wednesdayEnd"])
+    thursday_start = parse_time_string(times_data["thursdayStart"])
+    thursday_end = parse_time_string(times_data["thursdayEnd"])
+    friday_start = parse_time_string(times_data["fridayStart"])
+    friday_end = parse_time_string(times_data["fridayEnd"])
+    saturday_start = parse_time_string(times_data["saturdayStart"])
+    saturday_end = parse_time_string(times_data["saturdayEnd"])
+    sunday_start = parse_time_string(times_data["sundayStart"])
+    sunday_end = parse_time_string(times_data["sundayEnd"])
 
-    
+    print(type(monday_start))
+
+    preferences_data = json.loads(preferences)
+
+
+    university_morning = preferences_data['university']['morning']
+    university_evening = preferences_data['university']['evening']
+    university_start_of_week = preferences_data['university']['startOfWeek']
+    university_end_of_week = preferences_data['university']['endOfWeek']
+
+    work_morning = preferences_data['work']['morning']
+    work_evening = preferences_data['work']['evening']
+    work_start_of_week = preferences_data['work']['startOfWeek']
+    work_end_of_week = preferences_data['work']['endOfWeek']
+
+    health_morning = preferences_data['health']['morning']
+    health_evening = preferences_data['health']['evening']
+    health_start_of_week = preferences_data['health']['startOfWeek']
+    health_end_of_week = preferences_data['health']['endOfWeek']
+
+    social_morning = preferences_data['social']['morning']
+    social_evening = preferences_data['social']['evening']
+    social_start_of_week = preferences_data['social']['startOfWeek']
+    social_end_of_week = preferences_data['social']['endOfWeek']
+
+    family_morning = preferences_data['family']['morning']
+    family_evening = preferences_data['family']['evening']
+    family_start_of_week = preferences_data['family']['startOfWeek']
+    family_end_of_week = preferences_data['family']['endOfWeek']
+
+    hobbies_morning = preferences_data['hobbies']['morning']
+    hobbies_evening = preferences_data['hobbies']['evening']
+    hobbies_start_of_week = preferences_data['hobbies']['startOfWeek']
+    hobbies_end_of_week = preferences_data['hobbies']['endOfWeek']
+
+    miscellaneous_morning = preferences_data['miscellaneous']['morning']
+    miscellaneous_evening = preferences_data['miscellaneous']['evening']
+    miscellaneous_start_of_week = preferences_data['miscellaneous']['startOfWeek']
+    miscellaneous_end_of_week = preferences_data['miscellaneous']['endOfWeek']
+
+    user_preferences = UserPreferences(
+        university_morning, university_evening, university_start_of_week, university_end_of_week, 
+        work_morning, work_evening, work_start_of_week, work_end_of_week, 
+        health_morning, health_evening, health_start_of_week, health_end_of_week, 
+        social_morning, social_evening, social_start_of_week, social_end_of_week, 
+        family_morning, family_evening, family_start_of_week, family_end_of_week, 
+        hobbies_morning, hobbies_evening, hobbies_start_of_week, hobbies_end_of_week, 
+        miscellaneous_morning, miscellaneous_evening, miscellaneous_start_of_week, miscellaneous_end_of_week
+    )
+
+    user_requirements = UserRequirements(
+        monday_start, monday_end, 
+        tuesday_start, tuesday_end,
+        wednesday_start, wednesday_end, 
+        thursday_start, thursday_end,
+        friday_start, friday_end,
+        saturday_start, saturday_end, 
+        sunday_start, sunday_end
+    )
+
+    # tasks to allocate
+    task3 = Task("3","Push session",timedelta(hours=2,minutes=0),3,(),"BUSH HOUSE",(51.503162, -0.086852),2)
+    task2 = Task("2","OME Content",timedelta(hours=2,minutes=0),3,(task3,),"GUY'S CAMPUS",(51.513056,-0.117352),0)
+    task1 = Task("1","NSE Content",timedelta(hours=1,minutes=0),3,(task2,),"BUSH HOUSE",(51.503162, -0.086852),1)
+    task0 = Task("0","ML1 Content",timedelta(hours=1,minutes=0),3,(task1,),"GUY'S CAMPUS",(51.513056,-0.117352),0)
+    task4 = Task("4","Work",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+    task5 = Task("5","Pull session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.503162, -0.086852),3)
+    task6 = Task("6","10k",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+    task7 = Task("7","Dissertation",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),0)
+    task8 = Task("8","Work",timedelta(hours=2,minutes=0),2,(),"BUSH HOUSE",(51.503162,-0.086852),0)
+    task9 = Task("9","Push session",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),1)
+    task10 = Task("10","Coursework",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+    task11 = Task("11","Legs session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+    task12 = Task("12","Dissertation",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),5)
+    task13 = Task("13","5k",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+    tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task11,task12,task13,task0,task1,task2,task10]
+
+    ga = GeneticAlgorithm(processed_tasks,user_requirements,user_preferences)
+    ga.create_first_generation()
+    data = ga.evolve()
+
+    return jsonify(data)
 
 
 
 def parse_time_string(time_str):
     """
-    Parse a time string in the format "YYYY-MM-DDTHH:MM:SS.MMM" and return a timedelta object.
+    Parse a time string in the format "YYYY-MM-DDTHH:MM:SS.MMM" and return a time object.
     """
     # Extract time part from the datetime string
     time_part = time_str.split("T")[1]
     
-    # Convert time string to datetime object with arbitrary date
-    time_dt = datetime.strptime(time_part, "%H:%M:%S.%f")
+    # Convert time string to time object
+    time_obj = datetime.strptime(time_part, "%H:%M:%S.%f").time()
     
-    # Calculate timedelta for the time part
-    timedelta_from_midnight = timedelta(hours=time_dt.hour, minutes=time_dt.minute, seconds=time_dt.second,
-                                        microseconds=time_dt.microsecond)
-    
-    return timedelta_from_midnight
+    return time_obj
 
 # @app.route('/')
 # def index():
     
 
-    # dt1_startx = datetime.now() + timedelta(hours=1)
-    # dt1_start = dt1_startx.replace(second=0, microsecond=0)
-    # dt1_endx = datetime.now() + timedelta(hours=2)
-    # dt1_end = dt1_endx.replace(second=0, microsecond=0)
+#     dt1_startx = datetime.now() + timedelta(hours=1)
+#     dt1_start = dt1_startx.replace(second=0, microsecond=0)
+#     dt1_endx = datetime.now() + timedelta(hours=2)
+#     dt1_end = dt1_endx.replace(second=0, microsecond=0)
 
-    # dt2_startx = datetime.now() + timedelta(hours=18)
-    # dt2_start = dt2_startx.replace(second=0, microsecond=0)
-    # dt2_endx = datetime.now() + timedelta(hours=20)
-    # dt2_end = dt2_endx.replace(second=0, microsecond=0)
+#     dt2_startx = datetime.now() + timedelta(hours=18)
+#     dt2_start = dt2_startx.replace(second=0, microsecond=0)
+#     dt2_endx = datetime.now() + timedelta(hours=20)
+#     dt2_end = dt2_endx.replace(second=0, microsecond=0)
 
-    # dt3_startx = datetime.now() + timedelta(hours=24)
-    # dt3_start = dt3_startx.replace(second=0, microsecond=0)
-    # dt3_endx = datetime.now() + timedelta(hours=25)
-    # dt3_end = dt3_endx.replace(second=0, microsecond=0)
+#     dt3_startx = datetime.now() + timedelta(hours=24)
+#     dt3_start = dt3_startx.replace(second=0, microsecond=0)
+#     dt3_endx = datetime.now() + timedelta(hours=25)
+#     dt3_end = dt3_endx.replace(second=0, microsecond=0)
 
-    # dt4_startx = datetime.now() + timedelta(days=2)
-    # dt4_start = dt4_startx.replace(second=0, microsecond=0)
-    # dt4_endx = datetime.now() + timedelta(days=2,hours=1)
-    # dt4_end = dt4_endx.replace(second=0, microsecond=0)
+#     dt4_startx = datetime.now() + timedelta(days=2)
+#     dt4_start = dt4_startx.replace(second=0, microsecond=0)
+#     dt4_endx = datetime.now() + timedelta(days=2,hours=1)
+#     dt4_end = dt4_endx.replace(second=0, microsecond=0)
 
-    # dt5_startx = datetime.now() + timedelta(days=2, hours=2)
-    # dt5_start = dt5_startx.replace(second=0, microsecond=0)
-    # dt5_endx = datetime.now() + timedelta(days=2, hours=4)
-    # dt5_end = dt5_endx.replace(second=0, microsecond=0)
+#     dt5_startx = datetime.now() + timedelta(days=2, hours=2)
+#     dt5_start = dt5_startx.replace(second=0, microsecond=0)
+#     dt5_endx = datetime.now() + timedelta(days=2, hours=4)
+#     dt5_end = dt5_endx.replace(second=0, microsecond=0)
 
-    # hardTask1 = HardTask("h1","HardTask1",dt1_start,dt1_end,(51.513056,-0.117352))
-    # hardTask2 = HardTask("h2","HardTask2",dt2_start,dt2_end,(51.513056,-0.117352))
-    # hardTask3 = HardTask("h3","HardTask3",dt3_start,dt3_end,(51.513056,-0.117352))
-    # hardTask4 = HardTask("h4","HardTask4",dt4_start,dt4_end,(51.513056,-0.117352))
-    # hardTask5 = HardTask("h5","HardTask5",dt5_start,dt5_end,(51.513056,-0.117352))
+#     hardTask1 = HardTask("h1","HardTask1",dt1_start,dt1_end,(51.513056,-0.117352))
+#     hardTask2 = HardTask("h2","HardTask2",dt2_start,dt2_end,(51.513056,-0.117352))
+#     hardTask3 = HardTask("h3","HardTask3",dt3_start,dt3_end,(51.513056,-0.117352))
+#     hardTask4 = HardTask("h4","HardTask4",dt4_start,dt4_end,(51.513056,-0.117352))
+#     hardTask5 = HardTask("h5","HardTask5",dt5_start,dt5_end,(51.513056,-0.117352))
 
-    # hard_tasks = [hardTask1,hardTask2,hardTask3,hardTask4,hardTask4,hardTask5]
+#     hard_tasks = [hardTask1,hardTask2,hardTask3,hardTask4,hardTask4,hardTask5]
 
-    # # tasks to allocate
-    # task3 = Task("s3","Push session",timedelta(hours=2,minutes=0),3,(),"BUSH HOUSE",(51.503162, -0.086852),2)
-    # task2 = Task("s2","OME Content",timedelta(hours=2,minutes=0),3,(task3,),"GUY'S CAMPUS",(51.513056,-0.117352),0)
-    # task1 = Task("s1","NSE Content",timedelta(hours=1,minutes=0),3,(task2,),"BUSH HOUSE",(51.503162, -0.086852),1)
-    # task0 = Task("s0","ML1 Content",timedelta(hours=1,minutes=0),3,(task1,),"GUY'S CAMPUS",(51.513056,-0.117352),0)
-    # task4 = Task("s4","Work",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-    # task5 = Task("s5","Pull session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.503162, -0.086852),3)
-    # task6 = Task("s6","10k",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-    # task7 = Task("s7","Dissertation",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),0)
-    # task8 = Task("s8","Work",timedelta(hours=2,minutes=0),2,(),"BUSH HOUSE",(51.503162,-0.086852),0)
-    # task9 = Task("s9","Push session",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),1)
-    # task10 = Task("s10","Coursework",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-    # task11 = Task("s11","Legs session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-    # task12 = Task("s12","Dissertation",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),5)
-    # task13 = Task("s13","5k",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-    # tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task11,task12,task13,task0,task1,task2,task10]
+#     # tasks to allocate
+#     task3 = Task("s3","Push session",timedelta(hours=2,minutes=0),3,(),"BUSH HOUSE",(51.503162, -0.086852),2)
+#     task2 = Task("s2","OME Content",timedelta(hours=2,minutes=0),3,(task3,),"GUY'S CAMPUS",(51.513056,-0.117352),0)
+#     task1 = Task("s1","NSE Content",timedelta(hours=1,minutes=0),3,(task2,),"BUSH HOUSE",(51.503162, -0.086852),1)
+#     task0 = Task("s0","ML1 Content",timedelta(hours=1,minutes=0),3,(task1,),"GUY'S CAMPUS",(51.513056,-0.117352),0)
+#     task4 = Task("s4","Work",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+#     task5 = Task("s5","Pull session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.503162, -0.086852),3)
+#     task6 = Task("s6","10k",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+#     task7 = Task("s7","Dissertation",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),0)
+#     task8 = Task("s8","Work",timedelta(hours=2,minutes=0),2,(),"BUSH HOUSE",(51.503162,-0.086852),0)
+#     task9 = Task("s9","Push session",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),1)
+#     task10 = Task("s10","Coursework",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+#     task11 = Task("s11","Legs session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+#     task12 = Task("s12","Dissertation",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),5)
+#     task13 = Task("s13","5k",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+#     tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task11,task12,task13,task0,task1,task2,task10]
 
-    # task_dict = {}
+#     task_dict = {}
 
-    # for task in tasks_to_be_allocated:
-    #     task_dict[task.getID()] = task
+#     for task in tasks_to_be_allocated:
+#         task_dict[task.getID()] = task
 
-    # nine_am = time(hour=9, minute=0, second=0)
-    # five_pm = time(hour=18, minute=0, second=0)
+#     nine_am = time(hour=9, minute=0, second=0)
+#     five_pm = time(hour=18, minute=0, second=0)
 
-    # user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
-    # user_preferences = UserPreferences()
+#     user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
+#     user_preferences = UserPreferences(True, False, True, True, False, False, True, False, False, True, False, True, True, False, False, True, True, False, True, False, True, False, True, True, False, False, True, False
+# )
 
-    # ga = GeneticAlgorithm(tasks_to_be_allocated,hard_tasks,user_requirements,user_preferences)
-    # ga.create_first_generation()
-    # data = ga.evolve()
+#     ga = GeneticAlgorithm(tasks_to_be_allocated,user_requirements,user_preferences)
+#     ga.create_first_generation()
+#     data = ga.evolve()
 
-    # return jsonify(data)
-    # return 
+#     return jsonify(data)
+#     # return 
 
 if __name__ == '__main__':
     app.run()

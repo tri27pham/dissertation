@@ -104,34 +104,161 @@ class _EditPreferencesState extends State<EditPreferences> {
     var dataModel = Provider.of<DataModel>(context);
 
     void setPreferences() {
+      bool universityMorning = false;
+      bool universityEvening = false;
+      bool universityStartOfWeek = false;
+      bool universityEndOfWeek = false;
+
+      bool workMorning = false;
+      bool workEvening = false;
+      bool workStartOfWeek = false;
+      bool workEndOfWeek = false;
+
+      bool healthMorning = false;
+      bool healthEvening = false;
+      bool healthStartOfWeek = false;
+      bool healthEndOfWeek = false;
+
+      bool socialMorning = false;
+      bool socialEvening = false;
+      bool socialStartOfWeek = false;
+      bool socialEndOfWeek = false;
+
+      bool familyMorning = false;
+      bool familyEvening = false;
+      bool familyStartOfWeek = false;
+      bool familyEndOfWeek = false;
+
+      bool hobbiesMorning = false;
+      bool hobbiesEvening = false;
+      bool hobbiesStartOfWeek = false;
+      bool hobbiesEndOfWeek = false;
+
+      bool miscellaneousMorning = false;
+      bool miscellaneousEvening = false;
+      bool miscellaneousStartOfWeek = false;
+      bool miscellaneousEndOfWeek = false;
+
+      if (_universityDay == 0) {
+        universityMorning = true;
+      } else {
+        universityEvening = true;
+      }
+      if (_universityWeek == 0) {
+        universityStartOfWeek = true;
+      } else {
+        universityEndOfWeek = true;
+      }
+
+      if (_workDay == 0) {
+        workMorning = true;
+      } else {
+        workEvening = true;
+      }
+      if (_workWeek == 0) {
+        workStartOfWeek = true;
+      } else {
+        workEndOfWeek = true;
+      }
+
+      if (_healthDay == 0) {
+        healthMorning = true;
+      } else {
+        healthEvening = true;
+      }
+      if (_healthWeek == 0) {
+        healthStartOfWeek = true;
+      } else {
+        healthEndOfWeek = true;
+      }
+
+      if (_socialDay == 0) {
+        socialMorning = true;
+      } else {
+        socialEvening = true;
+      }
+      if (_socialWeek == 0) {
+        socialStartOfWeek = true;
+      } else {
+        socialEndOfWeek = true;
+      }
+
+      if (_familyDay == 0) {
+        familyMorning = true;
+      } else {
+        familyEvening = true;
+      }
+      if (_familyWeek == 0) {
+        familyStartOfWeek = true;
+      } else {
+        familyEndOfWeek = true;
+      }
+
+      if (_hobbiesDay == 0) {
+        hobbiesMorning = true;
+      } else {
+        hobbiesEvening = true;
+      }
+      if (_hobbiesWeek == 0) {
+        hobbiesStartOfWeek = true;
+      } else {
+        hobbiesEndOfWeek = true;
+      }
+
+      if (_miscellaneousDay == 0) {
+        miscellaneousMorning = true;
+      } else {
+        miscellaneousEvening = true;
+      }
+      if (_miscellaneousWeek == 0) {
+        miscellaneousStartOfWeek = true;
+      } else {
+        miscellaneousEndOfWeek = true;
+      }
+
+      if (_universityDay == 0) {}
       Map<String, dynamic> preferences = {
         'university': {
-          'day': _universityDay,
-          'week': _universityWeek,
+          'morning': universityMorning,
+          'evening': universityEvening,
+          'startOfWeek': universityStartOfWeek,
+          'endOfWeek': universityEndOfWeek,
         },
         'work': {
-          'day': _workDay,
-          'week': _workWeek,
+          'morning': workMorning,
+          'evening': workEvening,
+          'startOfWeek': workStartOfWeek,
+          'endOfWeek': workEndOfWeek,
         },
         'health': {
-          'day': _healthDay,
-          'week': _healthWeek,
+          'morning': healthMorning,
+          'evening': healthEvening,
+          'startOfWeek': healthStartOfWeek,
+          'endOfWeek': healthEndOfWeek,
         },
         'social': {
-          'day': _socialDay,
-          'week': _socialWeek,
+          'morning': socialMorning,
+          'evening': socialEvening,
+          'startOfWeek': socialStartOfWeek,
+          'endOfWeek': socialEndOfWeek,
         },
         'family': {
-          'day': _familyDay,
-          'week': _familyWeek,
+          'morning': familyMorning,
+          'evening': familyEvening,
+          'startOfWeek': familyStartOfWeek,
+          'endOfWeek': familyEndOfWeek,
         },
         'hobbies': {
-          'day': _hobbiesDay,
-          'week': _hobbiesWeek,
+          'morning': hobbiesMorning,
+          'evening': hobbiesEvening,
+          'startOfWeek': hobbiesStartOfWeek,
+          'endOfWeek': hobbiesEndOfWeek,
         },
         'miscellaneous': {
-          'day': _miscellaneousDay,
-          'week': _miscellaneousWeek,
+          'morning': miscellaneousMorning,
+          'evening': miscellaneousEvening,
+          'startOfWeek': miscellaneousStartOfWeek,
+          'endOfWeek': miscellaneousEndOfWeek,
         },
       };
 
@@ -141,7 +268,7 @@ class _EditPreferencesState extends State<EditPreferences> {
       dataModel.updatePreferences(jsonPreferences);
 
       // Print the JSON string
-      print(jsonPreferences);
+      // print(jsonPreferences);
     }
 
     return GestureDetector(

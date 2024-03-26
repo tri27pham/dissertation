@@ -4,6 +4,7 @@ import 'addTaskPopUp.dart';
 import 'task.dart';
 import 'taskWidget.dart';
 import 'dart:convert';
+import 'calendar.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -62,6 +63,8 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
     });
   }
 
+  bool isLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -82,6 +85,10 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
     var url = Uri.parse('http://10.0.2.2:5000/data_endpoint');
 
     Future<void> sendDataToAPI() async {
+      setState(() {
+        isLoading = true; // Set loading state to true
+      });
+
       Map<String, dynamic> requestData = {
         "tasks": getTaskAsJson(),
         "times": dataModel.times,
@@ -99,20 +106,24 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
         );
 
         if (response.statusCode == 200) {
-          // If the server returns a 200 OK response
-          var responseData =
-              jsonDecode(response.body); // Convert response body to JSON
-          // Process responseData as needed
+          var responseData = jsonDecode(response.body);
           log(responseData);
-          print('Data sent successfully!');
+          // dataModel.update
         } else {
-          // If the server returns an error response
           print('Error: ${response.statusCode}');
-          print(response.body); // Print error message received from the server
+          print(response.body);
         }
       } catch (e) {
-        // If an error occurs during the HTTP request
         print('Error: $e');
+      } finally {
+        setState(() {
+          isLoading =
+              false; // Set loading state to false after response is received
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Calendar()),
+          );
+        });
       }
     }
 
@@ -147,100 +158,102 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
                 topRight: Radius.circular(40.0), // Radius for top-right corner
               ),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text(
-                  "TASKS",
-                  style: TextStyle(
-                    fontSize: 30,
-                  ),
-                ),
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.05,
-                  width: MediaQuery.of(context).size.width * 0.4,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // print("length of tasks: " + tasks.length.toString());
-                      displayAddTaskPopUp(context);
-                    },
-                    child: Text(
-                      "ADD TASK",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black,
-                      ),
-                    ),
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<OutlinedBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(10), // No rounding
+            child: isLoading
+                ? Center(child: CircularProgressIndicator())
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        "TASKS",
+                        style: TextStyle(
+                          fontSize: 30,
                         ),
                       ),
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.amber.shade200),
-                    ),
-                  ),
-                ),
-                Container(
-                    height: MediaQuery.of(context).size.height * 0.6,
-                    width: MediaQuery.of(context).size.width * 0.85,
-                    padding: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadius.circular(20), // Rounded corners
-                      border: Border.all(
-                        color: Colors.grey.shade300, // Border color
-                        width: 2, // Border width
+                      Container(
+                        height: MediaQuery.of(context).size.height * 0.05,
+                        width: MediaQuery.of(context).size.width * 0.4,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // print("length of tasks: " + tasks.length.toString());
+                            displayAddTaskPopUp(context);
+                          },
+                          child: Text(
+                            "ADD TASK",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
+                            ),
+                          ),
+                          style: ButtonStyle(
+                            shape: MaterialStateProperty.all<OutlinedBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(10), // No rounding
+                              ),
+                            ),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.amber.shade200),
+                          ),
+                        ),
                       ),
-                    ),
-                    child: Scrollbar(
-                      child: ListView.builder(
-                          itemCount: tasks.length,
-                          itemBuilder: (content, index) {
-                            return Container(
-                              padding: EdgeInsets.symmetric(vertical: 3),
-                              child: TaskWidget(task: tasks[index]),
-                            );
-                          }),
+                      Container(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          width: MediaQuery.of(context).size.width * 0.85,
+                          padding: EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.circular(20), // Rounded corners
+                            border: Border.all(
+                              color: Colors.grey.shade300, // Border color
+                              width: 2, // Border width
+                            ),
+                          ),
+                          child: Scrollbar(
+                            child: ListView.builder(
+                                itemCount: tasks.length,
+                                itemBuilder: (content, index) {
+                                  return Container(
+                                    padding: EdgeInsets.symmetric(vertical: 3),
+                                    child: TaskWidget(task: tasks[index]),
+                                  );
+                                }),
 
-                      // child: ListView(
-                      //   children: [
-                      //     TaskWidget(),
-                      //   ],
-                      // ),
-                    )),
-                Container(
-                  height: MediaQuery.of(context).size.height * 0.1,
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      sendDataToAPI();
-                    },
-                    style: ButtonStyle(
-                      shape: MaterialStateProperty.all<OutlinedBorder>(
-                        RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(15), // No rounding
+                            // child: ListView(
+                            //   children: [
+                            //     TaskWidget(),
+                            //   ],
+                            // ),
+                          )),
+                      Container(
+                        height: MediaQuery.of(context).size.height * 0.1,
+                        width: MediaQuery.of(context).size.width * 0.85,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            sendDataToAPI();
+                          },
+                          style: ButtonStyle(
+                            shape: MaterialStateProperty.all<OutlinedBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.circular(15), // No rounding
+                              ),
+                            ),
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.amber.shade200),
+                          ),
+                          child: Text(
+                            "CREATE SCHEDULE",
+                            style: TextStyle(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black,
+                            ),
+                          ),
                         ),
                       ),
-                      backgroundColor: MaterialStateProperty.all<Color>(
-                          Colors.amber.shade200),
-                    ),
-                    child: Text(
-                      "CREATE SCHEDULE",
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.black,
-                      ),
-                    ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           ),
         ],
       ),

@@ -18,7 +18,6 @@ app = Flask(__name__)
 def receive_data():
     data = request.json  
     processed_data = process_data(data)
-    # print(jsonify(processed_data))
     return jsonify(processed_data)
 
 def process_data(data):
@@ -35,17 +34,6 @@ def process_data(data):
     ga.create_first_generation()
     data = ga.evolve()
 
-    # for task in data:
-    #     print(f"ID: {task.getID()}")
-    #     print(f"NAME: {task.get_name()}")
-    #     print(f"START: {task.get_start_datetime()}")
-    #     print(f"FINISH: {task.get_end_datetime()}")
-    #     print(f"PRIORITY: {task.get_priority()}")
-    #     print(f"PRIOR TASKS: {task.get_prior_tasks()}")
-    #     print(f"LOCATION NAME: {task.get_location_name()}")
-    #     print(f"LOCATION COORDS: {task.get_location_coords()}")
-    #     print(f"CATEGORY: {task.get_category()}")
-
     allocated_tasks_data = []
     for task in data:
         task_data = {
@@ -61,12 +49,9 @@ def process_data(data):
         }
         allocated_tasks_data.append(task_data)
 
-    # Convert the dictionary to JSON format
     response_data = json.dumps(allocated_tasks_data)
 
-    # Return the JSON response with appropriate HTTP status code
     return response_data
-
 
 def process_tasks(tasks):
     processed_tasks = []
@@ -184,7 +169,6 @@ def parse_time_string(time_str):
     time_obj = datetime.strptime(time_part, "%H:%M:%S.%f").time()
     
     return time_obj
-
 
 if __name__ == '__main__':
     app.run()

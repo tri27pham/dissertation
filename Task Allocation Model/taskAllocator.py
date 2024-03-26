@@ -108,11 +108,19 @@ class TaskAllocator:
             # there is a task allocated at this time slot, so travel time to be calculated
             else:
                 previous_task = schedule[date][current_time]
-                travel_time = self.travel_times_matrix[previous_task][current_task.getID()]
+                if previous_task in self.travel_times_matrix:
+                    travel_time = self.travel_times_matrix[previous_task][current_task.getID()]
+                else:
+                    travel_time = timedelta()
 
             needed_time = travel_time + current_task.get_duration()
 
             available_time_slot = self.get_available_time_slot(schedule,date,weekday,self.increment_time(current_time))
+            
+            # print(f"CURRENT: {current_time}")
+            # print(f"TRAVEL: {travel_time}")
+            # print(f"DURATION:  {current_task.get_duration()}")
+            # print(f"AVAILABLE: {available_time_slot}")
 
             if travel_time + current_task.get_duration() <= available_time_slot:
                 # current time and travel time to get start time of task
@@ -123,7 +131,7 @@ class TaskAllocator:
 
                 new_allocated_task = AllocatedTask(current_task.getID(),current_task.get_name(),task_start_time,
                                         task_end_time,current_task.get_priority(),current_task.get_prior_tasks(),
-                                        current_task.get_location(),current_task.get_category())
+                                        current_task.get_location_name(),current_task.get_location_coords(),current_task.get_category())
 
                 self.task_dict[new_allocated_task.getID()] = new_allocated_task
                 
@@ -191,14 +199,14 @@ class TaskAllocator:
         # create location waypoint for each location and add into locations array
         for task in tasks:
 
-            if task.get_location() is not None:
+            if task.get_location_coords() is not None:
 
                 location = {
                     "waypoint": {
                         "location": {
                             "latLng": {
-                                "latitude": task.get_location()[0],
-                                "longitude": task.get_location()[1]
+                                "latitude": task.get_location_coords()[0],
+                                "longitude": task.get_location_coords()[1]
                             }
                         }
                     }
@@ -221,6 +229,8 @@ class TaskAllocator:
             "languageCode": "en-US",
             "units": "IMPERIAL"
         }
+
+        print(locations)
 
         # call request and store response
         # response = requests.post(url, json=data, headers=headers)
@@ -290,13 +300,20 @@ class TaskAllocator:
 
     def get_allocated_tasks(self,schedule):
         
-        all_tasks = set()
+        # all_tasks = set()
+        # for daily_schedule in schedule.values():
+        #     for time_slot in daily_schedule.values():
+        #         if time_slot is not None:
+        #             all_tasks.add(time_slot)
+
+        all_tasks = []
         for daily_schedule in schedule.values():
             for time_slot in daily_schedule.values():
-                if time_slot is not None:
-                    all_tasks.add(time_slot)
+                if time_slot is not None and time_slot not in all_tasks:
+                    all_tasks.append(time_slot)
 
-        allocated_tasks_refs = [task for task in all_tasks if task.startswith('s')]
+        # allocated_tasks_refs = [task for task in all_tasks if task.startswith('s')]
+        allocated_tasks_refs = [task for task in all_tasks if task != "travel"]
         allocated_tasks = []
 
         for task_ref in allocated_tasks_refs:

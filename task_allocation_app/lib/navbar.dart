@@ -3,6 +3,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:task_allocation_app/homepage.dart';
 import 'package:task_allocation_app/schedule.dart';
 import 'package:task_allocation_app/calendar.dart';
+import 'package:task_allocation_app/settings.dart';
 import 'package:task_allocation_app/test.dart';
 
 class NavBar extends StatelessWidget {
@@ -95,7 +96,7 @@ class NavBar extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CheckboxListScreen()),
+                MaterialPageRoute(builder: (context) => Settings()),
               );
             },
           ),

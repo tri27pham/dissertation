@@ -125,10 +125,10 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
   }
 
   Task createNewTask() {
-    List<int> priorTasksIDs = [];
+    List<String> priorTasksIDs = [];
     for (var priorTask in selectedPriorTasks) {
       if (priorTask.selected) {
-        priorTasksIDs.add(priorTask.task.taskID);
+        priorTasksIDs.add((priorTask.task.taskID).toString());
       }
     }
     String locationName = "";
@@ -150,9 +150,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
         locationName,
         longitude,
         latitude,
-        _categoryValue,
-        categories[_categoryValue]);
-    newTask.printValues();
+        _categoryValue);
     return newTask;
   }
 

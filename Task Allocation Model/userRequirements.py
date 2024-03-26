@@ -20,7 +20,7 @@ class UserRequirements:
         self.sun_start = sun_start
         self.sun_end = sun_end
 
-    def get_avg_daily_availability():
+    def get_avg_daily_availability(self):
         return math.ceil(((self.mon_end - self.mon_start) + (self.tue_end - self.tue_start) + 
                         (self.wed_end - self.wed_start) + (self.thu_end - self.thu_start) + 
                         (self.fri_end - self.fri_start) + (self.sat_end - self.sat_start) + 

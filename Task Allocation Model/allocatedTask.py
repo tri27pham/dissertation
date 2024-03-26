@@ -1,8 +1,9 @@
 from prioritiesEnum import Priority
+from taskCategoryEnum import TaskCategory
 
 class AllocatedTask:
     
-    def __init__(self,taskID,name,start_datetime,end_datetime,priority,prior_tasks,location,category):
+    def __init__(self,taskID,name,start_datetime,end_datetime,priority,prior_tasks,location_name,location_coords,category):
         # identifier unique to task - type: Int
         self.taskID = taskID 
         # task name
@@ -16,7 +17,8 @@ class AllocatedTask:
         # tasks that must be completed first - type: set of Task
         self.prior_tasks = prior_tasks 
         # <lat,long> of location of task - default = None
-        self.location = location        
+        self.location_name = location_name
+        self.location_coords = location_coords       
         # category of task - type: String - default = None
         self.category = category 
 
@@ -44,8 +46,14 @@ class AllocatedTask:
     def get_prior_tasks(self):
         return self.prior_tasks
     
-    def get_location(self):
-        return self.location
+    def get_location_name(self):
+        return self.location_name
+    
+    def get_location_coords(self):
+        return self.location_coords
     
     def get_category(self):
         return self.category
+    
+    def get_category_val(self):
+        return self.category.value

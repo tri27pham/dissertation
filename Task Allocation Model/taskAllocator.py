@@ -179,7 +179,6 @@ class TaskAllocator:
 
         return allocated_tasks
 
-
     def get_travel_time_free(self,source,destination):
         random_num = random.randint(0, 6)
         random_mult_5 = random_num * 5

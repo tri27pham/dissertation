@@ -107,8 +107,8 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
 
         if (response.statusCode == 200) {
           var responseData = jsonDecode(response.body);
-          log(responseData);
-          // dataModel.update
+          // log(responseData);
+          dataModel.updateTasks(responseData);
         } else {
           print('Error: ${response.statusCode}');
           print(response.body);

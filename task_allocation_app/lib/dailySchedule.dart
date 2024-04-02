@@ -53,6 +53,19 @@ class _DailyScheduleState extends State<DailySchedule> {
     }
   }
 
+  String getPriority(int priority) {
+    switch (priority) {
+      case 0:
+        return "LOW";
+      case 1:
+        return "MEDIUM";
+      case 2:
+        return "HIGH";
+      default:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,20 +101,6 @@ class _DailyScheduleState extends State<DailySchedule> {
                     ),
                     onPressed: () {
                       Navigator.of(context).pop();
-                    },
-                  ),
-                ),
-                Transform.translate(
-                  offset: Offset(0, -10), // Adjust the offset as needed
-                  child: IconButton(
-                    icon: Icon(
-                      CupertinoIcons.arrow_left_circle_fill,
-                      size: 45,
-                    ),
-                    onPressed: () {
-                      widget.tasks.forEach((element) {
-                        print(element.name);
-                      });
                     },
                   ),
                 ),
@@ -164,29 +163,35 @@ class _DailyScheduleState extends State<DailySchedule> {
             height: MediaQuery.of(context).size.height * 0.7,
             width: MediaQuery.of(context).size.width * 0.95,
             child: ListView.builder(
-              itemCount: 10, // Number of containers in the list
+              itemCount:
+                  widget.tasks.length, // Number of containers in the list
               itemBuilder: (context, index) {
-                return Padding(
-                    padding: EdgeInsets.symmetric(vertical: 2),
-                    child: Container(
-                      height: MediaQuery.of(context).size.height * 0.1,
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Text(
-                        'Container $index',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18.0,
-                        ),
-                      ),
-                    ));
+                AllocatedTask task = widget.tasks[index];
+                return TaskWidget(task);
               },
             )),
       ],
     );
+  }
+
+  Widget TaskWidget(AllocatedTask task) {
+    return Padding(
+        padding: EdgeInsets.symmetric(vertical: 2),
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.1, //use duration
+          width: MediaQuery.of(context).size.width * 0.5,
+          decoration: BoxDecoration(
+            color: const Color.fromARGB(255, 159, 209, 250),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: Column(
+            children: [
+              Text(task.name),
+              Text(task.locationName),
+              Text(getPriority(task.priority)),
+            ],
+          ),
+        ));
   }
 
   Widget ListOfTimesWidget() {

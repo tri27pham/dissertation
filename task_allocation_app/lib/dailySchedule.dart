@@ -22,6 +22,27 @@ class DailySchedule extends StatefulWidget {
 }
 
 class _DailyScheduleState extends State<DailySchedule> {
+  Color getCategoryColor(int category) {
+    switch (category) {
+      case 1:
+        return Colors.amber;
+      case 2:
+        return Color.fromARGB(255, 141, 219, 180);
+      case 3:
+        return Color.fromARGB(255, 134, 140, 233);
+      case 4:
+        return Color.fromARGB(255, 209, 144, 158);
+      case 5:
+        return Color.fromARGB(255, 89, 149, 218);
+      case 6:
+        return Color.fromARGB(255, 206, 150, 194);
+      case 7:
+        return Color.fromARGB(255, 241, 132, 132);
+      default:
+        return Color.fromARGB(255, 100, 44, 44);
+    }
+  }
+
   String monthFromNum(int monthNumber) {
     switch (monthNumber) {
       case 1:
@@ -154,41 +175,98 @@ class _DailyScheduleState extends State<DailySchedule> {
     );
   }
 
+  // Widget ListOfTasksWidget() {
+  //   return Column(
+  //     children: [
+  //       Container(
+  //           padding: EdgeInsets.fromLTRB(
+  //               MediaQuery.of(context).size.width * 0.25, 25, 0, 0),
+  //           height: MediaQuery.of(context).size.height * 0.7,
+  //           width: MediaQuery.of(context).size.width * 0.95,
+  //           child: ListView.builder(
+  //             itemCount:
+  //                 widget.tasks.length, // Number of containers in the list
+  //             itemBuilder: (context, index) {
+  //               AllocatedTask task = widget.tasks[index];
+  //               return TaskWidget(task);
+  //             },
+  //           )),
+  //     ],
+  //   );
+  // }
+
+  double timeDifference(startDateTime, endDateTime) {
+    Duration timeDiff = endDateTime.difference(startDateTime);
+
+    double hoursDiff = timeDiff.inSeconds / 3600;
+
+    return hoursDiff;
+  }
+
   Widget ListOfTasksWidget() {
-    return Column(
-      children: [
-        Container(
-            padding: EdgeInsets.fromLTRB(
-                MediaQuery.of(context).size.width * 0.25, 25, 0, 0),
-            height: MediaQuery.of(context).size.height * 0.7,
-            width: MediaQuery.of(context).size.width * 0.95,
-            child: ListView.builder(
-              itemCount:
-                  widget.tasks.length, // Number of containers in the list
-              itemBuilder: (context, index) {
-                AllocatedTask task = widget.tasks[index];
-                return TaskWidget(task);
-              },
-            )),
-      ],
+    List<Widget> widgets = [];
+    for (int i = 0; i < widget.tasks.length; i++) {
+      if (i == 0) {
+        widgets.add(Container(
+          height: MediaQuery.of(context).size.height *
+              0.1 *
+              (widget.tasks[0].startDateTime.hour +
+                  (widget.tasks[0].startDateTime.minute / 60)),
+        ));
+      } else {
+        double timeDiff = timeDifference(
+            widget.tasks[i - 1].startDateTime, widget.tasks[i - 1].endDateTime);
+        widgets.add(Container(
+            height: MediaQuery.of(context).size.height * 0.1 * timeDiff));
+      }
+      widgets.add(TaskWidget(widget.tasks[i]));
+      if (i == widget.tasks.length) {}
+    }
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+          MediaQuery.of(context).size.width * 0.25, 25, 0, 0),
+      height: MediaQuery.of(context).size.height * 0.7,
+      width: MediaQuery.of(context).size.width * 0.95,
+      child: SingleChildScrollView(
+        child: Column(children: widgets),
+      ),
     );
+    // [
+    // Container(
+    //     padding: EdgeInsets.fromLTRB(
+    //         MediaQuery.of(context).size.width * 0.25, 25, 0, 0),
+    //     height: MediaQuery.of(context).size.height * 0.7,
+    //     width: MediaQuery.of(context).size.width * 0.95,
+    //     child: ListView.builder(
+    //       itemCount:
+    //           widget.tasks.length, // Number of containers in the list
+    //       itemBuilder: (context, index) {
+    //         AllocatedTask task = widget.tasks[index];
+    //         return TaskWidget(task);
+    //       },
+    //     )),
+    // ],
+    // );
   }
 
   Widget TaskWidget(AllocatedTask task) {
     return Padding(
         padding: EdgeInsets.symmetric(vertical: 2),
         child: Container(
-          height: MediaQuery.of(context).size.height * 0.1, //use duration
-          width: MediaQuery.of(context).size.width * 0.5,
+          height: MediaQuery.of(context).size.height *
+              0.1 *
+              task.getDurationFloat(), //use duration
+          width: MediaQuery.of(context).size.width * 0.8,
           decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 159, 209, 250),
+            color: getCategoryColor(task.category),
             borderRadius: BorderRadius.circular(10.0),
           ),
           child: Column(
             children: [
               Text(task.name),
-              Text(task.locationName),
-              Text(getPriority(task.priority)),
+              // Text(task.locationName),
+              // Text(getPriority(task.priority)),
+              // Text(task.getDurationStr())
             ],
           ),
         ));

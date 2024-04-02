@@ -64,45 +64,53 @@ class GeneticAlgorithm:
                 print(self.task_dict[task].get_priority())
 
     def shuffle(self,order):
+
+        valid_priorities = False
+        while not valid_priorities:
         
-        # create an empty array to populated with new order
-        new_order = [None] * len(order)
+            # create an empty array to populated with new order
+            new_order = [None] * len(order)
 
-        # get the nodes that are important in maintaining acyclic property and order them
-        unordered_important_nodes = self.get_important_nodes(order)
-        important_nodes = self.topological_sort(unordered_important_nodes)
+            # get the nodes that are important in maintaining acyclic property and order them
+            unordered_important_nodes = self.get_important_nodes(order)
+            important_nodes = self.topological_sort(unordered_important_nodes)
 
-        # get nodes that aren't important in maintaining acyclic property
-        unimportant_nodes = list(set(order) - set(important_nodes))
+            # get nodes that aren't important in maintaining acyclic property
+            unimportant_nodes = list(set(order) - set(important_nodes))
 
-        node_start = 0
+            node_start = 0
 
-        # ASSIGN IMPORTANT TASKS
+            # ASSIGN IMPORTANT TASKS
 
-        # assigns nodes randomly into an array while maintaining order
+            # assigns nodes randomly into an array while maintaining order
 
-        while len(important_nodes) != 0:
-            # get random new index from after furthest index so far and last element
-            index = random.randint(node_start,len(new_order)-1)
-            # assign task at this index
-            new_order[index] = important_nodes[0]
-            # check that this placement maintains acyclic nature and remains enough space for remaining tasks
-            if self.is_acyclic(new_order) and (len(new_order)-1-index >= len(important_nodes)-1):
-                # update node_start index to next available space
-                node_start = index + 1
-                # remove the task that was just placed in the order
-                important_nodes.remove(important_nodes[0])
-            else:
-                # remove allocated task is it doesn't meet requirementse
-                new_order[index] = None
+            while len(important_nodes) != 0:
+                # get random new index from after furthest index so far and last element
+                index = random.randint(node_start,len(new_order)-1)
+                # assign task at this index
+                new_order[index] = important_nodes[0]
+                # check that this placement maintains acyclic nature and remains enough space for remaining tasks
+                if self.is_acyclic(new_order) and (len(new_order)-1-index >= len(important_nodes)-1):
+                    # update node_start index to next available space
+                    node_start = index + 1
+                    # remove the task that was just placed in the order
+                    important_nodes.remove(important_nodes[0])
+                else:
+                    # remove allocated task is it doesn't meet requirementse
+                    new_order[index] = None
+                
+            # ASSIGN UNIMPORTANT TASKS
+
+            random.shuffle(unimportant_nodes)
+            for index in range(len(new_order)):
+                if new_order[index] is None:
+                    new_order[index] = unimportant_nodes[0]
+                    unimportant_nodes.pop(0)
             
-        # ASSIGN UNIMPORTANT TASKS
-
-        random.shuffle(unimportant_nodes)
-        for index in range(len(new_order)):
-            if new_order[index] is None:
-                new_order[index] = unimportant_nodes[0]
-                unimportant_nodes.pop(0)
+            if self.priorities_valid(new_order):
+                print(new_order)
+                
+                valid_priorities = True
 
         return new_order
 
@@ -312,6 +320,7 @@ class GeneticAlgorithm:
             # check to see if segment contains any important nodes 
             important_segment_nodes = list(set(important_nodes) & set(segment))
 
+            # check to see if important nodes can assigned correctly
             if len(important_segment_nodes) == 0:
                 valid_important_nodes = True
             else:
@@ -331,8 +340,16 @@ class GeneticAlgorithm:
 
                 if len(prior) <= len(start_segment) and len(post) <= len(end_segment):
                     valid_important_nodes = True
-            
-            
+
+            # check to see if nodes of different priorities can be assigned correctly
+            # get priority of first and last node of segment  
+            start_node_priority = self.task_dict[child[index]].get_priority()
+            end_node_priority = self.task_dict[child[index+len_segment-1]].get_priority()
+            print(child)
+            print(f"start {start_node_priority}")
+            print(f"end {end_node_priority}")
+
+            raise Exception
             
 
         # get important nodes that must be placed before / after segment
@@ -468,30 +485,30 @@ class GeneticAlgorithm:
         return child
 
 
-# tasks to allocate
-task3 = Task("3","Push session",timedelta(hours=2,minutes=0),3,(),"BUSH HOUSE",(51.503162, -0.086852),2)
-task2 = Task("2","OME Content",timedelta(hours=2,minutes=0),3,("3",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
-task1 = Task("1","NSE Content",timedelta(hours=1,minutes=0),3,("2",),"BUSH HOUSE",(51.503162, -0.086852),1)
-task0 = Task("0","ML1 Content",timedelta(hours=1,minutes=0),3,("1",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
-task4 = Task("4","Work",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-task5 = Task("5","Pull session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.503162, -0.086852),3)
-task6 = Task("6","10k",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-task7 = Task("7","Dissertation",timedelta(hours=2,minutes=0),2,("3",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
-task8 = Task("8","Work",timedelta(hours=2,minutes=0),2,(),"BUSH HOUSE",(51.503162,-0.086852),0)
-task9 = Task("9","Push session",timedelta(hours=2,minutes=0),1,("7","0",),"GUY'S CAMPUS",(51.513056,-0.117352),1)
-task10 = Task("10","Coursework",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-task11 = Task("11","Legs session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-task12 = Task("12","Dissertation",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),5)
-task13 = Task("13","5k",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task11,task12,task13,task0,task1,task2,task10]
+# # tasks to allocate
+# task3 = Task("3","Push session",timedelta(hours=2,minutes=0),3,(),"BUSH HOUSE",(51.503162, -0.086852),2)
+# task2 = Task("2","OME Content",timedelta(hours=2,minutes=0),3,("3",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
+# task1 = Task("1","NSE Content",timedelta(hours=1,minutes=0),3,("2",),"BUSH HOUSE",(51.503162, -0.086852),1)
+# task0 = Task("0","ML1 Content",timedelta(hours=1,minutes=0),3,("1",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
+# task4 = Task("4","Work",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+# task5 = Task("5","Pull session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.503162, -0.086852),3)
+# task6 = Task("6","10k",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+# task7 = Task("7","Dissertation",timedelta(hours=2,minutes=0),2,("3",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
+# task8 = Task("8","Work",timedelta(hours=2,minutes=0),2,(),"BUSH HOUSE",(51.503162,-0.086852),0)
+# task9 = Task("9","Push session",timedelta(hours=2,minutes=0),1,("7","0",),"GUY'S CAMPUS",(51.513056,-0.117352),1)
+# task10 = Task("10","Coursework",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+# task11 = Task("11","Legs session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+# task12 = Task("12","Dissertation",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),5)
+# task13 = Task("13","5k",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+# tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task11,task12,task13,task0,task1,task2,task10]
 
 
-nine_am = time(hour=9, minute=0, second=0)
-five_pm = time(hour=17, minute=0, second=0)
+# nine_am = time(hour=9, minute=0, second=0)
+# five_pm = time(hour=17, minute=0, second=0)
 
-user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
-user_preferences = UserPreferences(False, True, True, False, False, True, False, True, True, False, True, False, True, False, True, True, False, False, True, True, False, True, False, False, False, True, True, False)
+# user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
+# user_preferences = UserPreferences(False, True, True, False, False, True, False, True, True, False, True, False, True, False, True, True, False, False, True, True, False, True, False, False, False, True, True, False)
 
-ga = GeneticAlgorithm(tasks_to_be_allocated,user_requirements,user_preferences)
-ga.create_first_generation()
-data = ga.evolve()
+# ga = GeneticAlgorithm(tasks_to_be_allocated,user_requirements,user_preferences)
+# ga.create_first_generation()
+# data = ga.evolve()

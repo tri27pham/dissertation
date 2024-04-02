@@ -1,30 +1,70 @@
 import 'package:flutter/material.dart';
 import 'dailySchedule.dart';
+import 'package:task_allocation_app/allocatedTask.dart';
 
 class CalendarTile extends StatefulWidget {
   final String weekday;
   final String day;
-  final String month;
+  final int month;
   final Color color;
+  final List<AllocatedTask> tasks;
 
-  CalendarTile(
-      {required this.weekday,
-      required this.day,
-      required this.month,
-      required this.color});
+  CalendarTile({
+    required this.weekday,
+    required this.day,
+    required this.month,
+    required this.color,
+    required this.tasks,
+  });
 
   @override
   _CalendarTileState createState() => _CalendarTileState();
 }
 
 class _CalendarTileState extends State<CalendarTile> {
+  String monthAbbreviationFromNumber(int monthNumber) {
+    switch (monthNumber) {
+      case 1:
+        return 'JAN';
+      case 2:
+        return 'FEB';
+      case 3:
+        return 'MAR';
+      case 4:
+        return 'APR';
+      case 5:
+        return 'MAY';
+      case 6:
+        return 'JUN';
+      case 7:
+        return 'JUL';
+      case 8:
+        return 'AUG';
+      case 9:
+        return 'SEP';
+      case 10:
+        return 'OCT';
+      case 11:
+        return 'NOV';
+      case 12:
+        return 'DEC';
+      default:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => DailySchedule()),
+            MaterialPageRoute(
+                builder: (context) => DailySchedule(
+                    weekday: widget.weekday,
+                    day: widget.day,
+                    month: widget.month,
+                    tasks: widget.tasks)),
           );
         },
         child: Column(
@@ -110,7 +150,8 @@ class _CalendarTileState extends State<CalendarTile> {
                                             0,
                                             0),
                                         child: Text(
-                                          widget.month,
+                                          monthAbbreviationFromNumber(
+                                              widget.month),
                                           style: TextStyle(
                                             fontSize:
                                                 35, // Change the font size here

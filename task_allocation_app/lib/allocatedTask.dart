@@ -9,6 +9,7 @@ class AllocatedTask {
   final int priority;
   final String locationName;
   final int category;
+  final DateFormat formatter = DateFormat('HH:mm');
 
   AllocatedTask(this.taskID, this.name, this.startDateTime, this.endDateTime,
       this.priority, this.locationName, this.category);
@@ -27,5 +28,13 @@ class AllocatedTask {
     double hoursDiff = timeDiff.inSeconds / 3600;
 
     return hoursDiff;
+  }
+
+  String getStartTime() {
+    return formatter.format(startDateTime);
+  }
+
+  String getEndTime() {
+    return formatter.format(endDateTime);
   }
 }

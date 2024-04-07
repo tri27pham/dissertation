@@ -22,22 +22,62 @@ class DailySchedule extends StatefulWidget {
 }
 
 class _DailyScheduleState extends State<DailySchedule> {
+  late ScrollController _timesController = ScrollController();
+  late ScrollController _tasksController = ScrollController();
+  bool _syncingTimes = false;
+  bool _syncingTasks = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _timesController.addListener(() {
+      if (!_syncingTimes) {
+        _syncingTasks = true;
+        _tasksController.jumpTo(_timesController.offset);
+        _syncingTasks = false;
+      }
+    });
+
+    _tasksController.addListener(() {
+      if (!_syncingTasks) {
+        _syncingTimes = true;
+        _timesController.jumpTo(_tasksController.offset);
+        _syncingTimes = false;
+      }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.tasks.isNotEmpty) {
+        // Now it's safe to use MediaQuery.of(context)
+        final double initialOffset = MediaQuery.of(context).size.height *
+            0.1 *
+            (widget.tasks[0].startDateTime.hour +
+                (widget.tasks[0].startDateTime.minute / 60));
+
+        // Set the initial scroll offset for both controllers
+        _timesController.jumpTo(initialOffset);
+        _tasksController.jumpTo(initialOffset);
+      }
+    });
+  }
+
   Color getCategoryColor(int category) {
     switch (category) {
       case 1:
-        return Colors.amber;
+        return Color.fromARGB(255, 236, 186, 139);
       case 2:
-        return Color.fromARGB(255, 141, 219, 180);
+        return Color.fromARGB(255, 154, 205, 221);
       case 3:
-        return Color.fromARGB(255, 134, 140, 233);
+        return Color.fromARGB(255, 187, 176, 192);
       case 4:
-        return Color.fromARGB(255, 209, 144, 158);
+        return Color.fromARGB(255, 211, 158, 180);
       case 5:
-        return Color.fromARGB(255, 89, 149, 218);
+        return Color.fromARGB(255, 175, 228, 201);
       case 6:
-        return Color.fromARGB(255, 206, 150, 194);
+        return Color.fromARGB(255, 240, 255, 200);
       case 7:
-        return Color.fromARGB(255, 241, 132, 132);
+        return Color.fromARGB(255, 196, 203, 240);
       default:
         return Color.fromARGB(255, 100, 44, 44);
     }
@@ -175,26 +215,6 @@ class _DailyScheduleState extends State<DailySchedule> {
     );
   }
 
-  // Widget ListOfTasksWidget() {
-  //   return Column(
-  //     children: [
-  //       Container(
-  //           padding: EdgeInsets.fromLTRB(
-  //               MediaQuery.of(context).size.width * 0.25, 25, 0, 0),
-  //           height: MediaQuery.of(context).size.height * 0.7,
-  //           width: MediaQuery.of(context).size.width * 0.95,
-  //           child: ListView.builder(
-  //             itemCount:
-  //                 widget.tasks.length, // Number of containers in the list
-  //             itemBuilder: (context, index) {
-  //               AllocatedTask task = widget.tasks[index];
-  //               return TaskWidget(task);
-  //             },
-  //           )),
-  //     ],
-  //   );
-  // }
-
   double timeDifference(startDateTime, endDateTime) {
     Duration timeDiff = endDateTime.difference(startDateTime);
 
@@ -203,8 +223,43 @@ class _DailyScheduleState extends State<DailySchedule> {
     return hoursDiff;
   }
 
+  double timeUntilNextMidnight(DateTime givenTime) {
+    // Calculate next midnight based on the given time
+    DateTime nextMidnight =
+        DateTime(givenTime.year, givenTime.month, givenTime.day + 1);
+
+    // Calculate the difference between the given time and the next midnight
+    Duration difference = nextMidnight.difference(givenTime);
+
+    // Convert the difference to a double representing hours and fractions of an hour
+    double differenceInHours =
+        difference.inHours + (difference.inMinutes % 60) / 60.0;
+
+    return differenceInHours;
+  }
+
   Widget ListOfTasksWidget() {
     List<Widget> widgets = [];
+
+    if (widget.tasks.length == 0) {
+      widgets.add(Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        width: MediaQuery.of(context).size.width * 0.95,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              "NO TASKS TODAY",
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+          ],
+        ),
+      ));
+    }
+
     for (int i = 0; i < widget.tasks.length; i++) {
       if (i == 0) {
         widgets.add(Container(
@@ -213,40 +268,41 @@ class _DailyScheduleState extends State<DailySchedule> {
               (widget.tasks[0].startDateTime.hour +
                   (widget.tasks[0].startDateTime.minute / 60)),
         ));
+        // _timesController = ScrollController(
+        //     initialScrollOffset: MediaQuery.of(context).size.height *
+        //         0.1 *
+        //         (widget.tasks[0].startDateTime.hour +
+        //             (widget.tasks[0].startDateTime.minute / 60)));
+        // _tasksController = ScrollController(
+        //     initialScrollOffset: MediaQuery.of(context).size.height *
+        //         0.1 *
+        //         (widget.tasks[0].startDateTime.hour +
+        //             (widget.tasks[0].startDateTime.minute / 60)));
       } else {
         double timeDiff = timeDifference(
-            widget.tasks[i - 1].startDateTime, widget.tasks[i - 1].endDateTime);
+            widget.tasks[i - 1].endDateTime, widget.tasks[i].startDateTime);
         widgets.add(Container(
             height: MediaQuery.of(context).size.height * 0.1 * timeDiff));
       }
       widgets.add(TaskWidget(widget.tasks[i]));
-      if (i == widget.tasks.length) {}
+      if (i == widget.tasks.length - 1) {
+        double timeDiff = timeUntilNextMidnight(
+            widget.tasks[widget.tasks.length - 1].endDateTime);
+        widgets.add(Container(
+            height: MediaQuery.of(context).size.height * 0.1 * timeDiff));
+      }
     }
+
     return Container(
       padding: EdgeInsets.fromLTRB(
           MediaQuery.of(context).size.width * 0.25, 25, 0, 0),
       height: MediaQuery.of(context).size.height * 0.7,
       width: MediaQuery.of(context).size.width * 0.95,
       child: SingleChildScrollView(
+        controller: _tasksController,
         child: Column(children: widgets),
       ),
     );
-    // [
-    // Container(
-    //     padding: EdgeInsets.fromLTRB(
-    //         MediaQuery.of(context).size.width * 0.25, 25, 0, 0),
-    //     height: MediaQuery.of(context).size.height * 0.7,
-    //     width: MediaQuery.of(context).size.width * 0.95,
-    //     child: ListView.builder(
-    //       itemCount:
-    //           widget.tasks.length, // Number of containers in the list
-    //       itemBuilder: (context, index) {
-    //         AllocatedTask task = widget.tasks[index];
-    //         return TaskWidget(task);
-    //       },
-    //     )),
-    // ],
-    // );
   }
 
   Widget TaskWidget(AllocatedTask task) {
@@ -257,17 +313,86 @@ class _DailyScheduleState extends State<DailySchedule> {
               0.1 *
               task.getDurationFloat(), //use duration
           width: MediaQuery.of(context).size.width * 0.8,
+          padding: EdgeInsets.fromLTRB(15, 10, 10, 10),
           decoration: BoxDecoration(
             color: getCategoryColor(task.category),
             borderRadius: BorderRadius.circular(10.0),
           ),
-          child: Column(
-            children: [
-              Text(task.name),
-              // Text(task.locationName),
-              // Text(getPriority(task.priority)),
-              // Text(task.getDurationStr())
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  child: Text(
+                    task.name.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Container(
+                  child: Text(
+                    task.locationName.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 13,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          task.getStartTime(),
+                          style: TextStyle(
+                            fontSize: 22,
+                          ),
+                        ),
+                        Text("START")
+                      ],
+                    ),
+                    Container(
+                      height: MediaQuery.of(context).size.height *
+                          0.03, //use duration
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 83, 83, 83),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${task.getDurationStr()} hours',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: getCategoryColor(task.category),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          task.getEndTime(),
+                          style: TextStyle(
+                            fontSize: 22,
+                          ),
+                        ),
+                        Text("END")
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ));
   }
@@ -280,6 +405,7 @@ class _DailyScheduleState extends State<DailySchedule> {
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _timesController,
               itemCount: 24, // 24 hours * 4 quarters per hour
               itemBuilder: (context, index) {
                 return CustomTimeStamp(
@@ -324,7 +450,8 @@ class CustomTimeStamp extends StatelessWidget {
           children: [
             Container(
               width: 4, // Width of the vertical bar
-              height: 70, // Height of the vertical bar
+              height: MediaQuery.of(context).size.height *
+                  0.1, // Height of the vertical bar
               color:
                   Color.fromARGB(255, 80, 78, 78), // Color of the vertical bar
               margin: EdgeInsets.symmetric(horizontal: 16.0),

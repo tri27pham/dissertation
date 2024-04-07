@@ -29,10 +29,10 @@ class GeneticAlgorithm:
         self.task_allocator = TaskAllocator(user_requirements,tasks)
         # self.task_allocator.allocate_hard_tasks(hard_tasks)
         self.task_allocator.get_travel_times(tasks)
-        print("init")
 
     # initialise
     def create_first_generation(self):
+
 
         orders = set()
         
@@ -60,57 +60,47 @@ class GeneticAlgorithm:
         print("INITIAL POPULATION")
         for order in self.initial_population:
             print(f"ORDER: {order[0]}, POINTS: {order[1]}")
-            for task in order[0]:
-                print(self.task_dict[task].get_priority())
 
     def shuffle(self,order):
-
-        valid_priorities = False
-        while not valid_priorities:
         
-            # create an empty array to populated with new order
-            new_order = [None] * len(order)
+        # create an empty array to populated with new order
+        new_order = [None] * len(order)
 
-            # get the nodes that are important in maintaining acyclic property and order them
-            unordered_important_nodes = self.get_important_nodes(order)
-            important_nodes = self.topological_sort(unordered_important_nodes)
+        # get the nodes that are important in maintaining acyclic property and order them
+        unordered_important_nodes = self.get_important_nodes(order)
+        important_nodes = self.topological_sort(unordered_important_nodes)
 
-            # get nodes that aren't important in maintaining acyclic property
-            unimportant_nodes = list(set(order) - set(important_nodes))
+        # get nodes that aren't important in maintaining acyclic property
+        unimportant_nodes = list(set(order) - set(important_nodes))
 
-            node_start = 0
+        node_start = 0
 
-            # ASSIGN IMPORTANT TASKS
+        # ASSIGN IMPORTANT TASKS
 
-            # assigns nodes randomly into an array while maintaining order
+        # assigns nodes randomly into an array while maintaining order
 
-            while len(important_nodes) != 0:
-                # get random new index from after furthest index so far and last element
-                index = random.randint(node_start,len(new_order)-1)
-                # assign task at this index
-                new_order[index] = important_nodes[0]
-                # check that this placement maintains acyclic nature and remains enough space for remaining tasks
-                if self.is_acyclic(new_order) and (len(new_order)-1-index >= len(important_nodes)-1):
-                    # update node_start index to next available space
-                    node_start = index + 1
-                    # remove the task that was just placed in the order
-                    important_nodes.remove(important_nodes[0])
-                else:
-                    # remove allocated task is it doesn't meet requirementse
-                    new_order[index] = None
-                
-            # ASSIGN UNIMPORTANT TASKS
-
-            random.shuffle(unimportant_nodes)
-            for index in range(len(new_order)):
-                if new_order[index] is None:
-                    new_order[index] = unimportant_nodes[0]
-                    unimportant_nodes.pop(0)
+        while len(important_nodes) != 0:
+            # get random new index from after furthest index so far and last element
+            index = random.randint(node_start,len(new_order)-1)
+            # assign task at this index
+            new_order[index] = important_nodes[0]
+            # check that this placement maintains acyclic nature and remains enough space for remaining tasks
+            if self.is_acyclic(new_order) and (len(new_order)-1-index >= len(important_nodes)-1):
+                # update node_start index to next available space
+                node_start = index + 1
+                # remove the task that was just placed in the order
+                important_nodes.remove(important_nodes[0])
+            else:
+                # remove allocated task is it doesn't meet requirementse
+                new_order[index] = None
             
-            if self.priorities_valid(new_order):
-                print(new_order)
-                
-                valid_priorities = True
+        # ASSIGN UNIMPORTANT TASKS
+
+        random.shuffle(unimportant_nodes)
+        for index in range(len(new_order)):
+            if new_order[index] is None:
+                new_order[index] = unimportant_nodes[0]
+                unimportant_nodes.pop(0)
 
         return new_order
 
@@ -176,7 +166,6 @@ class GeneticAlgorithm:
                 tasks_in_order.append(task)
         return tasks_in_order
 
-
     def topological_sort(self, task_IDs):
         result = []  # To store the topological order
         visited = set()  # To keep track of visited tasks during DFS
@@ -233,7 +222,7 @@ class GeneticAlgorithm:
         generation = 1
 
         while same < 20:
-            # print(f"SAME: {same}")
+            print(f"SAME: {same}")
 
             new_generation = set() 
 
@@ -345,11 +334,9 @@ class GeneticAlgorithm:
             # get priority of first and last node of segment  
             start_node_priority = self.task_dict[child[index]].get_priority()
             end_node_priority = self.task_dict[child[index+len_segment-1]].get_priority()
-            print(child)
-            print(f"start {start_node_priority}")
-            print(f"end {end_node_priority}")
-
-            raise Exception
+            # print(child)
+            # print(f"start {start_node_priority}")
+            # print(f"end {end_node_priority}")
             
 
         # get important nodes that must be placed before / after segment

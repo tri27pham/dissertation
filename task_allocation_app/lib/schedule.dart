@@ -33,7 +33,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
   Task task5 =
       Task(5, "sign contract", 4, 0, 1, [], "NO LOCATION", "0", "0", 1);
   Task task6 = Task(6, "plan party", 1, 0, 1, [], "NO LOCATION", "0", "0", 2);
-  Task task7 = Task(7, "NSE coursework", 2, 0, 2, [],
+  Task task7 = Task(7, "NSE coursework", 2, 0, 2, ["5"],
       "Bush House, Aldwych, London, UK", "-0.117351", "51.513056", 0);
   Task task8 = Task(8, "piano practice", 1, 0, 0, [],
       "Colwyn House, Hercules Road, London, UK", "-0.113041", "51.496862", 5);

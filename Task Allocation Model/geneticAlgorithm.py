@@ -1,17 +1,7 @@
-from userPreferences import UserPreferences
 from taskAllocator import TaskAllocator
-from hardTask import HardTask
-from userRequirements import UserRequirements
-
-
-from collections import defaultdict
-from task import Task
 from random import shuffle
 import random
-from datetime import datetime, timedelta, time
 import copy
-
-from allocatedTask import AllocatedTask
 
 class GeneticAlgorithm:
 
@@ -46,7 +36,6 @@ class GeneticAlgorithm:
 
         # calculate the travel times between all task locations
         self.task_allocator.get_travel_times(tasks)
-
 
     def create_first_generation(self):
         """
@@ -266,166 +255,163 @@ class GeneticAlgorithm:
         """	        
         # sort the initial orders based on their points
         sorted_orders = sorted(self.initial_population, key=lambda x: x[1], reverse=True)
-        # get the 2 highest scoring orders
-        best = sorted_orders[:2]
-
-        return [order[0] for order in best]
+        # get the highest scoring order and its points
+        best = sorted_orders[0]
+        # return the order
+        return best[0]
 
     def evolve(self):
+        """
+        Evolves the population of individuals to find the optimal solution.
 
-        outcomes = {}
+        Returns:
+        - optimal (List<Task>): A ordering of tasks representing the optimal solution
+        """	
 
+        # initialise optimal solution
+        # format: ( list of allocated tasks , list of task IDs, user preferences satisfied)
         optimal = ((),(),0)
+        # initialise counter for number of generations without improvemed solution
         same = 0
 
-        parents = self.select_best_from_initial()
+        # get the best performing individual from the initial population
+        parent = self.select_best_from_initial()
 
-        mother = parents[0]
-        father = parents[1]
-
+        # set the generation counter
         generation = 1
 
+        # iterate until the optimal solution has not improved for 20 generations
         while same < 20:
-            print(f"SAME: {same}")
 
             new_generation = set() 
 
             while len(new_generation) <= self.generation_size:
-                # print("make new child")
-                new_child = tuple(self.create_child(mother,father))
+                new_child = tuple(self.create_child(parent))
                 if new_child not in new_generation:
                     tasks = [self.task_dict[task_ref] for task_ref in new_child]
-                    # print("valid kid")
                     allocated_tasks = self.task_allocator.knapsack_allocator(tasks)
                     points = self.user_preferences.get_preferences_satisfied(allocated_tasks)
                     new_generation.add((tuple(allocated_tasks),new_child,points))
 
             sorted_orders = sorted(new_generation, key=lambda x: x[1], reverse=True)
-            # get best performing children / new parents
-            best = sorted_orders[:2]
-            mother_score = best[0]
-            father_score = best[1]
 
-            # get the order of tasks - by TaskID
-            mother = mother_score[1]
+            # get the best performing individual from the new generation
+            parent_result = sorted_orders[0]
+
+            # get the task objects, order and points of the best performing individual
+            tasks, order, points = parent_result[0], parent_result[1], parent_result[2]
 
             print("===================================")
-            print(f"GENERATION {generation}: {mother_score[1]}, POINTS: {mother_score[2]}")
+            print(f"GENERATION {generation}: {order}, POINTS: {points}")
             print("===================================")
             generation += 1
 
-            # print(f"{previous_optimal}, {optimal[1]}")
-            if mother_score[2] > optimal[2]:
+            # check if the new generation has a better solution than the current optimal solution
+            if points > optimal[2]:
                 same = 0
             else:
                 same += 1
 
-            optimal = max((optimal, mother_score), key=lambda x: x[2])
+            # update the optimal solution
+            optimal = max((optimal, parent_result), key=lambda x: x[2])
 
         print("===================================")
-        print(f"OPTIMAL ORDER: {optimal[0]}, POINTS: {optimal[2]}")
+        print(f"OPTIMAL ORDER: {optimal[1]}, POINTS: {optimal[2]}")
         print("===================================")
 
-        # for task in optimal[0]:
-        #     print(f"ID: {task.getID()}")
-        #     print(f"NAME: {task.get_name()}")
-        #     print(f"START: {task.get_start_datetime()}")
-        #     print(f"FINISH: {task.get_end_datetime()}")
-        #     print(f"PRIORITY: {task.get_priority()}")
-        #     print(f"PRIOR TASKS: {task.get_prior_tasks()}")
-        #     print(f"LOCATION NAME: {task.get_location_name()}")
-        #     print(f"LOCATION COORDS: {task.get_location_coords()}")
-        #     print(f"CATEGORY: {task.get_category()}")
-
-        # best_order = max(outcomes, key=lambda k: outcomes[k])
-        # best_points = outcomes[best_order]
-
-        # print("===================================")
-        # print(f"OPTIMAL ORDER: {best_order}, POINTS: {best_points}")
-        # print("===================================")
-
+        # return the list of allocated tasks of the optimal solution
         return optimal[0]
 
-    # create new generations
-    def create_child(self,mother,father):
+    def create_child(self,parent):
 
-        valid_important_nodes = False
-        valid_priorities = False
-        while not valid_important_nodes:
+        """
+        Create a new child from a parent by performing crossover and mutation operations.
 
-            # crossover
-            index = random.randint(0,len(mother)-2)
-            len_segment = random.randint(1,len(mother)-1-index)
+        Parameters:
+        - parent (List<Task>): A list of Task objects representing the parent
 
-            # get important nodes
-            important_nodes = self.topological_sort(self.get_important_nodes(mother))
+        Returns:
+        - child (List<Task>): A list of Task objects representing the child
+        """
 
-            # create an empty array to represent child
-            child = [None] * len(mother)
+        valid_segment = False
+
+        # iterate until a valid segment is found
+        while not valid_segment:
+
+            # get random index to start segment
+            index = random.randint(0,len(parent)-2)
+
+            # get random length of segment
+            len_segment = random.randint(1,len(parent)-1-index)
+
+            # get important nodes that affect the topological order in the order they must be placed
+            important_nodes = self.topological_sort(self.get_important_nodes(parent))
+
+            # create child array to be populated
+            child = [None] * len(parent)
             
-            # get segment from mother
-            segment = mother[index:index+len_segment]
+            # get segment from parent
+            segment = parent[index:index+len_segment]
 
-            # copy segment from mother to child
+            # copy segment from parent to child
             for idx in range(len_segment):
                 child[index+idx] = segment[idx]
 
             # check to see if segment contains any important nodes 
             important_segment_nodes = list(set(important_nodes) & set(segment))
 
-            # check to see if important nodes can assigned correctly
+            # if segment contains no important nodes, then segment is valid
             if len(important_segment_nodes) == 0:
-                valid_important_nodes = True
+                valid_segment = True
+            # if segment contains important nodes, then check if there is enough space for remaining important nodes
             else:
-
+                # get start and end indexes of segment
                 start_segment = child[:index]
                 end_segment = child[index+len_segment:]
 
                 prior_index = float('inf')
                 post_index = float('-inf')
 
+                # finds the earliest and latest positions important_segment_nodes appear
                 for segment_node in important_segment_nodes:
                     prior_index = min(prior_index, important_nodes.index(segment_node))
                     post_index = max(post_index, len(important_nodes) - important_nodes[::-1].index(segment_node) - 1)
 
+                # get the important nodes that must be placed before / after segment
                 prior = important_nodes[:prior_index]
                 post = important_nodes[post_index + 1:]
 
+                # check that there is enough space for remaining important prior nodes in the start segment and
+                    # remaining important post nodes in the end segment
                 if len(prior) <= len(start_segment) and len(post) <= len(end_segment):
                     valid_important_nodes = True
-
-            # check to see if nodes of different priorities can be assigned correctly
-            # get priority of first and last node of segment  
-            start_node_priority = self.task_dict[child[index]].get_priority()
-            end_node_priority = self.task_dict[child[index+len_segment-1]].get_priority()
-            # print(child)
-            # print(f"start {start_node_priority}")
-            # print(f"end {end_node_priority}")
             
-
-        # get important nodes that must be placed before / after segment
+        # check if there are important nodes in the segment
+        # check that not all important nodes are in the segment
         if len(important_segment_nodes) > 0 and len(important_segment_nodes) < len(important_nodes):
 
             prior_index = float('inf')
             post_index = float('-inf')
 
+            # finds the earliest and latest positions important_segment_nodes appear
             for segment_node in important_segment_nodes:
                 prior_index = min(prior_index, important_nodes.index(segment_node))
                 post_index = max(post_index, len(important_nodes) - important_nodes[::-1].index(segment_node) - 1)
 
+            #  get the important nodes that must be placed before / after segment
             prior = important_nodes[:prior_index]
             post = important_nodes[post_index + 1:]
             
-
+            # set the start index for assigning prior important nodes
             node_start = 0
+            # iterate until all prior important nodes have been assigned
             while len(prior) != 0: 
-                # get random new index from after furthest index so far and last element
+                # get random new index from start and furthest index so far
                 new_index = random.randint(node_start,index-1)
                 # assign task at this index
                 child[new_index] = prior[0]
-                # print(f"PRE-CHECK: {child}")
-                # check that this placement maintains acyclic nature and remains enough space for remaining tasks
-                # print(child)
+                # check that there remains enough space for remaining prior important nodes
                 if (index - 1 - new_index >= len(prior)-1):
                     # update node_start index to next available space
                     node_start = new_index + 1
@@ -434,17 +420,16 @@ class GeneticAlgorithm:
                 else:
                     # remove allocated task is it doesn't meet requirements
                     child[new_index] = None
-                # print(child)
-                # print(f"POST-CHECK: {child}")
 
+            # set the start index for assigning post important nodes
             node_start = index + len_segment
+            # iterate until all post important nodes have been assigned
             while len(post) != 0:
-                # print(f"{node_start}, {len(child)-1}")
-                # get random new index from after furthest index so far and last element
+                # get random new index between furthest index so far and last element
                 new_index = random.randint(node_start,len(child)-1)
                 # assign task at this index
                 child[new_index] = post[0]
-                # check that this placement maintains acyclic nature and remains enough space for remaining tasks
+                # check that there remains enough space for remaining post important tasks
                 if (len(child) - 1 - new_index >= len(post)-1):
                     # update node_start index to next available space
                     node_start = new_index + 1
@@ -453,90 +438,75 @@ class GeneticAlgorithm:
                 else:
                     # remove allocated task is it doesn't meet requirementse
                     child[new_index] = None
-                # print(f"CHILD: {child}")
-                # break
 
-        # print("=====================================================================")
-        # print(f"IMPORTANT NODES: {child}")
+        # get the remaining nodes that have not been assigned
+        remaining_nodes = list(set(parent)-set(child))
 
-
-        # in the case that all the important nodes are not in the segment
-        # need to randomly assign while still maintaining order
-
-        # print(f"child: {child}")
-
-        remaining_nodes = list(set(father)-set(child))
-        # print(f"remaining nodes: {remaining_nodes}")
-
+        # create array to store remaining nodes
         remaining_nodes_arr = [None] * len(remaining_nodes)
-        # print(f"ARR: {remaining_nodes_arr}")
 
-        # inter = set(remaining_nodes).intersection(  set(important_nodes)    )
-        # print(f"remaining_important_nodes: {inter}")
+        # get the important nodes that have not been assigned in the case that there are no important nodes in the segment
         remaining_important_nodes = self.order_subset(list( set(remaining_nodes).intersection(  set(important_nodes)    )   ))
-        # print(f"base case: {remaining_important_nodes}")
 
+        # get the unimportant nodes that have not been assigned
         remaining_unimportant_nodes = list(set(remaining_nodes)-set(important_nodes))
-        # print(f"remaining_unimportant_nodes: {remaining_unimportant_nodes}")
 
+        # iterate until all important nodes have been assigned
         if len(remaining_important_nodes) != 0:
 
-            # random_indexes = [random.sample(0, len(remaining_nodes)-1) for _ in range(len(remaining_important_nodes))]
-
             random_indexes_set = set()
-            # generate random indexes in which to place the remaining important nodes
+
+            # iterate until all important nodes have been assigned
             while len(random_indexes_set) <= len(remaining_important_nodes)-1:
-                # print("1")
-                # print(f"imp: {remaining_important_nodes}")
-                # print(f"set: {random_indexes_set}")
+
+                # get random index to place important node
                 new_index = random.randint(0,len(remaining_nodes)-1)
-                # print(f"new idx: {new_index}")
-                # print(f"remaining: {len(remaining_nodes)}")
+
+                # add index to set if it hasn't been used
                 if new_index not in random_indexes_set:
                     random_indexes_set.add(new_index)
             
+            # sort the indexes
             random_indexes = sorted(list(random_indexes_set))
 
+            # assign the important nodes to the random indexes
             for idx in random_indexes:
-                # print("2")
-                # print(f"len: {remaining_important_nodes}")
                 remaining_nodes_arr[idx] = remaining_important_nodes[0]
                 remaining_important_nodes.pop(0)
 
-
+        # assign the remaining unimportant nodes to the remaining indexes
         for index in range(len(remaining_nodes_arr)):
-            # print("3")
             if remaining_nodes_arr[index] is None:
                 remaining_nodes_arr[index] = remaining_unimportant_nodes[0]
                 remaining_unimportant_nodes.pop(0)
 
+        # assign the remaining nodes to the child
         for index in range(len(child)):
-            # print("4")
             if child[index] is None:
                 child[index] = remaining_nodes_arr[0]
                 remaining_nodes_arr.pop(0)
-
-        # mutate
         
+        # mutate the child
         for i in range(len(child)-1):
-            # print("5")
+            # get a copy of the child
             new_child = copy.copy(child)
             probability = random.random()
+            # if probability is less than 0.2, swap the current node with another node
             if probability <= 0.2:
                 current_node = child[i]
                 swap_index = random.randint(0,len(child)-1)
                 swap_node = child[swap_index]
                 new_child[swap_index] = current_node
                 new_child[i] = swap_node
+                # check if the new child is topological
                 if self.is_topological(new_child):
+                    # if it is, set the child to the new child
                     child = new_child
         
-        # print(f"CHILD: {child}")
-
         return child
 
 
-# # tasks to allocate
+# # # tasks to allocate
 # task3 = Task("3","Push session",timedelta(hours=2,minutes=0),3,(),"BUSH HOUSE",(51.503162, -0.086852),2)
 # task2 = Task("2","OME Content",timedelta(hours=2,minutes=0),3,("3",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
 # task1 = Task("1","NSE Content",timedelta(hours=1,minutes=0),3,("2",),"BUSH HOUSE",(51.503162, -0.086852),1)

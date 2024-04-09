@@ -21,6 +21,7 @@ class _Calendar extends State<Calendar> {
   late List<AllocatedTask> day5Tasks;
   late List<AllocatedTask> day6Tasks;
   late List<AllocatedTask> day7Tasks;
+  bool _isDataModelInitialized = false;
 
   void assignTasksToDays(DataModel dataModel) {
     day1Tasks = dataModel.getTasksDay(1);
@@ -33,10 +34,20 @@ class _Calendar extends State<Calendar> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isDataModelInitialized) {
+      final dataModel = Provider.of<DataModel>(context);
+      assignTasksToDays(dataModel);
+      _isDataModelInitialized = true;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var dataModel = Provider.of<DataModel>(context);
-    tasks = dataModel.tasks;
-    assignTasksToDays(dataModel);
+    // var dataModel = Provider.of<DataModel>(context);
+    // tasks = dataModel.tasks;
+    // assignTasksToDays(dataModel);
 
     DateTime now = DateTime.now();
 

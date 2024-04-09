@@ -31,6 +31,7 @@ class TaskAllocator:
         self.task_dict = {}
         for task in tasks:
             self.task_dict[task.getID()] = task
+        self.get_travel_times(tasks)
 
     def populate_schedule(self,tasks,interval):
 
@@ -92,6 +93,8 @@ class TaskAllocator:
         dt_current_time = (datetime.combine(datetime.today(), current_time) + next_hour_delta).time()
         current_time = dt_current_time.replace(second=0, microsecond=0)
 
+        print(f"curren time: {current_time}")
+
         while len(tasks_to_allocate) != 0:
 
             # print(tasks_to_allocate[0].getID())
@@ -101,6 +104,9 @@ class TaskAllocator:
                 schedule[date] = self.create_new_daily_schedule()
 
             current_task = tasks_to_allocate[0]
+
+            if current_time < self.user_requirements.get_current_day_start(weekday):
+                current_time = self.user_requirements.get_current_day_start(weekday)
             
             # if there is no task allocated in this timeslot, travel time is 0
             if schedule[date][current_time] == None:
@@ -288,12 +294,16 @@ class TaskAllocator:
 
         total_time_available = timedelta()
 
+        print(f"date: {date}, weekday: {weekday}, time: {time}")
+
         daily_schedule = schedule[date]
         end_of_day = self.user_requirements.get_current_day_end(weekday)
 
         while daily_schedule[time] == None and time <= end_of_day:
             total_time_available += timedelta(minutes=1)
             time = self.increment_time(time)
+
+        print(f"available time: {total_time_available}")
 
         return total_time_available
 
@@ -320,20 +330,6 @@ class TaskAllocator:
             allocated_tasks.append(task)
             
         return allocated_tasks
-
-    # def display_all_tasks(self):
-
-    #     all_tasks = set()
-    #     for daily_schedule in self.schedule.values():
-    #         for time_slot in daily_schedule.values():
-    #             if time_slot is not None:
-    #                 all_tasks.add(time_slot)
-
-    #     allocated_tasks_refs = [task for task in all_tasks if task != "travel"]
-        
-    #     for task_ref in allocated_tasks_refs:
-    #         task = self.task_dict[task_ref]
-    #         print(f"NAME: {task.get_name()}, TIME: {task.get_start_datetime()} - {task.get_end_datetime()}")
 
     def get_task_ordering(self):
         all_tasks = []

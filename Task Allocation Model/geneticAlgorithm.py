@@ -34,8 +34,8 @@ class GeneticAlgorithm:
 
         self.task_allocator = TaskAllocator(user_requirements,tasks)
 
-        # calculate the travel times between all task locations
-        self.task_allocator.get_travel_times(tasks)
+        # # calculate the travel times between all task locations
+        # self.task_allocator.get_travel_times(tasks)
 
     def create_first_generation(self):
         """

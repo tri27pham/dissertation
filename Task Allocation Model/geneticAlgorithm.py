@@ -17,23 +17,46 @@ class GeneticAlgorithm:
 
     def __init__(self,tasks,user_requirements,user_preferences):
 
+        """
+        Initializes the instance with the provided tasks, user requirements, and user preferences.
+
+        Parameters:
+        - tasks (List<Task>): A list of Task objects to be optimised
+        - user_requirements (List<Datetime.time>): A list of user-defined start and end times for 
+            use in task allocation
+        - user_preferences (List<Bool>): A list of user-defined booleans representing presence or
+            absence of preferences
+        Returns:
+        None
+        """
+
+        # set the desired number of individuals per generation
         self.generation_size = 10
 
         self.tasks = tasks
+
+        # create dictionary for conversion between taskId and Task object
         self.task_dict = {}
         for task in tasks:
             self.task_dict[task.getID()] = task
-        self.population_size = len(tasks)
-
+        
         self.user_preferences = user_preferences
+
         self.task_allocator = TaskAllocator(user_requirements,tasks)
-        # self.task_allocator.allocate_hard_tasks(hard_tasks)
+
+        # calculate the travel times between all task locations
         self.task_allocator.get_travel_times(tasks)
 
-    # initialise
+
     def create_first_generation(self):
+        """
+        Creates the initial generation for the genetic algorithm.
+        """
 
+        # set the number of individuals in initial population
+        initial_population_size = 10
 
+        # set to keep track of individuals produced
         orders = set()
         
         # get task IDs of all tasks
@@ -43,12 +66,14 @@ class GeneticAlgorithm:
         # add initial topological order to list of orders
         orders.add(tuple(top_order))
 
-        while len(orders) <= self.population_size:
-            new_order = tuple(self.shuffle(top_order))
+        # iterate until the numbers of orders equals desired population size
+        while len(orders) <= initial_population_size:
+            new_order = tuple(self.shuffle_order(top_order))
             if new_order not in orders:
                 orders.add(tuple(new_order))
 
         initial_population = []
+        # get the order of tasks and preferences satisfied of each of initial population
         for order in orders:
             tasks = [self.task_dict[task_ref] for task_ref in order]
             allocated_tasks = self.task_allocator.knapsack_allocator(tasks)
@@ -57,46 +82,59 @@ class GeneticAlgorithm:
 
         self.initial_population = initial_population
 
+        """"
+        the following prints out the individuals and corresponding user preferences satisfied
+        of each of the individuals in the inital population
+        """
+        """ 
         print("INITIAL POPULATION")
-        for order in self.initial_population:
-            print(f"ORDER: {order[0]}, POINTS: {order[1]}")
+            for order in self.initial_population:
+                print(f"ORDER: {order[0]}, POINTS: {order[1]}")
+        """
 
-    def shuffle(self,order):
+    def shuffle_order(self,order):
+        """        
+        Shuffles the order of tasks in a list while maintaining the topological order.
+
+        Parameters:
+        - order (List<Task>): A list of Task objects to be shuffled
+
+        Returns:
+        - new_order (List<Task>): A list of Task objects with shuffled order
+        """
         
         # create an empty array to populated with new order
         new_order = [None] * len(order)
 
-        # get the nodes that are important in maintaining acyclic property and order them
+        # get the nodes that are important in maintaining topological order and order them
         unordered_important_nodes = self.get_important_nodes(order)
+        # sort the important nodes in topological order
         important_nodes = self.topological_sort(unordered_important_nodes)
 
         # get nodes that aren't important in maintaining acyclic property
         unimportant_nodes = list(set(order) - set(important_nodes))
 
+        # set the start index for assigning important nodes
         node_start = 0
 
-        # ASSIGN IMPORTANT TASKS
-
-        # assigns nodes randomly into an array while maintaining order
-
+        # iterate until all important nodes have been assigned
         while len(important_nodes) != 0:
-            # get random new index from after furthest index so far and last element
+            # get random index to place important node
             index = random.randint(node_start,len(new_order)-1)
             # assign task at this index
             new_order[index] = important_nodes[0]
-            # check that this placement maintains acyclic nature and remains enough space for remaining tasks
-            if self.is_acyclic(new_order) and (len(new_order)-1-index >= len(important_nodes)-1):
+            # check that this placement maintains topological order and remains enough space for remaining tasks
+            if self.is_topological(new_order) and (len(new_order)-1-index >= len(important_nodes)-1):
                 # update node_start index to next available space
                 node_start = index + 1
                 # remove the task that was just placed in the order
                 important_nodes.remove(important_nodes[0])
             else:
-                # remove allocated task is it doesn't meet requirementse
+                # remove allocated task if it doesn't meet requirements
                 new_order[index] = None
-            
-        # ASSIGN UNIMPORTANT TASKS
 
         random.shuffle(unimportant_nodes)
+        # assign the remaining unimportant nodes to the remaining indexes
         for index in range(len(new_order)):
             if new_order[index] is None:
                 new_order[index] = unimportant_nodes[0]
@@ -105,83 +143,103 @@ class GeneticAlgorithm:
         return new_order
 
     def get_important_nodes(self,order):
+        """
+        Returns the nodes that are important in maintaining the topological order of the tasks.
+
+        Parameters:
+        - order (List<Task>): A list of Task objects represented an order
+
+        Returns:
+        - important_nodes (List<Task>): A list of Task objects that are important in maintaining the topological order
+        """
 
         incoming_edges = set()
         outgoing_edges = set()
 
-        for task in order:
-            task_object = self.task_dict[task]
+        for taskId in order:
+            # use taskID to fetch task object
+            task_object = self.task_dict[taskId]
+            # Iterate over the IDs of tasks that must precede the current task
             for prior_task_ref in task_object.get_prior_tasks():
                 prior_task = self.task_dict[prior_task_ref]
-                incoming_edges.add(task)
+                #  Mark the current task as having an incoming edge
+                incoming_edges.add(taskId)
+                 # Mark each preceding task as having an outgoing edge
                 outgoing_edges.add(prior_task.getID())
-        
+                # Important nodes are those with either incoming or outgoing edges, indicating dependencies
         important_nodes = incoming_edges.union(outgoing_edges)
         return list(important_nodes)
 
-    def is_acyclic(self, order):
+    def is_topological(self, order):
+        """	
+        Determines whether a given order of tasks is topological.
+
+        Parameters:
+        - order (List<Task>): A list of Task objects to be checked for topological order
+
+        Returns:
+        - bool: True if the order is topological, False otherwise
+
+        """
 
         seen = set()
         for task_ref in order:
-            # print(f"set: {seen}")
             if task_ref is not None:
+                # iterate over each prior task
                 for prior_task_ref in self.task_dict[task_ref].get_prior_tasks():
                     prior_task = self.task_dict[prior_task_ref]
+                    # if the prior task has not been seen, the order is not topological
                     if prior_task.getID() not in seen:
                         return False
+                # mark the current task as seen
                 seen.add(task_ref)
         return True
 
-    def priorities_valid(self,order):
+    def order_subset(self, tasks_subset):
+        """
+        This function takes a subset of tasks and returns a topological order of the subset.
 
-        seen_1 = False
-        seen_0 = False
+        Parameters:
+        - tasks_subset (List<Task>): A subset of tasks to be ordered
 
-        for task_ref in order:
-            if task_ref is None:
-                continue
-            priority = self.task_dict[task_ref].get_priority()
-            if priority == 2:
-                if seen_1 or seen_0:
-                    return False
-            elif priority == 1:
-                if seen_0:
-                    return False
-                seen_1 = True
-            elif priority == 0:
-                if not seen_1:
-                    return False
-                seen_0 = True
-            else:
-                return False          
+        Returns:
+        - tasks_in_order (List<Task>): A list of Task objects in topological order
 
-        return True
-
-    def order(self, tasks):
-        # all tasks
-        sorted_tasks = self.topological_sort(tasks)
+        """
+        # get all the tasks that have dependencies with the subset
+        sorted_tasks = self.topological_sort(tasks_subset)
         tasks_in_order = []
         for task in sorted_tasks:
-            if task in tasks:
+            # add only the tasks in the subset to the order
+            if task in tasks_subset:
                 tasks_in_order.append(task)
         return tasks_in_order
 
     def topological_sort(self, task_IDs):
-        result = []  # To store the topological order
-        visited = set()  # To keep track of visited tasks during DFS
-        stack = []  # To keep track of tasks in the order they are finished
+        """
+        Sorts a list of tasks in topological order.
+        
+        Parameters:
+        - task_IDs (List<Task>): A list of Task objects to be sorted
 
-        # convert list of task IDs to list of actual Task objects
+        Returns:
+        - sorted_tasks_IDs (List<Task>): A list of Task objects in topological order
+        """
+        visited = set() 
+        stack = [] 
+
+        # convert list of task IDs to Task objects
         tasks = [self.task_dict[task_ID] for task_ID in task_IDs]
 
         def dfs(task):
 
+            # Mark the current task as visited
             nonlocal visited
             visited.add(task)
 
             for prior_task_ref in task.get_prior_tasks():
-            # for prior_task in task.get_prior_tasks():
                 prior_task = self.task_dict[prior_task_ref]
+                # If the prior task has not been visited, visit it
                 if prior_task not in visited:
                     dfs(prior_task)
 
@@ -190,16 +248,22 @@ class GeneticAlgorithm:
         # Sort tasks by priority: HIGH, MEDIUM, LOW
         tasks.sort(key=lambda x: x.get_priority(), reverse=True)
 
+        # Visit each task
         for task in tasks:
             if task not in visited:
                 dfs(task)
 
+        # Get the IDs of the sorted tasks
         sorted_tasks_IDs = [task.getID() for task in stack]
+
         return sorted_tasks_IDs
 
-    # select
     def select_best_from_initial(self):
-        
+        """
+        Selects the best performing individuals from the initial population.
+        Returns:
+        - best (List<Task>): A list of the best performing individuals
+        """	        
         # sort the initial orders based on their points
         sorted_orders = sorted(self.initial_population, key=lambda x: x[1], reverse=True)
         # get the 2 highest scoring orders
@@ -409,7 +473,7 @@ class GeneticAlgorithm:
 
         # inter = set(remaining_nodes).intersection(  set(important_nodes)    )
         # print(f"remaining_important_nodes: {inter}")
-        remaining_important_nodes = self.order(list( set(remaining_nodes).intersection(  set(important_nodes)    )   ))
+        remaining_important_nodes = self.order_subset(list( set(remaining_nodes).intersection(  set(important_nodes)    )   ))
         # print(f"base case: {remaining_important_nodes}")
 
         remaining_unimportant_nodes = list(set(remaining_nodes)-set(important_nodes))
@@ -464,7 +528,7 @@ class GeneticAlgorithm:
                 swap_node = child[swap_index]
                 new_child[swap_index] = current_node
                 new_child[i] = swap_node
-                if self.is_acyclic(new_child):
+                if self.is_topological(new_child):
                     child = new_child
         
         # print(f"CHILD: {child}")

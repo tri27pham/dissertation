@@ -5,6 +5,7 @@ import 'task.dart';
 import 'taskWidget.dart';
 import 'dart:convert';
 import 'calendar.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:http/http.dart' as http;
 
@@ -65,21 +66,58 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
 
   bool isLoading = false;
 
+  void populateTasks() {
+    setState(() {
+      tasks.add(task1);
+      tasks.add(task2);
+      tasks.add(task3);
+      tasks.add(task4);
+      tasks.add(task5);
+      tasks.add(task6);
+      tasks.add(task7);
+      tasks.add(task8);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-    tasks.add(task1);
-    tasks.add(task2);
-    tasks.add(task3);
-    tasks.add(task4);
-    tasks.add(task5);
-    tasks.add(task6);
-    tasks.add(task7);
-    tasks.add(task8);
   }
 
   @override
   Widget build(BuildContext context) {
+    void showMissingTasksDialog() {
+      showCupertinoDialog<void>(
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+                title: Text("NO TASKS"),
+                content: Text("Add some tasks!"),
+                actions: [
+                  CupertinoDialogAction(
+                      child: Text("OK"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      })
+                ],
+              ));
+    }
+
+    void showMissingTimesPreferencesDialog() {
+      showCupertinoDialog<void>(
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+                title: Text("MISSING TIMES / PREFERENCES"),
+                content: Text("Set your times and preferences in settings"),
+                actions: [
+                  CupertinoDialogAction(
+                      child: Text("OK"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      })
+                ],
+              ));
+    }
+
     var dataModel = Provider.of<DataModel>(context);
 
     var url = Uri.parse('http://10.0.2.2:5000/data_endpoint');
@@ -95,7 +133,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
         "preferences": dataModel.preferences
       };
       String jsonRequestData = jsonEncode(requestData);
-      // log(jsonRequestData);
+      log(jsonRequestData);
       try {
         var response = await http.post(
           url,
@@ -108,7 +146,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
         if (response.statusCode == 200) {
           var responseData = jsonDecode(response.body);
           // log(responseData);
-          dataModel.updateTasks(responseData);
+          dataModel.updateAllocatedTasks(responseData);
         } else {
           print('Error: ${response.statusCode}');
           print(response.body);
@@ -169,33 +207,55 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
                           fontSize: 30,
                         ),
                       ),
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.05,
-                        width: MediaQuery.of(context).size.width * 0.4,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            // print("length of tasks: " + tasks.length.toString());
-                            displayAddTaskPopUp(context);
-                          },
-                          child: Text(
-                            "ADD TASK",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.w400,
-                              color: Colors.black,
-                            ),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.07,
                           ),
-                          style: ButtonStyle(
-                            shape: MaterialStateProperty.all<OutlinedBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.circular(10), // No rounding
+                          Container(
+                              width: MediaQuery.of(context).size.width * 0.25,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  populateTasks();
+                                },
+                                child: Text(
+                                  "EXAMPLE \n TASKS",
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              )),
+                          Container(
+                            height: MediaQuery.of(context).size.height * 0.05,
+                            width: MediaQuery.of(context).size.width * 0.4,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // print("length of tasks: " + tasks.length.toString());
+                                displayAddTaskPopUp(context);
+                              },
+                              child: Text(
+                                "ADD TASK",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              style: ButtonStyle(
+                                shape:
+                                    MaterialStateProperty.all<OutlinedBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        10), // No rounding
+                                  ),
+                                ),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.amber.shade200),
                               ),
                             ),
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.amber.shade200),
                           ),
-                        ),
+                        ],
                       ),
                       Container(
                           height: MediaQuery.of(context).size.height * 0.6,
@@ -230,7 +290,14 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
                         width: MediaQuery.of(context).size.width * 0.85,
                         child: ElevatedButton(
                           onPressed: () {
-                            sendDataToAPI();
+                            if (tasks.length == 0) {
+                              showMissingTasksDialog();
+                            } else if (dataModel.times == "" ||
+                                dataModel.preferences == "") {
+                              showMissingTimesPreferencesDialog();
+                            } else {
+                              sendDataToAPI();
+                            }
                           },
                           style: ButtonStyle(
                             shape: MaterialStateProperty.all<OutlinedBorder>(

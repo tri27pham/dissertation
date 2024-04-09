@@ -51,6 +51,8 @@ def process_data(data):
 
     response_data = json.dumps(allocated_tasks_data)
 
+    print(response_data)
+
     return response_data
 
 def process_tasks(tasks):

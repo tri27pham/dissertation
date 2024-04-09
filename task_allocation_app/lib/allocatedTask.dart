@@ -37,4 +37,30 @@ class AllocatedTask {
   String getEndTime() {
     return formatter.format(endDateTime);
   }
+
+  // Method to convert AllocatedTask object to a map
+  Map<String, dynamic> toMap() {
+    return {
+      'taskID': taskID,
+      'name': name,
+      'startDateTime': startDateTime.toIso8601String(),
+      'endDateTime': endDateTime.toIso8601String(),
+      'priority': priority,
+      'locationName': locationName,
+      'category': category,
+    };
+  }
+
+  // Constructor to create AllocatedTask object from a map
+  factory AllocatedTask.fromMap(Map<String, dynamic> map) {
+    return AllocatedTask(
+      map['taskID'].toString(),
+      map['name'],
+      DateTime.parse(map['startDateTime']),
+      DateTime.parse(map['endDateTime']),
+      map['priority'],
+      map['locationName'],
+      map['category'],
+    );
+  }
 }

@@ -220,6 +220,10 @@ class _DailyScheduleState extends State<DailySchedule> {
 
     double hoursDiff = timeDiff.inSeconds / 3600;
 
+    if (hoursDiff < 0) {
+      return 0;
+    }
+
     return hoursDiff;
   }
 
@@ -235,6 +239,9 @@ class _DailyScheduleState extends State<DailySchedule> {
     double differenceInHours =
         difference.inHours + (difference.inMinutes % 60) / 60.0;
 
+    if (differenceInHours < 0) {
+      return 0;
+    }
     return differenceInHours;
   }
 

@@ -6,6 +6,7 @@ import 'taskWidget.dart';
 import 'dart:convert';
 import 'calendar.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:async';
 
 import 'package:http/http.dart' as http;
 
@@ -40,6 +41,36 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
       "Bush House, Aldwych, London, UK", "51.513056", "-0.117351", 0);
   Task task8 = Task(8, "piano practice", 1, 0, 0, [],
       "Colwyn House, Hercules Road, London, UK", "51.496862", "-0.113041", 5);
+  Task task12 = Task(12, "Morning Yoga", 1, 0, 2, [], "Local Park", "51.505501",
+      "-0.075313", 3);
+  Task task13 = Task(
+      13, "Team Meeting", 1, 30, 1, [], "Office", "51.514463", "-0.142571", 1);
+  Task task14 = Task(14, "Lunch with Colleagues", 1, 0, 0, [],
+      "Italian Restaurant", "51.513569", "-0.137596", 4);
+  Task task15 = Task(15, "Client Presentation", 2, 0, 2, [], "Office",
+      "51.514463", "-0.142571", 1);
+  Task task16 = Task(16, "Software Update", 1, 30, 1, ["13"], "Home Office",
+      "51.502991", "-0.091623", 5);
+  Task task17 = Task(
+      17, "Study Session", 3, 0, 0, [], "Library", "51.529999", "-0.127742", 5);
+  Task task18 = Task(18, "Video Editing", 4, 0, 1, [], "Home Studio",
+      "51.506520", "-0.106450", 6);
+  Task task19 = Task(19, "Dinner Preparation", 1, 0, 0, [], "Home Kitchen",
+      "51.507878", "-0.087732", 3);
+  Task task20 = Task(20, "Evening Walk", 1, 0, 2, [], "Riverside Path",
+      "51.507350", "-0.081328", 4);
+  Task task21 = Task(21, "Journaling", 0, 30, 1, [], "Home Study", "51.509865",
+      "-0.118092", 3);
+  Task task22 = Task(22, "Meditation", 0, 30, 0, [], "Quiet Room", "51.508530",
+      "-0.076132", 2);
+  Task task23 = Task(23, "Write Blog Post", 2, 0, 1, [], "Cozy Cafe",
+      "51.512281", "-0.123761", 4);
+  Task task24 = Task(24, "Prepare Presentation", 3, 0, 2, ["22"], "Office",
+      "51.515617", "-0.141947", 1);
+  Task task25 = Task(25, "Yoga Class", 1, 30, 1, [], "Yoga Studio", "51.514447",
+      "-0.075689", 3);
+  Task task26 = Task(26, "Read Research Papers", 2, 0, 0, [],
+      "University Library", "51.523438", "-0.134699", 5);
 
   List<Task> tasks = [];
 
@@ -48,6 +79,23 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
         tasks.map((task) => task.toJson()).toList();
 
     return taskJsonList;
+  }
+
+  void showServerUnresponsiveDialog(BuildContext context) {
+    showCupertinoDialog<void>(
+        context: context,
+        builder: (BuildContext context) => CupertinoAlertDialog(
+              title: Text("Server Unresponsive"),
+              content:
+                  Text("The server is not responding. Please try again later."),
+              actions: [
+                CupertinoDialogAction(
+                    child: Text("OK"),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    })
+              ],
+            ));
   }
 
   void displayAddTaskPopUp(BuildContext context) {
@@ -78,6 +126,21 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
       tasks.add(task6);
       tasks.add(task7);
       tasks.add(task8);
+      tasks.add(task12);
+      tasks.add(task13);
+      tasks.add(task14);
+      tasks.add(task15);
+      tasks.add(task16);
+      tasks.add(task17);
+      tasks.add(task18);
+      tasks.add(task19);
+      tasks.add(task20);
+      tasks.add(task21);
+      tasks.add(task22);
+      tasks.add(task23);
+      tasks.add(task24);
+      tasks.add(task25);
+      tasks.add(task26);
     });
   }
 
@@ -141,33 +204,38 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
       String jsonRequestData = jsonEncode(requestData);
       log(jsonRequestData);
       try {
-        var response = await http.post(
-          url,
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
-          body: jsonRequestData,
-        );
+        var response = await http
+            .post(
+              url,
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+              },
+              body: jsonRequestData,
+            )
+            .timeout(Duration(seconds: 30));
 
         if (response.statusCode == 200) {
           var responseData = jsonDecode(response.body);
-          // log(responseData);
           dataModel.updateAllocatedTasks(responseData);
+          setState(() {
+            isLoading = false;
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => Calendar()),
+            );
+          });
         } else {
+          showServerUnresponsiveDialog(context);
           print('Error: ${response.statusCode}');
-          print(response.body);
         }
+      } on TimeoutException catch (_) {
+        print("Timeout occurred");
+        showServerUnresponsiveDialog(context);
+        setState(() {
+          isLoading = false;
+        });
       } catch (e) {
         print('Error: $e');
-      } finally {
-        setState(() {
-          isLoading =
-              false; // Set loading state to false after response is received
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => Calendar()),
-          );
-        });
       }
     }
 

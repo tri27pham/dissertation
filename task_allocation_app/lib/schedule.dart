@@ -24,20 +24,22 @@ class ScheduleTasks extends StatefulWidget {
 }
 
 class _ScheduleTasksState extends State<ScheduleTasks> {
-  Task task1 = Task(1, "Dissertation", 4, 0, 2, [], "NO LOCATION", "0", "0", 0);
+  Task task1 = Task(1, "Dissertation", 4, 0, 2, [], "NO LOCATION", "51.503162",
+      "-0.086852", 0);
   Task task2 = Task(2, "gym - push day", 1, 30, 1, ["1"],
-      "PureGym Waterloo, Brad Street, London, UK", "-0.109303", "51.504159", 2);
+      "PureGym Waterloo, Brad Street, London, UK", "51.504159", "-0.109303", 2);
   Task task3 = Task(3, "gym pull day", 2, 30, 2, ["2"],
-      "PureGym Waterloo, Brad Street, London, UK", "-0.109303", "51.504159", 2);
+      "PureGym Waterloo, Brad Street, London, UK", "51.504159", "-0.109303", 2);
   Task task4 = Task(4, "clean room", 2, 30, 0, [],
-      "Colwyn House, Hercules Road, London, UK", "-0.113041", "51.496862", 6);
-  Task task5 =
-      Task(5, "sign contract", 4, 0, 1, [], "NO LOCATION", "0", "0", 1);
-  Task task6 = Task(6, "plan party", 1, 0, 1, [], "NO LOCATION", "0", "0", 2);
+      "Colwyn House, Hercules Road, London, UK", "51.496862", "-0.113041", 6);
+  Task task5 = Task(5, "sign contract", 4, 0, 1, [], "NO LOCATION", "51.503162",
+      "-0.086852", 1);
+  Task task6 = Task(
+      6, "plan party", 1, 0, 1, [], "NO LOCATION", "51.503162", "-0.086852", 2);
   Task task7 = Task(7, "NSE coursework", 2, 0, 2, ["5"],
-      "Bush House, Aldwych, London, UK", "-0.117351", "51.513056", 0);
+      "Bush House, Aldwych, London, UK", "51.513056", "-0.117351", 0);
   Task task8 = Task(8, "piano practice", 1, 0, 0, [],
-      "Colwyn House, Hercules Road, London, UK", "-0.113041", "51.496862", 5);
+      "Colwyn House, Hercules Road, London, UK", "51.496862", "-0.113041", 5);
 
   List<Task> tasks = [];
 
@@ -126,6 +128,10 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
       setState(() {
         isLoading = true; // Set loading state to true
       });
+
+      for (var task in tasks) {
+        print(task.name);
+      }
 
       Map<String, dynamic> requestData = {
         "tasks": getTaskAsJson(),

@@ -2,6 +2,10 @@ from taskAllocator import TaskAllocator
 from random import shuffle
 import random
 import copy
+from datetime import time, timedelta
+from task import Task
+from userRequirements import UserRequirements
+from userPreferences import UserPreferences
 
 class GeneticAlgorithm:
 
@@ -24,6 +28,9 @@ class GeneticAlgorithm:
         self.generation_size = 10
 
         self.tasks = tasks
+
+        for task in tasks:
+            print(task.get_name())
 
         # create dictionary for conversion between taskId and Task object
         self.task_dict = {}
@@ -506,29 +513,29 @@ class GeneticAlgorithm:
         return child
 
 
-# # # tasks to allocate
-# task3 = Task("3","Push session",timedelta(hours=2,minutes=0),3,(),"BUSH HOUSE",(51.503162, -0.086852),2)
-# task2 = Task("2","OME Content",timedelta(hours=2,minutes=0),3,("3",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
-# task1 = Task("1","NSE Content",timedelta(hours=1,minutes=0),3,("2",),"BUSH HOUSE",(51.503162, -0.086852),1)
-# task0 = Task("0","ML1 Content",timedelta(hours=1,minutes=0),3,("1",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
-# task4 = Task("4","Work",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-# task5 = Task("5","Pull session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.503162, -0.086852),3)
-# task6 = Task("6","10k",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-# task7 = Task("7","Dissertation",timedelta(hours=2,minutes=0),2,("3",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
-# task8 = Task("8","Work",timedelta(hours=2,minutes=0),2,(),"BUSH HOUSE",(51.503162,-0.086852),0)
-# task9 = Task("9","Push session",timedelta(hours=2,minutes=0),1,("7","0",),"GUY'S CAMPUS",(51.513056,-0.117352),1)
-# task10 = Task("10","Coursework",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-# task11 = Task("11","Legs session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-# task12 = Task("12","Dissertation",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),5)
-# task13 = Task("13","5k",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-# tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task11,task12,task13,task0,task1,task2,task10]
+# # tasks to allocate
+task3 = Task("3","Push session",timedelta(hours=2,minutes=0),3,(),"BUSH HOUSE",(51.503162, -0.086852),2)
+task2 = Task("2","OME Content",timedelta(hours=2,minutes=0),3,("3",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
+task1 = Task("1","NSE Content",timedelta(hours=1,minutes=0),3,("2",),"BUSH HOUSE",(51.503162, -0.086852),1)
+task0 = Task("0","ML1 Content",timedelta(hours=1,minutes=0),3,("1",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
+task4 = Task("4","Work",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+task5 = Task("5","Pull session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.503162, -0.086852),3)
+task6 = Task("6","10k",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+task7 = Task("7","Dissertation",timedelta(hours=2,minutes=0),2,("3",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
+task8 = Task("8","Work",timedelta(hours=2,minutes=0),2,(),"BUSH HOUSE",(51.503162,-0.086852),0)
+task9 = Task("9","Push session",timedelta(hours=2,minutes=0),1,("7","0",),"GUY'S CAMPUS",(51.513056,-0.117352),1)
+task10 = Task("10","Coursework",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+task11 = Task("11","Legs session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+task12 = Task("12","Dissertation",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),5)
+task13 = Task("13","5k",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
+tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task11,task12,task13,task0,task1,task2,task10]
 
 
-# nine_am = time(hour=9, minute=0, second=0)
-# five_pm = time(hour=17, minute=0, second=0)
+nine_am = time(hour=9, minute=0, second=0)
+five_pm = time(hour=17, minute=0, second=0)
 
-# user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
-# user_preferences = UserPreferences(False, True, True, False, False, True, False, True, True, False, True, False, True, False, True, True, False, False, True, True, False, True, False, False, False, True, True, False)
+user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
+user_preferences = UserPreferences(False, True, True, False, False, True, False, True, True, False, True, False, True, False, True, True, False, False, True, True, False, True, False, False, False, True, True, False)
 
 # ga = GeneticAlgorithm(tasks_to_be_allocated,user_requirements,user_preferences)
 # ga.create_first_generation()

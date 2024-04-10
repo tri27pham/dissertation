@@ -134,6 +134,9 @@ class DataModel with ChangeNotifier {
           task['category']);
       tasks.add(newTask);
     });
+    // for (int i = 0; i < tasks.length; i++) {
+    //   print(tasks[i].name);
+    // }
     notifyListeners();
     saveTasksToDb();
   }

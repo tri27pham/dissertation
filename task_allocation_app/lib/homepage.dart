@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:task_allocation_app/taskWidget.dart';
 import 'navbar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dailySchedule.dart';
+import 'allocatedTask.dart';
+import 'package:provider/provider.dart';
+import 'dataModel.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,10 +26,46 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  late List<AllocatedTask> tasks;
+  bool _isDataModelInitialized = false;
+
   @override
   void initState() {
     super.initState();
-    _loadName();
+    _loadName(); // Continue to load the name as it doesn't depend on context
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Ensure this block runs only once to avoid reinitialization
+    if (!_isDataModelInitialized) {
+      // Accessing the DataModel via Provider now that context is available
+      final dataModel = Provider.of<DataModel>(context);
+      tasks = dataModel.getTasksDay(1); // Example function call to get tasks
+      _isDataModelInitialized = true; // Set the flag to true to avoid reruns
+    }
+  }
+
+  Color getCategoryColor(int category) {
+    switch (category) {
+      case 1:
+        return Color.fromARGB(255, 236, 186, 139);
+      case 2:
+        return Color.fromARGB(255, 154, 205, 221);
+      case 3:
+        return Color.fromARGB(255, 187, 176, 192);
+      case 4:
+        return Color.fromARGB(255, 211, 158, 180);
+      case 5:
+        return Color.fromARGB(255, 175, 228, 201);
+      case 6:
+        return Color.fromARGB(255, 240, 255, 200);
+      case 7:
+        return Color.fromARGB(255, 196, 203, 240);
+      default:
+        return Color.fromARGB(255, 100, 44, 44);
+    }
   }
 
   @override
@@ -239,62 +280,65 @@ class _HomePageState extends State<HomePage> {
                   ),
                   Container(
                     height: MediaQuery.of(context).size.height * 0.37,
-                    child: ListView(
-                      children: [
-                        UnconstrainedBox(
-                            child: Container(
-                          height: MediaQuery.of(context).size.height * 0.18,
-                          width: MediaQuery.of(context).size.width * 0.9,
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 236, 186,
-                                139), // Set the color of the container
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                        )),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.01,
-                        ),
-                        UnconstrainedBox(
-                            child: Container(
-                          height: MediaQuery.of(context).size.height * 0.18,
-                          width: MediaQuery.of(context).size.width * 0.9,
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 154, 205,
-                                221), // Set the color of the container
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                        )),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.01,
-                        ),
-                        UnconstrainedBox(
-                            child: Container(
-                          height: MediaQuery.of(context).size.height * 0.18,
-                          width: MediaQuery.of(context).size.width * 0.9,
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 187, 176,
-                                192), // Set the color of the container
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                        )),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.01,
-                        ),
-                        UnconstrainedBox(
-                            child: Container(
-                          height: MediaQuery.of(context).size.height * 0.18,
-                          width: MediaQuery.of(context).size.width * 0.9,
-                          decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 211, 158,
-                                180), // Set the color of the container
-                            borderRadius: BorderRadius.all(Radius.circular(20)),
-                          ),
-                        )),
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.01,
-                        ),
-                      ],
+                    child: SingleChildScrollView(
+                      child: TodaysTask(),
                     ),
+                    // child: ListView(
+                    //   children: [
+                    //     UnconstrainedBox(
+                    //         child: Container(
+                    //       height: MediaQuery.of(context).size.height * 0.18,
+                    //       width: MediaQuery.of(context).size.width * 0.9,
+                    //       decoration: BoxDecoration(
+                    //         color: Color.fromARGB(255, 236, 186,
+                    //             139), // Set the color of the container
+                    //         borderRadius: BorderRadius.all(Radius.circular(20)),
+                    //       ),
+                    //     )),
+                    //     SizedBox(
+                    //       height: MediaQuery.of(context).size.height * 0.01,
+                    //     ),
+                    //     UnconstrainedBox(
+                    //         child: Container(
+                    //       height: MediaQuery.of(context).size.height * 0.18,
+                    //       width: MediaQuery.of(context).size.width * 0.9,
+                    //       decoration: BoxDecoration(
+                    //         color: Color.fromARGB(255, 154, 205,
+                    //             221), // Set the color of the container
+                    //         borderRadius: BorderRadius.all(Radius.circular(20)),
+                    //       ),
+                    //     )),
+                    //     SizedBox(
+                    //       height: MediaQuery.of(context).size.height * 0.01,
+                    //     ),
+                    //     UnconstrainedBox(
+                    //         child: Container(
+                    //       height: MediaQuery.of(context).size.height * 0.18,
+                    //       width: MediaQuery.of(context).size.width * 0.9,
+                    //       decoration: BoxDecoration(
+                    //         color: Color.fromARGB(255, 187, 176,
+                    //             192), // Set the color of the container
+                    //         borderRadius: BorderRadius.all(Radius.circular(20)),
+                    //       ),
+                    //     )),
+                    //     SizedBox(
+                    //       height: MediaQuery.of(context).size.height * 0.01,
+                    //     ),
+                    //     UnconstrainedBox(
+                    //         child: Container(
+                    //       height: MediaQuery.of(context).size.height * 0.18,
+                    //       width: MediaQuery.of(context).size.width * 0.9,
+                    //       decoration: BoxDecoration(
+                    //         color: Color.fromARGB(255, 211, 158,
+                    //             180), // Set the color of the container
+                    //         borderRadius: BorderRadius.all(Radius.circular(20)),
+                    //       ),
+                    //     )),
+                    //     SizedBox(
+                    //       height: MediaQuery.of(context).size.height * 0.01,
+                    //     ),
+                    //   ],
+                    // ),
                   ),
                 ],
               ),
@@ -304,5 +348,110 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: NavBar(),
     );
+  }
+
+  Widget TodaysTask() {
+    List<Widget> taskWidgets = [];
+
+    tasks.forEach((task) {
+      taskWidgets.add(TaskWidget(task));
+    });
+
+    return Center(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: taskWidgets,
+    ));
+  }
+
+  Widget TaskWidget(AllocatedTask task) {
+    return Padding(
+        padding: EdgeInsets.symmetric(vertical: 5),
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.17,
+          width: MediaQuery.of(context).size.width * 0.9,
+          padding: EdgeInsets.fromLTRB(15, 10, 10, 10),
+          decoration: BoxDecoration(
+            color: getCategoryColor(task.category),
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  child: Text(
+                    task.name.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Container(
+                  child: Text(
+                    task.locationName.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 13,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          task.getStartTime(),
+                          style: TextStyle(
+                            fontSize: 22,
+                          ),
+                        ),
+                        Text("START")
+                      ],
+                    ),
+                    Container(
+                      height: MediaQuery.of(context).size.height *
+                          0.03, //use duration
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 83, 83, 83),
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${task.getDurationStr()} hours',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: getCategoryColor(task.category),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          task.getEndTime(),
+                          style: TextStyle(
+                            fontSize: 22,
+                          ),
+                        ),
+                        Text("END")
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ));
   }
 }

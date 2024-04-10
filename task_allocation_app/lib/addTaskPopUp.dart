@@ -148,8 +148,8 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
         _priority,
         priorTasksIDs,
         locationName,
-        longitude,
         latitude,
+        longitude,
         _categoryValue);
     return newTask;
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dataModel.dart';
+import 'package:provider/provider.dart';
 
 class EditName extends StatefulWidget {
   const EditName({super.key});
@@ -10,8 +12,7 @@ class EditName extends StatefulWidget {
 }
 
 class _EditNameState extends State<EditName> {
-  final TextEditingController _nameFieldController =
-      TextEditingController(text: '');
+  TextEditingController _nameFieldController = TextEditingController(text: '');
 
   Future<void> _saveName() async {
     final prefs = await SharedPreferences.getInstance();
@@ -28,6 +29,10 @@ class _EditNameState extends State<EditName> {
   void initState() {
     super.initState();
     _loadName();
+    // DataModel dataModel = DataModel();
+    // setState(() {
+    //   _nameFieldController.text = dataModel.name;
+    // });
   }
 
   @override

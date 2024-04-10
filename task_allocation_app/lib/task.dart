@@ -20,8 +20,8 @@ class Task {
       this.priority,
       this.priorTasks,
       this.locationName,
-      this.locationLongitude,
       this.locationLatitude,
+      this.locationLongitude,
       this.category);
 
   Map<String, dynamic> toJson() {
@@ -33,8 +33,8 @@ class Task {
       'priority': priority,
       'priorTasks': priorTasks,
       'locationName': locationName,
-      'locationLongitude': locationLongitude,
       'locationLatitude': locationLatitude,
+      'locationLongitude': locationLongitude,
       'category': category,
     };
   }

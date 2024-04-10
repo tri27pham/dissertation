@@ -213,10 +213,9 @@ class _EditTimesState extends State<EditTimes> {
       };
 
       String jsonTimes = jsonEncode(times);
+      print(times);
 
       dataModel.updateTimes(jsonTimes);
-
-      print(jsonTimes);
     }
 
     return GestureDetector(

@@ -1,9 +1,8 @@
 # Task Class
 # contains the information regarding each task to be allocated
 
-from prioritiesEnum import Priority
-from taskCategoryEnum import TaskCategory
 
+from model.taskCategoryEnum import TaskCategory
 
 class Task:
 

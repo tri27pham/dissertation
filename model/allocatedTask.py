@@ -1,6 +1,3 @@
-from prioritiesEnum import Priority
-from taskCategoryEnum import TaskCategory
-
 class AllocatedTask:
     
     def __init__(self,taskID,name,start_datetime,end_datetime,priority,prior_tasks,location_name,location_coords,category):
@@ -39,6 +36,12 @@ class AllocatedTask:
 
     def get_end_datetime(self):
         return self.end_datetime
+    
+    def get_start_datetime_as_weekday(self):
+        return self.start_datetime.weekday()
+    
+    def get_end_datetime_as_weekday(self):
+        return self.end_datetime.weekday()
 
     def get_priority(self):
         return self.priority

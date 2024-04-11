@@ -1,9 +1,7 @@
-from taskCategoryEnum import TaskCategory
-from datetime import datetime, timedelta, time
+from model.taskCategoryEnum import TaskCategory
+from datetime import datetime
 
 class UserPreferences:
-
-    # def __init__(university_morning,university_evening,university_start_of_week,etc.):
 
     def __init__(self,
         university_morning, university_evening, university_start_of_week, university_end_of_week, 
@@ -15,7 +13,6 @@ class UserPreferences:
         miscellaneous_morning, miscellaneous_evening, miscellaneous_start_of_week, miscellaneous_end_of_week
     ):
 
-        # self.midday = datetime.time(12, 0)
         self.midday = datetime.combine(datetime.today(), datetime.min.time()).replace(hour=12, minute=0, second=0).time()
         self.midweek = 3
 
@@ -62,8 +59,6 @@ class UserPreferences:
             
             match task.get_category():
                 case TaskCategory.UNIVERSITY:
-                    # print(task.get_name())
-                    # print(task.get_end_time().time())
                     if self.university_morning and task.get_end_time() <= self.midday:
                         points += 1
                     if self.university_evening and task.get_start_time() > self.midday:

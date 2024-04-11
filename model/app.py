@@ -1,15 +1,18 @@
+# from flask import Flask, request, jsonify
+# from model.geneticAlgorithm import GeneticAlgorithm
+# from model.task import Task
+# from model.userRequirements import UserRequirements
+# from model.userPreferences import UserPreferences
+# from model.allocatedTask import AllocatedTask
+# from datetime import datetime, timedelta, time
+# from model.hardTask import HardTask
+
 from flask import Flask, request, jsonify
-from geneticAlgorithm import GeneticAlgorithm
-
-
-from datetime import datetime, timedelta, time
-from hardTask import HardTask
-from task import Task
-from userRequirements import UserRequirements
-from userPreferences import UserPreferences
-from allocatedTask import AllocatedTask
-
-
+from model.geneticAlgorithm import GeneticAlgorithm
+from model.task import Task
+from model.userRequirements import UserRequirements
+from model.userPreferences import UserPreferences
+from datetime import datetime, timedelta
 import json
 
 app = Flask(__name__)
@@ -31,7 +34,6 @@ def process_data(data):
     user_preferences = process_preferences(preferences)
     
     ga = GeneticAlgorithm(tasks_to_allocate,user_requirements,user_preferences)
-    ga.create_first_generation()
     data = ga.evolve()
 
     allocated_tasks_data = []
@@ -51,19 +53,15 @@ def process_data(data):
 
     response_data = json.dumps(allocated_tasks_data)
 
-    print(response_data)
-
     return response_data
 
 def process_tasks(tasks):
     processed_tasks = []
 
     for task in tasks:
-        # print(task)
 
         duration = timedelta(hours=task["hours"],minutes=task["minutes"])
         location_coords = (float(task["locationLatitude"]),float(task["locationLongitude"]))
-        # print(type(location_coords))
 
         new_task = Task(
             str(task["taskID"]),

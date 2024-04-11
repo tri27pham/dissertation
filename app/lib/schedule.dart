@@ -25,8 +25,8 @@ class ScheduleTasks extends StatefulWidget {
 }
 
 class _ScheduleTasksState extends State<ScheduleTasks> {
-  Task task1 = Task(1, "Dissertation", 4, 0, 2, [], "NO LOCATION", "51.503162",
-      "-0.086852", 0);
+  Task task1 = Task(1, "Attend Lecture on Quantum Physics", 2, 0, 2, [],
+      "Lecture Hall", "51.503162", "-0.086852", 0);
   Task task2 = Task(2, "gym - push day", 1, 30, 1, ["1"],
       "PureGym Waterloo, Brad Street, London, UK", "51.504159", "-0.109303", 2);
   Task task3 = Task(3, "gym pull day", 2, 30, 2, ["2"],
@@ -212,7 +212,7 @@ class _ScheduleTasksState extends State<ScheduleTasks> {
               },
               body: jsonRequestData,
             )
-            .timeout(Duration(seconds: 30));
+            .timeout(Duration(seconds: 45));
 
         if (response.statusCode == 200) {
           var responseData = jsonDecode(response.body);

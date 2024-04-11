@@ -1,11 +1,8 @@
-from taskAllocator import TaskAllocator
-from random import shuffle
+
+from model.taskAllocator import TaskAllocator
 import random
 import copy
-from datetime import time, timedelta
-from task import Task
-from userRequirements import UserRequirements
-from userPreferences import UserPreferences
+import time as timer
 
 class GeneticAlgorithm:
 
@@ -25,12 +22,9 @@ class GeneticAlgorithm:
         """
 
         # set the desired number of individuals per generation
-        self.generation_size = 10
+        self.generation_size = len(tasks) //2
 
         self.tasks = tasks
-
-        for task in tasks:
-            print(task.get_name())
 
         # create dictionary for conversion between taskId and Task object
         self.task_dict = {}
@@ -41,30 +35,34 @@ class GeneticAlgorithm:
 
         self.task_allocator = TaskAllocator(user_requirements,tasks)
 
-        # # calculate the travel times between all task locations
-        # self.task_allocator.get_travel_times(tasks)
+        self.generation_data = []
 
-    def create_first_generation(self):
+        # calculate the travel times between all task locations
+        self.task_allocator.get_travel_times(tasks)
+   
+    def create_first_generation(self, inital_order,start_time):
         """
         Creates the initial generation for the genetic algorithm.
         """
 
         # set the number of individuals in initial population
-        initial_population_size = 10
+        self.initial_population_size = 10
 
         # set to keep track of individuals produced
         orders = set()
         
         # get task IDs of all tasks
-        task_IDs = [task_ID for task_ID in self.task_dict.keys()]
-        # get an initial topological order
-        top_order = self.topological_sort(task_IDs)
+        # task_IDs = [task_ID for task_ID in self.task_dict.keys()]
+        # # get an initial topological order
+        # top_order = self.topological_sort(task_IDs)
         # add initial topological order to list of orders
-        orders.add(tuple(top_order))
+        orders.add(tuple(inital_order))
 
         # iterate until the numbers of orders equals desired population size
-        while len(orders) <= initial_population_size:
-            new_order = tuple(self.shuffle_order(top_order))
+        while len(orders) <= self.initial_population_size-1:
+            if timer.time() - start_time > 30:
+                return False
+            new_order = tuple(self.shuffle_order(inital_order))
             if new_order not in orders:
                 orders.add(tuple(new_order))
 
@@ -78,6 +76,8 @@ class GeneticAlgorithm:
 
         self.initial_population = initial_population
 
+        return True
+
         """"
         the following prints out the individuals and corresponding user preferences satisfied
         of each of the individuals in the inital population
@@ -87,6 +87,9 @@ class GeneticAlgorithm:
             for order in self.initial_population:
                 print(f"ORDER: {order[0]}, POINTS: {order[1]}")
         """
+    
+    def reset_initial_population(self):
+        self.initial_population = []
 
     def shuffle_order(self,order):
         """        
@@ -267,6 +270,11 @@ class GeneticAlgorithm:
         # return the order
         return best[0]
 
+    def get_fitness(self,order):
+        
+        fitness_score = self.user_preferences.get_preferences_satisfied(order)
+        return fitness_score
+
     def evolve(self):
         """
         Evolves the population of individuals to find the optimal solution.
@@ -275,42 +283,70 @@ class GeneticAlgorithm:
         - optimal (List<Task>): A ordering of tasks representing the optimal solution
         """	
 
-        # initialise optimal solution
-        # format: ( list of allocated tasks , list of task IDs, user preferences satisfied)
-        optimal = ((),(),0)
-        # initialise counter for number of generations without improvemed solution
-        same = 0
+
+        task_IDs = [task_ID for task_ID in self.task_dict.keys()]
+
+        initial_order = self.topological_sort(task_IDs)
+        initial_order_tasks = [self.task_dict[task_ref] for task_ref in initial_order]
+        allocated_tasks = self.task_allocator.knapsack_allocator(initial_order_tasks)
+        points = self.get_fitness(allocated_tasks)
+
+        optimal = (allocated_tasks,initial_order,points)
+    
+        
+        start_time = timer.time()
+
+        within_time_limit = self.create_first_generation(initial_order,start_time)
+        if not within_time_limit:
+            return optimal[0]
 
         # get the best performing individual from the initial population
         parent = self.select_best_from_initial()
+        
+
+        # initialise counter for number of generations without improvemed solution
+        same = 0
 
         # set the generation counter
         generation = 1
 
+        population = set()
+
         # iterate until the optimal solution has not improved for 20 generations
-        while same < 20:
+        while same < 30:
 
             new_generation = set() 
 
+
             while len(new_generation) <= self.generation_size:
+
+                if timer.time() - start_time > 30:  
+                    return optimal[0]
+                
                 new_child = tuple(self.create_child(parent))
-                if new_child not in new_generation:
+                if new_child not in new_generation and new_child not in population:
                     tasks = [self.task_dict[task_ref] for task_ref in new_child]
                     allocated_tasks = self.task_allocator.knapsack_allocator(tasks)
-                    points = self.user_preferences.get_preferences_satisfied(allocated_tasks)
+                    points = self.get_fitness(allocated_tasks)
+                    population.add(new_child)
                     new_generation.add((tuple(allocated_tasks),new_child,points))
 
-            sorted_orders = sorted(new_generation, key=lambda x: x[1], reverse=True)
+            # select the optimal choice from this generation
+            parent_result = self.select(new_generation)
 
-            # get the best performing individual from the new generation
-            parent_result = sorted_orders[0]
+            # get/update the task objects, order and points of the best performing individual
+            tasks, parent, points = parent_result[0], parent_result[1], parent_result[2]
+            self.generation_data.append((generation,points))
 
-            # get the task objects, order and points of the best performing individual
-            tasks, order, points = parent_result[0], parent_result[1], parent_result[2]
-
+            """
+            Uncomment the following to see the generation number, order and points of each generation
+            """
+            """
             print("===================================")
-            print(f"GENERATION {generation}: {order}, POINTS: {points}")
+            print(f"GENERATION {generation}: {parent}, POINTS: {points}")
             print("===================================")
+            """
+            
             generation += 1
 
             # check if the new generation has a better solution than the current optimal solution
@@ -322,38 +358,136 @@ class GeneticAlgorithm:
             # update the optimal solution
             optimal = max((optimal, parent_result), key=lambda x: x[2])
 
+        """
+        Uncomment the following to see the order and points of the optimal solution
+        """
+        """  
         print("===================================")
         print(f"OPTIMAL ORDER: {optimal[1]}, POINTS: {optimal[2]}")
         print("===================================")
-
+        """
         # return the list of allocated tasks of the optimal solution
         return optimal[0]
-
+    
+    def select(self,generation):
+        # sorted_orders = sorted(generation, key=lambda x: x[1], reverse=True)
+        # return sorted_orders[0]
+        # Calculate the total fitness of the population
+        total_fitness = sum(individual[2] for individual in generation)
+        
+        # Calculate the relative fitness of each individual
+        relative_fitness = [individual[2] / total_fitness for individual in generation]
+        
+        # Generate a random number between 0 and 1
+        r = random.uniform(0, 1)
+        
+        # Calculate cumulative probability
+        cumulative_probability = 0.0
+        for individual, rel_fit in zip(generation, relative_fitness):
+            # Add the relative fitness to the cumulative probability
+            cumulative_probability += rel_fit
+            
+            # If the random number falls in this individual's range, select it
+            if r <= cumulative_probability:
+                return individual
+            
     def create_child(self,parent):
-
         """
         Create a new child from a parent by performing crossover and mutation operations.
+        Paramters:
+        - parent (List<Task>): A list of Task objects representing the parent
+        Returns:
+        - child (List<Task>): A list of Task objects representing the child
+        """
 
+        child = self.crossover(parent)
+        child = self.mutate(child)
+
+        return child
+
+    def find_preceding_nodes(self,important_nodes,important_segment_nodes):
+        visited = set()
+        preceding_nodes = set()
+
+        def dfs(task):
+            if task in visited:
+                return
+            visited.add(task)
+            for prior_task_ref in self.task_dict[task].get_prior_tasks():
+            # for neighbor in graph[node]:
+                if prior_task_ref not in important_segment_nodes and prior_task_ref not in preceding_nodes:
+                    preceding_nodes.add(prior_task_ref)
+                dfs(prior_task_ref)
+
+        # Reverse the graph
+        reversed_graph = {task: [] for task in self.task_dict.keys()}
+        for task in self.task_dict.keys():
+            prior_tasks = self.task_dict[task].get_prior_tasks()
+            for prior_task in prior_tasks:
+                reversed_graph[prior_task].append(task)
+
+        # Perform DFS for each node in the subset
+        for task in important_segment_nodes:
+            dfs(task)
+
+        return list(preceding_nodes - set(important_segment_nodes))
+
+    def find_succeeding_nodes(self, important_segment_nodes):
+        visited = set()
+        succeeding_nodes = set()
+
+        def dfs(task):
+            if task in visited:
+                return
+            visited.add(task)
+            for prior_task in self.task_dict[task].get_prior_tasks():
+                if prior_task not in important_segment_nodes and prior_task not in succeeding_nodes:
+                    succeeding_nodes.add(prior_task)
+                dfs(prior_task)
+
+        # Perform DFS for each node in the subset
+        for task in important_segment_nodes:
+            dfs(task)
+
+        return list(succeeding_nodes - set(important_segment_nodes))
+
+    def find_prior_nodes(self,important_nodes,important_segment_nodes):
+        
+        prior_nodes = []
+        idx = 0
+        while len(important_segment_nodes) != 0:
+            if important_nodes[idx] in important_segment_nodes:
+                important_segment_nodes.remove(important_nodes[idx])
+            else:
+                prior_nodes.append(important_nodes[idx])
+            idx += 1
+        return prior_nodes
+
+    def crossover(self,parent):
+        """
+        Create a new child from a parent by performing crossover operations.
         Parameters:
         - parent (List<Task>): A list of Task objects representing the parent
-
         Returns:
         - child (List<Task>): A list of Task objects representing the child
         """
 
         valid_segment = False
-
         # iterate until a valid segment is found
         while not valid_segment:
 
+            # minimum segment length
+            min_segment_length = len(parent) // 4
+
             # get random index to start segment
-            index = random.randint(0,len(parent)-2)
+            index = random.randint(0,len(parent)-1-min_segment_length)
 
             # get random length of segment
-            len_segment = random.randint(1,len(parent)-1-index)
+            len_segment = random.randint(min_segment_length,len(parent)-1-index)
 
             # get important nodes that affect the topological order in the order they must be placed
             important_nodes = self.topological_sort(self.get_important_nodes(parent))
+            important_nodes_copy = copy.copy(important_nodes)
 
             # create child array to be populated
             child = [None] * len(parent)
@@ -366,7 +500,8 @@ class GeneticAlgorithm:
                 child[index+idx] = segment[idx]
 
             # check to see if segment contains any important nodes 
-            important_segment_nodes = list(set(important_nodes) & set(segment))
+            important_segment_nodes = self.order_subset(list(set(important_nodes) & set(segment)))
+            important_segment_nodes_copy = copy.copy(important_segment_nodes)
 
             # if segment contains no important nodes, then segment is valid
             if len(important_segment_nodes) == 0:
@@ -386,18 +521,26 @@ class GeneticAlgorithm:
                     post_index = max(post_index, len(important_nodes) - important_nodes[::-1].index(segment_node) - 1)
 
                 # get the important nodes that must be placed before / after segment
-                prior = important_nodes[:prior_index]
-                post = important_nodes[post_index + 1:]
+                # prior = important_nodes[:prior_index]
+                # post = important_nodes[post_index + 1:]
+                important_segment_nodes_copy = important_segment_nodes.copy()
+                prior = self.find_prior_nodes(important_nodes,important_segment_nodes_copy)
+                prior = self.order_subset(prior)
 
+                post = set(important_nodes) - set(important_segment_nodes) - set(prior)
+                post = self.order_subset(post)
+               
                 # check that there is enough space for remaining important prior nodes in the start segment and
                     # remaining important post nodes in the end segment
                 if len(prior) <= len(start_segment) and len(post) <= len(end_segment):
-                    valid_important_nodes = True
-            
+                    valid_segment = True
+                
+        segemnt_copy = copy.copy(child)
+
         # check if there are important nodes in the segment
         # check that not all important nodes are in the segment
-        if len(important_segment_nodes) > 0 and len(important_segment_nodes) < len(important_nodes):
 
+        if len(important_segment_nodes) > 0 and len(important_segment_nodes) < len(important_nodes):
             prior_index = float('inf')
             post_index = float('-inf')
 
@@ -407,8 +550,16 @@ class GeneticAlgorithm:
                 post_index = max(post_index, len(important_nodes) - important_nodes[::-1].index(segment_node) - 1)
 
             #  get the important nodes that must be placed before / after segment
-            prior = important_nodes[:prior_index]
-            post = important_nodes[post_index + 1:]
+            # prior = important_nodes[:prior_index]
+            # post = important_nodes[post_index + 1:]
+            important_segment_nodes_copy = important_segment_nodes.copy()
+            prior = self.find_prior_nodes(important_nodes,important_segment_nodes_copy)
+            prior = self.order_subset(prior)
+            post = set(important_nodes) - set(important_segment_nodes) - set(prior)
+            post = self.order_subset(post)
+
+            prior_copy = copy.copy(prior)
+            post_copy = copy.copy(post)
             
             # set the start index for assigning prior important nodes
             node_start = 0
@@ -445,6 +596,7 @@ class GeneticAlgorithm:
                 else:
                     # remove allocated task is it doesn't meet requirementse
                     child[new_index] = None
+
 
         # get the remaining nodes that have not been assigned
         remaining_nodes = list(set(parent)-set(child))
@@ -492,8 +644,13 @@ class GeneticAlgorithm:
             if child[index] is None:
                 child[index] = remaining_nodes_arr[0]
                 remaining_nodes_arr.pop(0)
-        
-        # mutate the child
+    
+        return child
+            
+    def mutate(self,child):
+        """
+        Mutates a child by swapping nodes in the order.
+        """
         for i in range(len(child)-1):
             # get a copy of the child
             new_child = copy.copy(child)
@@ -509,34 +666,4 @@ class GeneticAlgorithm:
                 if self.is_topological(new_child):
                     # if it is, set the child to the new child
                     child = new_child
-        
         return child
-
-
-# # tasks to allocate
-task3 = Task("3","Push session",timedelta(hours=2,minutes=0),3,(),"BUSH HOUSE",(51.503162, -0.086852),2)
-task2 = Task("2","OME Content",timedelta(hours=2,minutes=0),3,("3",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
-task1 = Task("1","NSE Content",timedelta(hours=1,minutes=0),3,("2",),"BUSH HOUSE",(51.503162, -0.086852),1)
-task0 = Task("0","ML1 Content",timedelta(hours=1,minutes=0),3,("1",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
-task4 = Task("4","Work",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-task5 = Task("5","Pull session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.503162, -0.086852),3)
-task6 = Task("6","10k",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-task7 = Task("7","Dissertation",timedelta(hours=2,minutes=0),2,("3",),"GUY'S CAMPUS",(51.513056,-0.117352),0)
-task8 = Task("8","Work",timedelta(hours=2,minutes=0),2,(),"BUSH HOUSE",(51.503162,-0.086852),0)
-task9 = Task("9","Push session",timedelta(hours=2,minutes=0),1,("7","0",),"GUY'S CAMPUS",(51.513056,-0.117352),1)
-task10 = Task("10","Coursework",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-task11 = Task("11","Legs session",timedelta(hours=2,minutes=0),2,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-task12 = Task("12","Dissertation",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),5)
-task13 = Task("13","5k",timedelta(hours=2,minutes=0),1,(),"GUY'S CAMPUS",(51.513056,-0.117352),2)
-tasks_to_be_allocated = [task3,task4,task5,task6,task7,task8,task9,task11,task12,task13,task0,task1,task2,task10]
-
-
-nine_am = time(hour=9, minute=0, second=0)
-five_pm = time(hour=17, minute=0, second=0)
-
-user_requirements = UserRequirements(nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm,nine_am,five_pm)
-user_preferences = UserPreferences(False, True, True, False, False, True, False, True, True, False, True, False, True, False, True, True, False, False, True, True, False, True, False, False, False, True, True, False)
-
-# ga = GeneticAlgorithm(tasks_to_be_allocated,user_requirements,user_preferences)
-# ga.create_first_generation()
-# data = ga.evolve()

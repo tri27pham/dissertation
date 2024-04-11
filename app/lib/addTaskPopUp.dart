@@ -36,7 +36,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
   int _selectedHours = 0;
   int _selectedMinutes = 0;
 
-  final _hasLocationController = ValueNotifier<bool>(true);
+  // final _hasLocationController = ValueNotifier<bool>(true);
 
   List<bool> isSelected = [true, false, false];
 
@@ -104,7 +104,8 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
               ));
       return false;
     }
-    if (_hasLocationController.value && _locationController.text.isEmpty) {
+    // if (_hasLocationController.value && _locationController.text.isEmpty) {
+    if (_locationController.text.isEmpty) {
       showCupertinoDialog<void>(
           context: context,
           builder: (BuildContext context) => CupertinoAlertDialog(
@@ -132,13 +133,13 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
       }
     }
     String locationName = "";
-    if (!_hasLocationController.value) {
-      longitude = "0";
-      latitude = "0";
-      locationName = "NO LOCATION";
-    } else {
-      locationName = _locationController.text;
-    }
+    // if (!_hasLocationController.value) {
+    //   longitude = "0";
+    //   latitude = "0";
+    //   locationName = "NO LOCATION";
+    // } else {
+    //   locationName = _locationController.text;
+    // }
 
     Task newTask = Task(
         getNewTaskID(),
@@ -716,48 +717,48 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                                 ),
                               ),
                               Spacer(),
-                              Text("LOCATION"),
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.01,
-                              ),
-                              AdvancedSwitch(
-                                controller: _hasLocationController,
-                                initialValue: _hasLocationController.value,
-                                activeColor: Color.fromARGB(255, 174, 228, 158),
-                                inactiveColor:
-                                    Color.fromARGB(255, 235, 124, 109),
-                                activeChild: Container(
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.05,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.05,
-                                  child: Image(
-                                    image: AssetImage(
-                                        'assets/images/home_icon.png'),
-                                  ),
-                                ),
-                                inactiveChild: Container(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.055,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.055,
-                                  child: Image(
-                                    image: AssetImage(
-                                        'assets/images/no_home_icon.png'),
-                                  ),
-                                ),
-                                borderRadius:
-                                    BorderRadius.all(const Radius.circular(15)),
-                                width: 55.0,
-                                height: 25.0,
-                                // enabled: true,
-                                disabledOpacity: 0.5,
-                                onChanged: (newValue) {
-                                  setState(() {
-                                    _hasLocationController.value = newValue;
-                                  });
-                                },
-                              ),
+                              // Text("LOCATION"),
+                              // SizedBox(
+                              //   width: MediaQuery.of(context).size.width * 0.01,
+                              // ),
+                              // AdvancedSwitch(
+                              //   controller: _hasLocationController,
+                              //   initialValue: _hasLocationController.value,
+                              //   activeColor: Color.fromARGB(255, 174, 228, 158),
+                              //   inactiveColor:
+                              //       Color.fromARGB(255, 235, 124, 109),
+                              //   activeChild: Container(
+                              //     height:
+                              //         MediaQuery.of(context).size.height * 0.05,
+                              //     width:
+                              //         MediaQuery.of(context).size.width * 0.05,
+                              //     child: Image(
+                              //       image: AssetImage(
+                              //           'assets/images/home_icon.png'),
+                              //     ),
+                              //   ),
+                              //   inactiveChild: Container(
+                              //     height: MediaQuery.of(context).size.height *
+                              //         0.055,
+                              //     width:
+                              //         MediaQuery.of(context).size.width * 0.055,
+                              //     child: Image(
+                              //       image: AssetImage(
+                              //           'assets/images/no_home_icon.png'),
+                              //     ),
+                              //   ),
+                              //   borderRadius:
+                              //       BorderRadius.all(const Radius.circular(15)),
+                              //   width: 55.0,
+                              //   height: 25.0,
+                              //   // enabled: true,
+                              //   disabledOpacity: 0.5,
+                              //   onChanged: (newValue) {
+                              //     setState(() {
+                              //       _hasLocationController.value = newValue;
+                              //     });
+                              //   },
+                              // ),
                             ],
                           ),
                         ),
@@ -924,11 +925,9 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                           offset: Offset(0, 4),
                           child: TextFormField(
                             controller: _locationController,
-                            enabled: _hasLocationController.value,
+                            // enabled: _hasLocationController.value,
                             decoration: InputDecoration(
-                              hintText: _hasLocationController.value
-                                  ? "enter location"
-                                  : "no location",
+                              hintText: "enter location",
                               hintStyle: TextStyle(
                                   color: Color.fromARGB(255, 207, 207, 207),
                                   fontWeight: FontWeight.w300),
@@ -938,14 +937,14 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
                         ),
                       ),
                     ),
-                    Expanded(
-                        flex: 15,
-                        child: _hasLocationController.value
-                            ? Icon(
-                                CupertinoIcons.location_fill,
-                                size: 20,
-                              )
-                            : Container()),
+                    // Expanded(
+                    //     flex: 15,
+                    //     child: _hasLocationController.value
+                    //         ? Icon(
+                    //             CupertinoIcons.location_fill,
+                    //             size: 20,
+                    //           )
+                    //         : Container()),
                   ],
                 ))),
       ));

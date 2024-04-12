@@ -169,7 +169,7 @@ class _AddTaskPopUpState extends State<AddTaskPopUp> {
   bool _viewPriorTasks = false;
 
   void makeSuggestion(String input) async {
-    String apiKey = 'AIzaSyBaLZBGSMsZppfhtF8lu0IGvJ7Wpfg5294';
+    String apiKey = 'API-KEY';
     String url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
     String request = '$url?input=$input&key=$apiKey&sessiontoken=$sessionToken';
 

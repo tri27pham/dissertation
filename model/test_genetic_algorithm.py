@@ -1,3 +1,10 @@
+"""
+This module contains the unit tests for the GeneticAlgorithm and TaskAllocator class.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+To run these tests, you need to be in directory:
+
+"""
+
 import unittest
 from geneticAlgorithm import GeneticAlgorithm
 from userRequirements import UserRequirements
@@ -6,16 +13,14 @@ from allocatedTask import AllocatedTask
 from task import Task
 from datetime import time, timedelta
 import time as timer
-import os
-import sys
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..','model')))
-
 
 class TestGeneticAlgorithm(unittest.TestCase):
 
     def setUp(self):
+        """      
+        Set up the test by creating the tasks, user requirements, user preferences and the genetic algorithm object.
+        """
        
-
         self.task1 = Task("1", "Attend Lecture on Quantum Physics", timedelta(hours=2), 3, (), "Lecture Hall", (51.503162, -0.086852), 0)
         self.task2 = Task("2", "Prepare Sales Report", timedelta(hours=3), 3, (), "Office", (51.513056, -0.117352), 1)
         self.task3 = Task("3", "Morning Jog", timedelta(hours=1), 3, (), "Local Park", (51.505, -0.1205), 2)
@@ -42,6 +47,7 @@ class TestGeneticAlgorithm(unittest.TestCase):
         
         self.ga = GeneticAlgorithm(tasks_to_be_allocated, self.user_requirements, self.user_preferences)
 
+        # Get the tasks as IDs and objects
         self.tasks_as_IDs = [taskID for taskID in self.ga.task_dict.keys()]
         self.task_as_objects = [self.ga.task_dict[taskID] for taskID in self.tasks_as_IDs]
 
@@ -64,7 +70,6 @@ class TestGeneticAlgorithm(unittest.TestCase):
 
     def test_genetic_algorithm_profficiency(self):
         """Test if the fitness function calculates a valid value."""
-
         allocated_tasks = self.ga.evolve()
         fitness = self.ga.get_fitness(allocated_tasks)
         self.assertTrue(fitness >= len(allocated_tasks)/2)
@@ -87,14 +92,14 @@ class TestGeneticAlgorithm(unittest.TestCase):
 
         self.ga.evolve()
 
-        # Calculate the elapsed time
         elapsed_time = time.time() - start_time
 
-        # Assert that the elapsed time is less than the maximum allowed time
         self.assertLessEqual(elapsed_time, max_execution_time)
 
     def test_tightly_constrained_tasks(self):
         """Test if the genetic algorithm returns a result provided tightly constrained tasks."""
+
+        # Define the tightly constrained tasks to be allocated
 
         task1 = Task("1", "Attend Lecture on Quantum Physics", timedelta(hours=2), 3, (), "Lecture Hall", (51.503162, -0.086852), 0)
         task2 = Task("2", "Prepare Sales Report", timedelta(hours=3), 3, ("1",), "Office", (51.513056, -0.117352), 1)
@@ -127,7 +132,6 @@ class TestGeneticAlgorithm(unittest.TestCase):
 
     def test_shuffle_order(self):
         """Test if the order of tasks is shuffled while maintaining topological order."""
-        # shuffle the order
         new_order = self.ga.shuffle_order(self.tasks_as_IDs)
         self.assertTrue(self.ga.is_topological(new_order))
 

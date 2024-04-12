@@ -1,17 +1,12 @@
-# from flask import Flask, request, jsonify
-# from model.geneticAlgorithm import GeneticAlgorithm
-# from model.task import Task
-# from model.userRequirements import UserRequirements
-# from model.userPreferences import UserPreferences
-# from model.allocatedTask import AllocatedTask
-# from datetime import datetime, timedelta, time
-# from model.hardTask import HardTask
+"""
+This module contains the Flask application that serves as the API for the genetic algorithm.
+"""
 
 from flask import Flask, request, jsonify
-from model.geneticAlgorithm import GeneticAlgorithm
-from model.task import Task
-from model.userRequirements import UserRequirements
-from model.userPreferences import UserPreferences
+from geneticAlgorithm import GeneticAlgorithm
+from task import Task
+from userRequirements import UserRequirements
+from userPreferences import UserPreferences
 from datetime import datetime, timedelta
 import json
 
@@ -19,11 +14,27 @@ app = Flask(__name__)
 
 @app.route('/data_endpoint', methods=['POST'])
 def receive_data():
+    """
+    Receive data from the frontend and return the processed data.
+
+    Parameters:
+    - request: HTTP request object - the data to be passed to the Genetic Algorithm
+
+    Returns:
+    - response: HTTP response object - list of allocated tasks
+    """
     data = request.json  
     processed_data = process_data(data)
     return jsonify(processed_data)
 
 def process_data(data):
+    """
+    Process the data received from the frontend and return the list of allocated tasks.
+    Parameters:
+    - data: dict - the data received from the frontend
+    Returns:
+    - response_data: str - the list of allocated tasks in JSON format
+    """
 
     tasks = data.get('tasks', [])
     times = data.get('times', {})
@@ -56,6 +67,13 @@ def process_data(data):
     return response_data
 
 def process_tasks(tasks):
+    """
+    Process the tasks received from the frontend and return a list of Task objects.
+    Parameters:
+    - tasks: list - the tasks received from the frontend
+    Returns:
+    - processed_tasks: list - the list of Task objects
+    """
     processed_tasks = []
 
     for task in tasks:
@@ -79,6 +97,13 @@ def process_tasks(tasks):
     return processed_tasks
     
 def process_times(times):
+    """
+    Process the times received from the frontend and return a UserRequirements object.
+    Parameters: 
+    - times: dict - the times received from the frontend
+    Returns:
+    - user_requirements: UserRequirements - the UserRequirements object
+    """
     times_data = json.loads(times)
 
     monday_start = parse_time_string(times_data["mondayStart"])
@@ -109,6 +134,13 @@ def process_times(times):
     return user_requirements
 
 def process_preferences(preferences):
+    """
+    Process the preferences received from the frontend and return a UserPreferences object.
+    Parameters:
+    - preferences: dict - the preferences received from the frontend
+    Returns:
+    - user_preferences: UserPreferences - the UserPreferences object
+    """
     preferences_data = json.loads(preferences)
 
     university_morning = preferences_data['university']['morning']
@@ -161,13 +193,14 @@ def process_preferences(preferences):
 def parse_time_string(time_str):
     """
     Parse a time string in the format "YYYY-MM-DDTHH:MM:SS.MMM" and return a time object.
+    Parameters:
+    - time_str: str - the time string to be parsed
+    Returns:
+    - time_obj: time - the time object
     """
-    # Extract time part from the datetime string
     time_part = time_str.split("T")[1]
-    
-    # Convert time string to time object
     time_obj = datetime.strptime(time_part, "%H:%M:%S.%f").time()
-    
+
     return time_obj
 
 if __name__ == '__main__':

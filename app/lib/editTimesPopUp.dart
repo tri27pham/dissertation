@@ -194,6 +194,42 @@ class _EditTimesState extends State<EditTimes> {
       return DateFormat('HH:mm').format(dateTime);
     }
 
+    void displayInvalidTimesDialog(BuildContext context) {
+      showCupertinoDialog<void>(
+          context: context,
+          builder: (BuildContext context) => CupertinoAlertDialog(
+                title: Text("INVALID TIMES"),
+                content: Text("Make sure all end times are after start times"),
+                actions: [
+                  CupertinoDialogAction(
+                      child: Text("OK"),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      })
+                ],
+              ));
+    }
+
+    bool checkTimesValid() {
+      if (mondayStart.isAfter(mondayEnd)) {
+        return false;
+      } else if (tuesdayStart.isAfter(tuesdayEnd)) {
+        return false;
+      } else if (wednesdayStart.isAfter(wednesdayEnd)) {
+        return false;
+      } else if (thursdayStart.isAfter(thursdayEnd)) {
+        return false;
+      } else if (fridayStart.isAfter(fridayEnd)) {
+        return false;
+      } else if (saturdayStart.isAfter(saturdayEnd)) {
+        return false;
+      } else if (sundayStart.isAfter(sundayEnd)) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+
     void setTimes() {
       Map<String, String> times = {
         'mondayStart': mondayStart.toIso8601String(),
@@ -213,7 +249,6 @@ class _EditTimesState extends State<EditTimes> {
       };
 
       String jsonTimes = jsonEncode(times);
-      print(times);
 
       dataModel.updateTimes(jsonTimes);
     }
@@ -1598,9 +1633,13 @@ class _EditTimesState extends State<EditTimes> {
                 width: MediaQuery.of(context).size.width * 0.5,
                 child: ElevatedButton(
                   onPressed: () {
-                    setTimes();
-                    _saveTimes();
-                    Navigator.of(context).pop();
+                    if (checkTimesValid() == true) {
+                      setTimes();
+                      _saveTimes();
+                      Navigator.of(context).pop();
+                    } else {
+                      displayInvalidTimesDialog(context);
+                    }
                   },
                   style: ButtonStyle(
                     shape: MaterialStateProperty.all<OutlinedBorder>(

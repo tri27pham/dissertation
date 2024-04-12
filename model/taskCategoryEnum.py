@@ -1,3 +1,8 @@
+"""
+This file contains the TaskCategory Enum class. This class	
+is used to represent the categories of tasks that can be allocated.
+"""	
+
 from enum import Enum
 
 class TaskCategory(Enum):

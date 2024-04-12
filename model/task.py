@@ -1,26 +1,31 @@
-# Task Class
-# contains the information regarding each task to be allocated
-
-
-from model.taskCategoryEnum import TaskCategory
+"""
+This file contains the class definition for the Task object. 
+This object is used to represent a task that needs to be allocated.
+"""
+from taskCategoryEnum import TaskCategory
 
 class Task:
 
     def __init__(self,taskID,name,duration,priority,prior_tasks,location_name,location_coords,category):
-        # identifier unique to task - type: Int
+        """
+        Constructor for the Task object.
+        Parameters:
+        taskID: int - the unique ID of the task
+        name: str - the name of the task
+        duration: timedelta - the duration of the task
+        priority: int - the priority of the task
+        prior_tasks: list - the list of tasks that this task is dependent on
+        location_name: str - the name of the location of the task
+        location_coords: tuple - the coordinates of the location of the task
+        category: int - the category of the task
+        """
         self.taskID = taskID 
-        # task name
         self.name = name
-        # duration in hours - type: timedelta 
         self.duration = duration 
-        # priority level - type: Enum [ LOW, MEDIUM, HIGH ]
         self.priority = priority
-        # tasks that must be completed first - type: set of Task
         self.prior_tasks = prior_tasks 
-        # <lat,long> of location of task - default = None
         self.location_name = location_name
-        self.location_coords = location_coords     
-        # category of task   
+        self.location_coords = location_coords      
         match category:
             case 0:
                 self.category = TaskCategory.UNIVERSITY

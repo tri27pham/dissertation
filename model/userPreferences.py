@@ -1,4 +1,4 @@
-from model.taskCategoryEnum import TaskCategory
+from taskCategoryEnum import TaskCategory
 from datetime import datetime
 
 class UserPreferences:
